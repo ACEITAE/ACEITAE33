@@ -12,7 +12,7 @@
             min-height: 100vh;
             padding: 40px 20px;
         }
-        .container { max-width: 600px; margin: 0 auto; }
+        .container { max-width: 700px; margin: 0 auto; }
         .card {
             background: white;
             border-radius: 20px;
@@ -46,6 +46,7 @@
             margin-top: 10px;
         }
         button:hover { background: #00A844; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
         .back-link {
             display: block;
             text-align: center;
@@ -72,6 +73,22 @@
             font-size: 14px;
         }
         .categoria-btn.active { background: #00C853; color: white; }
+
+        /* Estilos para upload de fotos */
+        .foto-area {
+            border: 2px dashed #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .foto-area:hover { border-color: #00C853; }
+        .foto-area i { font-size: 48px; color: #999; margin-bottom: 10px; }
+        .foto-area p { color: #999; font-size: 14px; }
+        .preview-fotos { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+        .preview-img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #e0e0e0; }
+        .upload-status { font-size: 12px; margin-top: 8px; color: #666; }
     </style>
 </head>
 <body>
@@ -109,12 +126,25 @@
                 <small style="color:#999;">Você receberá este valor. Anunciaremos com +10%.</small>
             </div>
 
+            <!-- CAMPO DE UPLOAD DE FOTOS -->
+            <div class="form-group">
+                <label>Fotos do produto *</label>
+                <div class="foto-area" id="fotoArea">
+                    <i class="fas fa-camera"></i>
+                    <p>Clique para adicionar fotos</p>
+                    <input type="file" id="fotosInput" multiple accept="image/*" style="display: none;">
+                </div>
+                <div id="previewFotos" class="preview-fotos"></div>
+                <div id="uploadStatus" class="upload-status"></div>
+                <small>Adicione pelo menos uma foto do produto</small>
+            </div>
+
             <div class="form-group">
                 <label>Link do vídeo (opcional)</label>
                 <input type="url" id="video" placeholder="YouTube, Google Drive, etc.">
             </div>
 
-            <button type="submit">Anunciar Grátis</button>
+            <button type="submit" id="btnSubmit">Anunciar Grátis</button>
         </form>
 
         <a href="vendedor.html" class="back-link">← Voltar para meu painel</a>
@@ -122,11 +152,10 @@
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></script>
 <script>
     const API_URL = 'https://aceitae33-api.onrender.com';
-    const token = localStorage.getItem('access_token');
     const usuarioId = localStorage.getItem('usuario_id');
-    const usuarioNome = localStorage.getItem('usuario_nome');
     const usuarioTipo = localStorage.getItem('usuario_tipo');
 
     if (!usuarioId || usuarioTipo !== 'vendedor') {
@@ -134,7 +163,9 @@
         window.location.href = 'login.html';
     }
 
-    // Categorias
+    // ==================================================
+    // CATEGORIAS
+    // ==================================================
     let categoriaSelecionada = '';
     document.querySelectorAll('.categoria-btn').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -145,6 +176,79 @@
         });
     });
 
+    // ==================================================
+    // UPLOAD DE FOTOS
+    // ==================================================
+    const fotoArea = document.getElementById('fotoArea');
+    const fotosInput = document.getElementById('fotosInput');
+    const previewFotos = document.getElementById('previewFotos');
+    const uploadStatus = document.getElementById('uploadStatus');
+    let fotosUrls = [];
+
+    fotoArea.addEventListener('click', () => fotosInput.click());
+
+    async function fazerUploadFoto(file) {
+        const formData = new FormData();
+        formData.append('arquivo', file);
+
+        try {
+            const response = await fetch(`${API_URL}/upload-foto`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            if (response.ok) {
+                return data.url;
+            } else {
+                throw new Error(data.detail || 'Erro no upload');
+            }
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
+    fotosInput.addEventListener('change', async (e) => {
+        const files = Array.from(e.target.files);
+        const btnSubmit = document.getElementById('btnSubmit');
+
+        if (files.length === 0) return;
+
+        btnSubmit.disabled = true;
+        uploadStatus.innerHTML = '⏳ Enviando fotos... Aguarde';
+        uploadStatus.style.color = '#f57f17';
+
+        for (const file of files) {
+            try {
+                const url = await fazerUploadFoto(file);
+                fotosUrls.push(url);
+                atualizarPreview();
+                uploadStatus.innerHTML = `✅ ${fotosUrls.length} foto(s) enviada(s)`;
+                uploadStatus.style.color = '#2e7d32';
+            } catch (error) {
+                uploadStatus.innerHTML = `❌ Erro: ${error.message}`;
+                uploadStatus.style.color = '#c62828';
+            }
+        }
+
+        btnSubmit.disabled = false;
+        if (fotosUrls.length === 0) {
+            uploadStatus.innerHTML = '❌ Nenhuma foto foi enviada. Tente novamente.';
+        }
+    });
+
+    function atualizarPreview() {
+        previewFotos.innerHTML = '';
+        fotosUrls.forEach(url => {
+            const img = document.createElement('img');
+            img.src = url;
+            img.className = 'preview-img';
+            previewFotos.appendChild(img);
+        });
+    }
+
+    // ==================================================
+    // ENVIO DO FORMULÁRIO
+    // ==================================================
     document.getElementById('anunciarForm').addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -159,17 +263,25 @@
             return;
         }
 
+        if (fotosUrls.length === 0) {
+            alert('Adicione pelo menos uma foto do produto!');
+            return;
+        }
+
+        const msgDiv = document.getElementById('mensagem');
+        const btnSubmit = document.getElementById('btnSubmit');
+
         const dados = {
             nome, descricao, categoria,
             valor_pretendido: valorPretendido,
-            fotos: [],
+            fotos: fotosUrls,
             video: video || null
         };
 
-        const msgDiv = document.getElementById('mensagem');
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = 'Enviando...';
 
         try {
-            console.log('Vendedor ID:', usuarioId);
             const response = await fetch(`${API_URL}/produtos?vendedor_id=${usuarioId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -185,10 +297,15 @@
             } else {
                 msgDiv.className = 'mensagem erro';
                 msgDiv.innerHTML = `❌ ${data.detail || 'Erro ao anunciar'}`;
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = 'Anunciar Grátis';
             }
         } catch (error) {
+            console.error('Erro:', error);
             msgDiv.className = 'mensagem erro';
             msgDiv.innerHTML = '❌ Erro de conexão';
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = 'Anunciar Grátis';
         }
     });
 </script>
