@@ -188,24 +188,28 @@
     fotoArea.addEventListener('click', () => fotosInput.click());
 
     async function fazerUploadFoto(file) {
-        const formData = new FormData();
-        formData.append('arquivo', file);
+    const token = localStorage.getItem('access_token');
+    const formData = new FormData();
+    formData.append('arquivo', file);
 
-        try {
-            const response = await fetch(`${API_URL}/upload-foto`, {
-                method: 'POST',
-                body: formData
-            });
-            const data = await response.json();
-            if (response.ok) {
-                return data.url;
-            } else {
-                throw new Error(data.detail || 'Erro no upload');
-            }
-        } catch (error) {
-            throw new Error(error.message);
+    try {
+        const response = await fetch(`${API_URL}/upload-foto`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+        const data = await response.json();
+        if (response.ok) {
+            return data.url;
+        } else {
+            throw new Error(data.detail || 'Erro no upload');
         }
+    } catch (error) {
+        throw new Error(error.message);
     }
+}
 
     fotosInput.addEventListener('change', async (e) => {
         const files = Array.from(e.target.files);
