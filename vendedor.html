@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>ACEITAÊ - Painel do Vendedor</title>
+    <style>
+        body { font-family: Arial; background: #f0f0f0; margin: 0; padding: 20px; }
+        .header { background: #1A237E; color: white; padding: 15px; display: flex; justify-content: space-between; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        button { background: #00C853; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+        button:hover { background: #00A844; }
+        .logout { background: #c62828; }
+        .logout:hover { background: #b71c1c; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h2>ACEITAÊ - Painel do Vendedor</h2>
+    <div>
+        <span id="userNome"></span>
+        <button class="logout" onclick="logout()">Sair</button>
+    </div>
+</div>
+<div class="container">
+    <div class="card">
+        <h3>Seus Produtos</h3>
+        <div id="produtos"></div>
+        <button onclick="location.href='anunciar.html'">+ Novo Anúncio</button>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'https://aceitae33-api.onrender.com';
+    const usuarioId = localStorage.getItem('usuario_id');
+    const usuarioNome = localStorage.getItem('usuario_nome');
+
+    if (!usuarioId) window.location.href = 'login.html';
+
+    document.getElementById('userNome').innerText = `Olá, ${usuarioNome || 'Vendedor'}`;
+
+    async function carregarProdutos() {
+        const response = await fetch(`${API_URL}/produtos?vendedor_id=${usuarioId}`);
+        const data = await response.json();
+        const container = document.getElementById('produtos');
+        if (!data.produtos || data.produtos.length === 0) {
+            container.innerHTML = '<p>Nenhum produto anunciado ainda.</p>';
+            return;
+        }
+        container.innerHTML = data.produtos.map(p => `
+            <div style="border:1px solid #ddd; padding:10px; margin:10px 0; border-radius:8px;">
+                <strong>${p.nome}</strong><br>
+                Status: ${p.status}<br>
+                Valor pretendido: R$ ${p.valor_pretendido}
+            </div>
+        `).join('');
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = 'login.html';
+    }
+
+    carregarProdutos();
+</script>
+</body>
+</html>
