@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACEITAÊ - Anunciar Produto</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1A237E 0%, #283593 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 600px; margin: 0 auto; }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        h1 { text-align: center; color: #1A237E; margin-bottom: 10px; }
+        h1 span { color: #00C853; }
+        .sub { text-align: center; color: #666; margin-bottom: 30px; font-size: 14px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #00C853; }
+        textarea { resize: vertical; min-height: 100px; }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #00C853;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover { background: #00A844; }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            text-decoration: none;
+        }
+        .back-link:hover { color: #00C853; }
+        .mensagem {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+            text-align: center;
+        }
+        .mensagem.sucesso { background: #e8f5e9; color: #2e7d32; display: block; }
+        .mensagem.erro { background: #ffebee; color: #c62828; display: block; }
+        .categoria-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        .categoria-btn {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .categoria-btn.active { background: #00C853; color: white; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h1>ACEIT<span>AÊ</span></h1>
+        <div class="sub">Anuncie seu produto <strong>gratuitamente</strong><br>Só paga 10% de comissão quando vender!</div>
+
+        <form id="anunciarForm">
+            <div class="form-group">
+                <label>Nome do produto *</label>
+                <input type="text" id="nome" placeholder="Ex: iPhone 13 128GB Azul" required>
+            </div>
+
+            <div class="form-group">
+                <label>Descrição *</label>
+                <textarea id="descricao" placeholder="Descreva o produto, estado de conservação, avarias..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Categoria *</label>
+                <div class="categoria-group" id="categoriaGroup">
+                    <div class="categoria-btn" data-cat="Eletrônicos">📱 Eletrônicos</div>
+                    <div class="categoria-btn" data-cat="Moda">👕 Moda</div>
+                    <div class="categoria-btn" data-cat="Casa">🏠 Casa</div>
+                    <div class="categoria-btn" data-cat="Esporte">⚽ Esporte</div>
+                    <div class="categoria-btn" data-cat="Outros">📦 Outros</div>
+                </div>
+                <input type="hidden" id="categoria" required>
+            </div>
+
+            <div class="form-group">
+                <label>Valor pretendido *</label>
+                <input type="number" id="valorPretendido" placeholder="R$ 0,00" step="0.01" required>
+                <small style="color:#999;">Você receberá este valor. Anunciaremos com +10%.</small>
+            </div>
+
+            <div class="form-group">
+                <label>Link do vídeo (opcional)</label>
+                <input type="url" id="video" placeholder="YouTube, Google Drive, etc.">
+            </div>
+
+            <button type="submit">Anunciar Grátis</button>
+        </form>
+
+        <a href="vendedor.html" class="back-link">← Voltar para meu painel</a>
+        <div id="mensagem" class="mensagem"></div>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'https://aceitae33-api.onrender.com';
+    const token = localStorage.getItem('access_token');
+    const usuarioId = localStorage.getItem('usuario_id');
+    const usuarioNome = localStorage.getItem('usuario_nome');
+    const usuarioTipo = localStorage.getItem('usuario_tipo');
+
+    if (!usuarioId || usuarioTipo !== 'vendedor') {
+        alert('Área exclusiva para vendedores! Faça login como vendedor.');
+        window.location.href = 'login.html';
+    }
+
+    // Categorias
+    let categoriaSelecionada = '';
+    document.querySelectorAll('.categoria-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.categoria-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            categoriaSelecionada = this.getAttribute('data-cat');
+            document.getElementById('categoria').value = categoriaSelecionada;
+        });
+    });
+
+    document.getElementById('anunciarForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const nome = document.getElementById('nome').value;
+        const descricao = document.getElementById('descricao').value;
+        const categoria = document.getElementById('categoria').value;
+        const valorPretendido = parseFloat(document.getElementById('valorPretendido').value);
+        const video = document.getElementById('video').value;
+
+        if (!nome || !descricao || !categoria || !valorPretendido) {
+            alert('Preencha todos os campos obrigatórios!');
+            return;
+        }
+
+        const dados = {
+            nome, descricao, categoria,
+            valor_pretendido: valorPretendido,
+            fotos: [],
+            video: video || null
+        };
+
+        const msgDiv = document.getElementById('mensagem');
+
+        try {
+            const response = await fetch(`${API_URL}/produtos?vendedor_id=${usuarioId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                msgDiv.className = 'mensagem sucesso';
+                msgDiv.innerHTML = '✅ Produto cadastrado! Aguardando vistoria.';
+                setTimeout(() => window.location.href = 'vendedor.html', 2000);
+            } else {
+                msgDiv.className = 'mensagem erro';
+                msgDiv.innerHTML = `❌ ${data.detail || 'Erro ao anunciar'}`;
+            }
+        } catch (error) {
+            msgDiv.className = 'mensagem erro';
+            msgDiv.innerHTML = '❌ Erro de conexão';
+        }
+    });
+</script>
+</body>
+</html>
