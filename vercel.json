@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://aceitae33-api.onrender.com/$1"
+    }
+  ]
+}
