@@ -1,16 +1,85 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-    <title>ACEITAÊ</title>
+    <meta charset="UTF-8">
+    <title>ACEITAÊ - Comprar</title>
     <style>
-        body { font-family: Arial; text-align: center; padding: 50px; }
-        button { padding: 10px 20px; margin: 10px; cursor: pointer; }
+        body { font-family: Arial; background: #f0f0f0; margin: 0; padding: 20px; }
+        .header { background: #1A237E; color: white; padding: 15px; display: flex; justify-content: space-between; }
+        .produtos { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 20px; }
+        .card { background: white; padding: 15px; border-radius: 10px; }
+        button { background: #00C853; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+        .btn-entrar { background: transparent; border: 1px solid white; }
     </style>
 </head>
 <body>
-    <h1>ACEITAÊ</h1>
-    <p>Você oferta, o vendedor decide, a gente garante.</p>
-    <button onclick="location.href='login.html'">Entrar</button>
-    <button onclick="location.href='cadastro.html'">Cadastrar</button>
+<div class="header">
+    <h2>ACEITAÊ</h2>
+    <div>
+        <span id="userInfo"></span>
+        <button id="btnEntrar" class="btn-entrar" onclick="location.href='login.html'">Entrar</button>
+        <button id="btnSair" style="display:none;" onclick="logout()">Sair</button>
+    </div>
+</div>
+<div class="container">
+    <h3>Produtos disponíveis</h3>
+    <div id="produtos" class="produtos"></div>
+</div>
+
+<script>
+    const API_URL = 'https://aceitae33-api.onrender.com';
+    const token = localStorage.getItem('access_token');
+    const usuarioNome = localStorage.getItem('usuario_nome');
+    const usuarioId = localStorage.getItem('usuario_id');
+
+    if (usuarioNome) {
+        document.getElementById('userInfo').innerHTML = `Olá, ${usuarioNome}`;
+        document.getElementById('btnEntrar').style.display = 'none';
+        document.getElementById('btnSair').style.display = 'inline-block';
+    }
+
+    async function carregarProdutos() {
+        const response = await fetch(`${API_URL}/produtos?status=aprovado`);
+        const data = await response.json();
+        const container = document.getElementById('produtos');
+        if (!data.produtos || data.produtos.length === 0) {
+            container.innerHTML = '<p>Nenhum produto disponível.</p>';
+            return;
+        }
+        container.innerHTML = data.produtos.map(p => `
+            <div class="card">
+                <h3>${p.nome}</h3>
+                <p>${p.descricao?.substring(0, 80)}...</p>
+                <p><strong>R$ ${p.valor_exposicao}</strong></p>
+                <button onclick="fazerOferta(${p.id})">Fazer Oferta</button>
+            </div>
+        `).join('');
+    }
+
+    async function fazerOferta(produtoId) {
+        if (!usuarioId) {
+            alert('Faça login para fazer uma oferta!');
+            window.location.href = 'login.html';
+            return;
+        }
+        const valor = prompt('Digite o valor da sua oferta (R$):');
+        if (!valor) return;
+
+        const response = await fetch(`${API_URL}/ofertas`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ produto_id: produtoId, valor: parseFloat(valor) })
+        });
+        const data = await response.json();
+        alert(data.mensagem || data.detail);
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = 'index.html';
+    }
+
+    carregarProdutos();
+</script>
 </body>
 </html>
