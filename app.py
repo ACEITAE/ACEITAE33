@@ -1,10 +1,4 @@
-from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import Optional
-from supabase_config import supabase
-
-app = FastAPI(title="ACEITAÊ API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -14,6 +8,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Força cabeçalhos CORS manualmente
+@app.middleware("http")
+async def add_cors_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    response.headers["Access-Control-Allow-Methods"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    return response
 # ==================================================
 # MODELOS
 # ==================================================
