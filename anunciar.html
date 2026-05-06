@@ -169,6 +169,7 @@
         const msgDiv = document.getElementById('mensagem');
 
         try {
+            console.log('Vendedor ID:', usuarioId);
             const response = await fetch(`${API_URL}/produtos?vendedor_id=${usuarioId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
