@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from typing import Optional
 from supabase_config import supabase
 import uuid
+import hashlib
+import time
 from datetime import datetime
 
 app = FastAPI(title="ACEITAÊ API")
@@ -47,6 +49,14 @@ class Oferta(BaseModel):
     valor: float
 
 # ==================================================
+# FUNÇÃO PARA GERAR TOKEN SIMPLES
+# ==================================================
+
+def gerar_token(user_id: int, email: str):
+    token_data = f"{user_id}:{email}:{time.time()}"
+    return hashlib.sha256(token_data.encode()).hexdigest()
+
+# ==================================================
 # ROTAS DE USUÁRIO
 # ==================================================
 
@@ -64,7 +74,12 @@ def login(credenciais: LoginData):
     if not result.data:
         raise HTTPException(401, "E-mail ou senha inválidos")
     user = result.data[0]
+    
+    # Gerar token
+    access_token = gerar_token(user["id"], user["email"])
+    
     return {
+        "access_token": access_token,
         "usuario_id": user["id"],
         "nome": user["nome"],
         "tipo": user["tipo"]
@@ -76,7 +91,6 @@ def login(credenciais: LoginData):
 
 @app.post("/produtos")
 def criar_produto(produto: Produto, vendedor_id: int):
-    # Verifica se vendedor existe
     vendedor = supabase.table("usuarios").select("*").eq("id", vendedor_id).eq("tipo", "vendedor").execute()
     if not vendedor.data:
         raise HTTPException(404, "Vendedor não encontrado")
@@ -103,12 +117,10 @@ def criar_produto(produto: Produto, vendedor_id: int):
 @app.get("/produtos")
 def listar_produtos(status: Optional[str] = None, vendedor_id: Optional[int] = None):
     query = supabase.table("produtos").select("*")
-    
     if status:
         query = query.eq("status", status)
     if vendedor_id:
         query = query.eq("vendedor_id", vendedor_id)
-    
     result = query.execute()
     return {"produtos": result.data}
 
@@ -125,7 +137,6 @@ def aprovar_produto(produto_id: int):
 
 @app.post("/ofertas")
 def fazer_oferta(oferta: Oferta, comprador_id: int):
-    # Buscar produto
     produto = supabase.table("produtos").select("*").eq("id", oferta.produto_id).execute()
     if not produto.data:
         raise HTTPException(404, "Produto não encontrado")
@@ -135,11 +146,10 @@ def fazer_oferta(oferta: Oferta, comprador_id: int):
     if produto["status"] != "aprovado":
         raise HTTPException(400, "Produto não está disponível para ofertas")
     
-    valor_pretendido = produto["valor_pretendido"]
     comprador = supabase.table("usuarios").select("*").eq("id", comprador_id).execute()
     comprador_nome = comprador.data[0]["nome"] if comprador.data else "Anônimo"
     
-    if oferta.valor >= valor_pretendido:
+    if oferta.valor >= produto["valor_pretendido"]:
         status_oferta = "venda_automatica"
         supabase.table("produtos").update({"status": "vendido"}).eq("id", oferta.produto_id).execute()
         mensagem = f"✅ Venda automática! Produto vendido por R$ {oferta.valor:.2f}"
@@ -153,8 +163,8 @@ def fazer_oferta(oferta: Oferta, comprador_id: int):
         "comprador_nome": comprador_nome,
         "valor": oferta.valor,
         "status": status_oferta,
-        "condicional": oferta.valor < valor_pretendido,
-        "valor_pretendido": valor_pretendido,
+        "condicional": oferta.valor < produto["valor_pretendido"],
+        "valor_pretendido": produto["valor_pretendido"],
         "criado_em": datetime.now().isoformat()
     }
     
