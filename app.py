@@ -228,21 +228,42 @@ def listar_ofertas_vendedor(vendedor_id: int):
 @app.post("/upload-foto")
 async def upload_foto(arquivo: UploadFile = File(...)):
     try:
+        # Aceita qualquer tipo de imagem
+        if not arquivo.content_type.startswith("image/"):
+            raise HTTPException(400, "Formato inválido. Envie uma imagem.")
+        
         conteudo = await arquivo.read()
-        extensao = arquivo.filename.split(".")[-1]
+        
+        # Limite de 10MB
+        if len(conteudo) > 10 * 1024 * 1024:
+            raise HTTPException(400, "Arquivo muito grande (máx 10MB)")
+        
+        # Pega extensão correta
+        extensao = arquivo.filename.split(".")[-1].lower()
+        if extensao not in ["jpg", "jpeg", "png", "gif", "webp"]:
+            extensao = "jpg"
+        
         nome_arquivo = f"{uuid.uuid4()}.{extensao}"
         
+        # Upload para o Supabase
         supabase.storage.from_("produtos").upload(
             nome_arquivo,
             conteudo,
             file_options={"content-type": arquivo.content_type}
         )
         
+        # Gera URL pública
         url = supabase.storage.from_("produtos").get_public_url(nome_arquivo)
-        return {"url": url, "mensagem": "Upload realizado!"}
+        
+        # Garante que a URL está completa
+        if not url.startswith("https://"):
+            url = f"https://{url}"
+        
+        return {"url": url, "mensagem": "Upload realizado com sucesso!"}
+        
     except Exception as e:
+        print(f"Erro no upload: {str(e)}")
         raise HTTPException(400, detail=str(e))
-
 # ==================================================
 # ROTAS BÁSICAS
 # ==================================================
