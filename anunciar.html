@@ -187,7 +187,7 @@
 
     fotoArea.addEventListener('click', () => fotosInput.click());
 
-    async function fazerUploadFoto(file) {
+ async function fazerUploadFoto(file) {
     const token = localStorage.getItem('access_token');
     const formData = new FormData();
     formData.append('arquivo', file);
@@ -200,13 +200,18 @@
             },
             body: formData
         });
+        
         const data = await response.json();
+        
         if (response.ok) {
+            console.log('Upload OK, URL:', data.url);
             return data.url;
         } else {
+            console.error('Erro do servidor:', data);
             throw new Error(data.detail || 'Erro no upload');
         }
     } catch (error) {
+        console.error('Erro de conexão:', error);
         throw new Error(error.message);
     }
 }
