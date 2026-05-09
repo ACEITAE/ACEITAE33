@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, initial-scale=1.0">
     <title>ACEITAÊ - Ofertas que você decide</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -14,20 +14,21 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f5;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
             color: #333;
+            min-height: 100vh;
         }
 
         /* Top bar */
         .top-bar {
             background: #1A237E;
             color: white;
-            padding: 8px 24px;
-            font-size: 12px;
+            padding: 8px 16px;
+            font-size: 11px;
             display: flex;
             justify-content: flex-end;
             align-items: center;
-            gap: 20px;
+            gap: 12px;
             flex-wrap: wrap;
         }
 
@@ -47,8 +48,8 @@
         /* Main header */
         .main-header {
             background: white;
-            padding: 12px 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 12px 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -61,22 +62,22 @@
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 16px;
+            gap: 12px;
         }
 
         .logo-area {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .logo-img {
-            height: 40px;
+            height: 36px;
             width: auto;
         }
 
         .logo-text {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             color: #1A237E;
         }
@@ -87,163 +88,135 @@
 
         .search-box {
             flex: 1;
-            max-width: 500px;
+            max-width: 400px;
             display: flex;
             background: #f0f0f0;
-            border-radius: 8px;
+            border-radius: 20px;
             overflow: hidden;
         }
 
         .search-box input {
             flex: 1;
-            padding: 10px 16px;
+            padding: 8px 16px;
             border: none;
             background: transparent;
-            font-size: 14px;
+            font-size: 13px;
             outline: none;
         }
 
         .search-box button {
             background: #00C853;
             border: none;
-            padding: 0 20px;
+            padding: 0 16px;
             color: white;
             cursor: pointer;
         }
 
         .user-actions {
             display: flex;
-            gap: 20px;
+            gap: 12px;
             align-items: center;
         }
 
         .user-actions a {
             color: #666;
             text-decoration: none;
-            font-size: 14px;
-        }
-
-        .user-actions a:hover {
-            color: #00C853;
-        }
-
-        .btn-anunciar {
-            background: #00C853;
-            color: white !important;
-            padding: 6px 16px;
-            border-radius: 20px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logout-btn {
-            background: #c62828;
-            padding: 4px 12px;
-            border-radius: 20px;
-            color: white;
-            cursor: pointer;
-            font-size: 12px;
+            font-size: 16px;
         }
 
         /* Categorias */
         .categories {
             background: white;
-            padding: 12px 24px;
+            padding: 10px 16px;
             border-bottom: 1px solid #e0e0e0;
+            overflow-x: auto;
+            white-space: nowrap;
         }
 
         .categories-container {
             max-width: 1280px;
             margin: 0 auto;
             display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 16px;
+            gap: 20px;
         }
 
         .category-item {
-            display: flex;
+            display: inline-flex;
             flex-direction: column;
             align-items: center;
             text-decoration: none;
             color: #666;
-            font-size: 12px;
-            gap: 5px;
+            font-size: 11px;
+            gap: 4px;
             transition: color 0.3s;
         }
 
         .category-item i {
-            font-size: 24px;
+            font-size: 20px;
         }
 
         .category-item:hover {
             color: #00C853;
         }
 
-        /* Banner promocional */
+        /* Banner */
         .banner {
-            background: linear-gradient(135deg, #1A237E 0%, #283593 100%);
-            margin: 16px 24px;
+            background: linear-gradient(135deg, #1A237E 0%, #00C853 100%);
+            margin: 16px;
             border-radius: 16px;
-            padding: 24px;
+            padding: 20px;
             color: white;
             text-align: center;
         }
 
         .banner h2 {
-            font-size: 24px;
-            margin-bottom: 8px;
+            font-size: 18px;
+            margin-bottom: 4px;
         }
 
         .banner p {
+            font-size: 12px;
             opacity: 0.9;
         }
 
-        /* Container principal */
+        /* Container */
         .container {
             max-width: 1280px;
             margin: 0 auto;
-            padding: 0 24px;
+            padding: 0 16px;
         }
 
-        /* Seção de ofertas */
         .section-title {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin: 24px 0 16px;
+            margin: 20px 0 12px;
         }
 
         .section-title h2 {
-            font-size: 18px;
+            font-size: 16px;
             color: #333;
         }
 
-        .section-title a {
-            color: #00C853;
-            text-decoration: none;
-            font-size: 13px;
-        }
-
-        /* Timer das ofertas */
-        .timer {
-            background: #FFC107;
-            color: #1A237E;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        /* Grid de produtos */
+        /* Grid de produtos - RESPONSIVO */
         .produtos-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+        }
+
+        /* Responsivo: mobile 2 colunas, desktop 5-6 */
+        @media (min-width: 480px) {
+            .produtos-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+        }
+
+        @media (min-width: 768px) {
+            .produtos-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 16px;
+            }
         }
 
         /* Card do produto */
@@ -252,16 +225,16 @@
             border-radius: 12px;
             overflow: hidden;
             transition: box-shadow 0.2s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            cursor: pointer;
         }
 
         .produto-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
         }
 
         .produto-imagem {
-            height: 180px;
+            height: 150px;
             background: #f9f9f9;
             display: flex;
             align-items: center;
@@ -277,29 +250,29 @@
         }
 
         .produto-imagem i {
-            font-size: 48px;
+            font-size: 40px;
             color: #ccc;
         }
 
         .popular-badge {
             position: absolute;
-            top: 8px;
-            left: 8px;
+            top: 6px;
+            left: 6px;
             background: #FFC107;
             color: #1A237E;
             padding: 2px 8px;
             border-radius: 12px;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
         }
 
         .produto-info {
-            padding: 12px;
+            padding: 10px;
         }
 
         .produto-info h3 {
-            font-size: 14px;
-            font-weight: 500;
+            font-size: 13px;
+            font-weight: 600;
             margin-bottom: 4px;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -307,14 +280,14 @@
         }
 
         .preco {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             color: #1A237E;
-            margin: 8px 0 4px;
+            margin: 6px 0 2px;
         }
 
         .parcelamento {
-            font-size: 11px;
+            font-size: 10px;
             color: #00C853;
             margin-bottom: 8px;
         }
@@ -322,7 +295,6 @@
         .oferta-area {
             display: flex;
             gap: 6px;
-            margin-top: 8px;
         }
 
         .oferta-area input {
@@ -330,7 +302,7 @@
             padding: 6px;
             border: 1px solid #ddd;
             border-radius: 6px;
-            font-size: 11px;
+            font-size: 10px;
             outline: none;
         }
 
@@ -340,9 +312,10 @@
             border: none;
             padding: 6px 10px;
             border-radius: 6px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
             cursor: pointer;
+            white-space: nowrap;
         }
 
         .btn-ofertar:hover {
@@ -350,21 +323,11 @@
         }
 
         .mensagem {
-            margin-top: 8px;
+            margin-top: 6px;
             padding: 4px;
             border-radius: 4px;
-            font-size: 10px;
+            font-size: 9px;
             display: none;
-        }
-
-        .mensagem.sucesso {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .mensagem.erro {
-            background: #ffebee;
-            color: #c62828;
         }
 
         .loading {
@@ -378,7 +341,7 @@
             background: #1A237E;
             color: white;
             margin-top: 40px;
-            padding: 32px 24px;
+            padding: 32px 16px 20px;
         }
 
         .footer-content {
@@ -391,26 +354,30 @@
         }
 
         .footer-section h4 {
-            margin-bottom: 12px;
-            font-size: 14px;
+            margin-bottom: 10px;
+            font-size: 13px;
         }
 
         .footer-section p {
-            font-size: 12px;
+            font-size: 11px;
             opacity: 0.8;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .copyright {
             text-align: center;
-            padding-top: 24px;
-            margin-top: 24px;
+            padding-top: 20px;
+            margin-top: 20px;
             border-top: 1px solid rgba(255,255,255,0.1);
-            font-size: 11px;
+            font-size: 10px;
             opacity: 0.6;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 480px) {
+            .top-bar {
+                justify-content: center;
+                gap: 8px;
+            }
             .header-container {
                 flex-direction: column;
             }
@@ -419,14 +386,14 @@
                 width: 100%;
             }
             .categories-container {
-                justify-content: center;
-            }
-            .produtos-grid {
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
                 gap: 12px;
             }
-            .produto-imagem {
-                height: 140px;
+            .banner {
+                margin: 12px;
+                padding: 16px;
+            }
+            .banner h2 {
+                font-size: 14px;
             }
         }
     </style>
@@ -547,7 +514,6 @@
         let categoriaAtual = 'todos';
         let termoBusca = '';
 
-        // Atualizar top bar com usuário logado
         if (usuarioNome) {
             const topBar = document.querySelector('.top-bar');
             const loginBtn = topBar.querySelector('a[href="login.html"]');
@@ -702,7 +668,6 @@
             msgDiv.innerHTML = '⏳ Enviando...';
             
             try {
-                const token = localStorage.getItem('access_token');
                 const response = await fetch(`${API_URL}/ofertas?comprador_id=${usuarioId}&comprador_nome=${usuarioNome || 'Usuario'}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -731,7 +696,7 @@
             elemento.style.display = 'block';
             setTimeout(() => {
                 elemento.style.display = 'none';
-            }, 5000);
+            }, 4000);
         }
 
         carregarProdutos();
