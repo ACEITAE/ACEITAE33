@@ -2,225 +2,439 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>ACEITAÊ - Comprar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACEITAÊ - Compre com segurança</title>
     <style>
-        body { 
-    font-family: Arial; 
-    background: #f0f0f0; 
-    margin: 0; 
-    padding: 20px; 
-}
-.header { 
-    background: #1A237E; 
-    color: white; 
-    padding: 15px 20px; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-.container { 
-    max-width: 1200px; 
-    margin: 0 auto; 
-}
-.produtos { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-    gap: 20px; 
-}
-.card { 
-    background: white; 
-    padding: 15px; 
-    border-radius: 10px; 
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
-}
-.card:hover {
-    transform: translateY(-5px);
-}
-.card img { 
-    width: 100%; 
-    height: 180px; 
-    object-fit: cover; 
-    border-radius: 8px; 
-    margin-bottom: 10px; 
-    background: #f5f5f5; 
-}
-.card h3 { 
-    margin: 0 0 5px 0; 
-    font-size: 18px; 
-}
-.card p { 
-    margin: 5px 0; 
-    color: #666; 
-    font-size: 14px; 
-    line-height: 1.4;
-}
-.preco { 
-    font-size: 22px; 
-    font-weight: bold; 
-    color: #1A237E; 
-    margin: 10px 0; 
-}
-button { 
-    background: #00C853; 
-    color: white; 
-    border: none; 
-    padding: 10px 16px; 
-    border-radius: 6px; 
-    cursor: pointer; 
-    width: 100%; 
-    font-size: 16px; 
-}
-button:hover { 
-    background: #00A844; 
-}
-.btn-entrar { 
-    background: transparent; 
-    border: 1px solid white; 
-    width: auto; 
-}
-.btn-entrar:hover { 
-    background: rgba(255,255,255,0.2); 
-}
-.user-info { 
-    display: flex; 
-    align-items: center; 
-    gap: 15px; 
-}
-.logout-btn { 
-    background: #c62828; 
-    padding: 5px 12px; 
-    border-radius: 20px; 
-    cursor: pointer; 
-    font-size: 12px; 
-}
-.logout-btn:hover { 
-    background: #b71c1c; 
-}
-.loading { 
-    text-align: center; 
-    padding: 40px; 
-    color: #666; 
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        /* Header */
+        .header {
+            background: #1A237E;
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #00C853;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-entrar {
+            background: transparent;
+            border: 1px solid white;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-entrar:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .user-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logout-btn {
+            background: #c62828;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .logout-btn:hover {
+            background: #b71c1c;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Título */
+        .titulo {
+            margin-bottom: 20px;
+        }
+
+        .titulo h2 {
+            font-size: 20px;
+            color: #333;
+        }
+
+        /* Grid de produtos - estilo OLX/Mercado Livre */
+        .produtos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        /* Card do produto */
+        .produto-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: box-shadow 0.2s, transform 0.2s;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .produto-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+
+        .produto-imagem {
+            height: 180px;
+            background: #f9f9f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .produto-imagem img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .produto-imagem i {
+            font-size: 48px;
+            color: #ccc;
+        }
+
+        .badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: #FFC107;
+            color: #1A237E;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .produto-info {
+            padding: 12px;
+        }
+
+        .produto-info h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #333;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .descricao {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .preco {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1A237E;
+            margin: 8px 0;
+        }
+
+        .preco-antigo {
+            font-size: 12px;
+            color: #999;
+            text-decoration: line-through;
+        }
+
+        .oferta-area {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .oferta-area input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .oferta-area input:focus {
+            border-color: #00C853;
+        }
+
+        .btn-ofertar {
+            background: #00C853;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-ofertar:hover {
+            background: #00A844;
+        }
+
+        .mensagem {
+            margin-top: 8px;
+            padding: 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            display: none;
+        }
+
+        .mensagem.sucesso {
+            background: #e8f5e9;
+            color: #2e7d32;
+            display: block;
+        }
+
+        .mensagem.erro {
+            background: #ffebee;
+            color: #c62828;
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1A237E;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .produtos-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 12px;
+            }
+            .produto-imagem {
+                height: 140px;
+            }
+            .produto-info h3 {
+                font-size: 13px;
+            }
+            .preco {
+                font-size: 16px;
+            }
+            .oferta-area {
+                flex-direction: column;
+            }
+            .btn-ofertar {
+                padding: 6px;
+            }
+        }
     </style>
 </head>
 <body>
-<div class="header">
-    <h2>ACEITAÊ</h2>
-    <div class="user-info" id="userInfo">
-        <span id="userName"></span>
-        <button id="btnEntrar" class="btn-entrar" onclick="location.href='login.html'">Entrar</button>
-        <button id="btnSair" class="logout-btn" style="display:none;" onclick="logout()">Sair</button>
+    <div class="header">
+        <div class="logo">ACEIT<span>AÊ</span></div>
+        <div class="user-info" id="userInfo">
+            <span id="userName"></span>
+            <button id="btnEntrar" class="btn-entrar" onclick="location.href='login.html'">Entrar</button>
+            <button id="btnSair" class="logout-btn" style="display:none;" onclick="logout()">Sair</button>
+        </div>
     </div>
-</div>
-<div class="container">
-    <h3>Produtos disponíveis</h3>
-    <div id="produtos" class="loading">Carregando produtos...</div>
-</div>
 
-<script>
-    const API_URL = 'https://aceitae33-api.onrender.com';
-    const token = localStorage.getItem('access_token');
-    const usuarioNome = localStorage.getItem('usuario_nome');
-    const usuarioId = localStorage.getItem('usuario_id');
+    <div class="container">
+        <div class="titulo">
+            <h2>Produtos disponíveis</h2>
+        </div>
+        <div id="produtos" class="loading">Carregando produtos...</div>
+    </div>
 
-    if (usuarioNome) {
-        document.getElementById('userName').innerHTML = `Olá, ${usuarioNome}`;
-        document.getElementById('btnEntrar').style.display = 'none';
-        document.getElementById('btnSair').style.display = 'inline-block';
-    }
+    <div class="footer">
+        <p>ACEITAÊ - Você oferta, o vendedor decide, a gente garante.</p>
+        <p style="font-size: 11px; margin-top: 8px;">© 2026 ACEITAÊ</p>
+    </div>
 
-    async function carregarProdutos() {
-        try {
-            const response = await fetch(`${API_URL}/produtos?status=aprovado`);
-            const data = await response.json();
-            const container = document.getElementById('produtos');
-            
-            if (!data.produtos || data.produtos.length === 0) {
-                container.innerHTML = '<p class="loading">Nenhum produto disponível no momento.</p>';
+    <script>
+        const API_URL = 'https://aceitae33-api.onrender.com';
+        const usuarioId = localStorage.getItem('usuario_id');
+        const usuarioNome = localStorage.getItem('usuario_nome');
+
+        if (usuarioNome) {
+            document.getElementById('userName').innerHTML = `Olá, ${usuarioNome}`;
+            document.getElementById('btnEntrar').style.display = 'none';
+            document.getElementById('btnSair').style.display = 'inline-block';
+        }
+
+        async function carregarProdutos() {
+            try {
+                const response = await fetch(`${API_URL}/produtos?status=aprovado`);
+                const data = await response.json();
+                const container = document.getElementById('produtos');
+                
+                if (!data.produtos || data.produtos.length === 0) {
+                    container.innerHTML = '<div class="loading">😢 Nenhum produto disponível no momento.</div>';
+                    return;
+                }
+                
+                container.innerHTML = '<div class="produtos-grid"></div>';
+                const grid = container.querySelector('.produtos-grid');
+                
+                for (const produto of data.produtos) {
+                    const card = document.createElement('div');
+                    card.className = 'produto-card';
+                    
+                    // Verificar foto
+                    let imagemHtml = '';
+                    if (produto.fotos && produto.fotos.length > 0 && produto.fotos[0]) {
+                        imagemHtml = `<img src="${produto.fotos[0]}" alt="${produto.nome}" onerror="this.parentElement.innerHTML='<i class=\'fas fa-mobile-alt\'></i>'">`;
+                    } else {
+                        imagemHtml = `<i class="fas fa-mobile-alt"></i>`;
+                    }
+                    
+                    card.innerHTML = `
+                        <div class="produto-imagem">
+                            <div class="badge">Oferta</div>
+                            ${imagemHtml}
+                        </div>
+                        <div class="produto-info">
+                            <h3>${escapeHtml(produto.nome)}</h3>
+                            <div class="descricao">${escapeHtml(produto.descricao?.substring(0, 80) || '')}${produto.descricao?.length > 80 ? '...' : ''}</div>
+                            <div class="preco">R$ ${produto.valor_exposicao?.toFixed(2)}</div>
+                            <div class="preco-antigo">Vendedor pretende: R$ ${produto.valor_pretendido?.toFixed(2)}</div>
+                            <div class="oferta-area">
+                                <input type="number" id="valor-${produto.id}" placeholder="Sua oferta" step="0.01">
+                                <button class="btn-ofertar" onclick="fazerOferta(${produto.id})">Ofertar</button>
+                            </div>
+                            <div id="msg-${produto.id}" class="mensagem"></div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('produtos').innerHTML = '<div class="loading">❌ Erro ao carregar produtos</div>';
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        async function fazerOferta(produtoId) {
+            const token = localStorage.getItem('access_token');
+            if (!usuarioId) {
+                alert('Faça login para fazer uma oferta!');
+                window.location.href = 'login.html';
                 return;
             }
             
-            container.innerHTML = data.produtos.map(p => {
-                // Verifica se tem foto
-                let imagemHtml = '';
-                if (p.fotos && Array.isArray(p.fotos) && p.fotos.length > 0 && p.fotos[0]) {
-                    const fotoUrl = p.fotos[0];
-                    if (typeof fotoUrl === 'string' && fotoUrl.startsWith('http')) {
-                        imagemHtml = `<img src="${fotoUrl}" alt="${p.nome}" onerror="this.style.display='none'">`;
-                    } else {
-                        imagemHtml = `<div style="height:180px; background:#f0f0f0; display:flex; align-items:center; justify-content:center; color:#ccc;">📷 Sem imagem</div>`;
+            const input = document.getElementById(`valor-${produtoId}`);
+            const valor = parseFloat(input.value);
+            const msgDiv = document.getElementById(`msg-${produtoId}`);
+            
+            if (!valor || valor <= 0) {
+                mostrarMensagem(msgDiv, 'Digite um valor válido!', 'erro');
+                return;
+            }
+            
+            msgDiv.style.display = 'block';
+            msgDiv.innerHTML = '⏳ Enviando...';
+            
+            try {
+                const response = await fetch(`${API_URL}/ofertas?comprador_id=${usuarioId}&comprador_nome=${usuarioNome || 'Usuario'}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ produto_id: produtoId, valor: valor })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    mostrarMensagem(msgDiv, data.mensagem, 'sucesso');
+                    input.value = '';
+                    if (data.status === 'venda_automatica') {
+                        setTimeout(() => carregarProdutos(), 2000);
                     }
                 } else {
-                    imagemHtml = `<div style="height:180px; background:#f0f0f0; display:flex; align-items:center; justify-content:center; color:#ccc;">📷 Sem imagem</div>`;
+                    mostrarMensagem(msgDiv, data.detail || 'Erro ao fazer oferta', 'erro');
                 }
-                
-                return `
-                    <div class="card">
-                        ${imagemHtml}
-                        <h3>${escapeHtml(p.nome)}</h3>
-                        <p>${escapeHtml(p.descricao?.substring(0, 80) || '')}${p.descricao?.length > 80 ? '...' : ''}</p>
-                        <div class="preco">R$ ${p.valor_exposicao?.toFixed(2) || p.valor_exposicao}</div>
-                        <button onclick="fazerOferta(${p.id})">Fazer Oferta</button>
-                    </div>
-                `;
-            }).join('');
-        } catch (error) {
-            console.error('Erro:', error);
-            document.getElementById('produtos').innerHTML = '<p class="loading">Erro ao carregar produtos. Verifique o servidor.</p>';
-        }
-    }
-
-    function escapeHtml(text) {
-        if (!text) return '';
-        return text.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
-
-    async function fazerOferta(produtoId) {
-        if (!usuarioId) {
-            alert('Faça login para fazer uma oferta!');
-            window.location.href = 'login.html';
-            return;
-        }
-        const valor = prompt('Digite o valor da sua oferta (R$):');
-        if (!valor || isNaN(parseFloat(valor))) {
-            alert('Digite um valor válido!');
-            return;
-        }
-
-        try {
-            const response = await fetch(`${API_URL}/ofertas?comprador_id=${usuarioId}&comprador_nome=${usuarioNome || 'Usuario'}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ produto_id: produtoId, valor: parseFloat(valor) })
-            });
-            const data = await response.json();
-            if (response.ok) {
-                alert(data.mensagem);
-                if (data.status === 'venda_automatica') {
-                    carregarProdutos(); // Recarrega a lista
-                }
-            } else {
-                alert(data.detail || 'Erro ao fazer oferta');
+            } catch (error) {
+                mostrarMensagem(msgDiv, 'Erro de conexão', 'erro');
             }
-        } catch (error) {
-            alert('Erro de conexão: ' + error.message);
         }
-    }
+        
+        function mostrarMensagem(elemento, texto, tipo) {
+            elemento.innerHTML = texto;
+            elemento.className = `mensagem ${tipo}`;
+            elemento.style.display = 'block';
+            setTimeout(() => {
+                elemento.style.display = 'none';
+            }, 5000);
+        }
 
-    function logout() {
-        localStorage.clear();
-        window.location.href = 'index.html';
-    }
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
 
-    carregarProdutos();
-</script>
+        carregarProdutos();
+    </script>
 </body>
 </html>
