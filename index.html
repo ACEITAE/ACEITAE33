@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ACEITAÊ - Compre com segurança</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -30,6 +31,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .logo {
@@ -81,32 +83,33 @@
 
         /* Container */
         .container {
-            max-width: 1200px;
+            max-width: 1280px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 24px;
         }
 
         /* Título */
         .titulo {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .titulo h2 {
             font-size: 20px;
             color: #333;
+            font-weight: 600;
         }
 
-        /* Grid de produtos - estilo OLX/Mercado Livre */
+        /* Grid de produtos */
         .produtos-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
         }
 
         /* Card do produto */
         .produto-card {
             background: white;
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
             transition: box-shadow 0.2s, transform 0.2s;
             cursor: pointer;
@@ -119,7 +122,7 @@
         }
 
         .produto-imagem {
-            height: 180px;
+            height: 200px;
             background: #f9f9f9;
             display: flex;
             align-items: center;
@@ -145,31 +148,59 @@
             left: 8px;
             background: #FFC107;
             color: #1A237E;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
             font-weight: bold;
         }
 
         .produto-info {
-            padding: 12px;
+            padding: 16px;
         }
 
         .produto-info h3 {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
             margin-bottom: 6px;
             color: #333;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            line-height: 1.3;
+        }
+
+        .detalhes {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .detalhes i {
+            margin-right: 3px;
+            color: #999;
+        }
+
+        .avaliacao {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .stars {
+            color: #FFC107;
+            font-size: 12px;
+        }
+
+        .reviews {
+            font-size: 12px;
+            color: #666;
         }
 
         .descricao {
-            font-size: 12px;
+            font-size: 13px;
             color: #666;
             margin-bottom: 8px;
-            line-height: 1.3;
+            line-height: 1.4;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
@@ -177,16 +208,22 @@
         }
 
         .preco {
-            font-size: 18px;
+            font-size: 22px;
             font-weight: bold;
             color: #1A237E;
-            margin: 8px 0;
+            margin: 10px 0 5px;
         }
 
         .preco-antigo {
             font-size: 12px;
             color: #999;
             text-decoration: line-through;
+        }
+
+        .parcelamento {
+            font-size: 11px;
+            color: #00C853;
+            margin-bottom: 12px;
         }
 
         .oferta-area {
@@ -246,7 +283,7 @@
 
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: 60px;
             color: #999;
         }
 
@@ -255,30 +292,28 @@
             background: #1A237E;
             color: white;
             text-align: center;
-            padding: 20px;
+            padding: 24px;
             margin-top: 40px;
             font-size: 12px;
         }
 
         @media (max-width: 768px) {
             .produtos-grid {
-                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
                 gap: 12px;
             }
             .produto-imagem {
-                height: 140px;
+                height: 160px;
             }
             .produto-info h3 {
-                font-size: 13px;
+                font-size: 14px;
             }
             .preco {
-                font-size: 16px;
+                font-size: 18px;
             }
-            .oferta-area {
-                flex-direction: column;
-            }
-            .btn-ofertar {
-                padding: 6px;
+            .detalhes {
+                flex-wrap: wrap;
+                gap: 8px;
             }
         }
     </style>
@@ -337,10 +372,14 @@
                     // Verificar foto
                     let imagemHtml = '';
                     if (produto.fotos && produto.fotos.length > 0 && produto.fotos[0]) {
-                        imagemHtml = `<img src="${produto.fotos[0]}" alt="${produto.nome}" onerror="this.parentElement.innerHTML='<i class=\'fas fa-mobile-alt\'></i>'">`;
+                        imagemHtml = `<img src="${produto.fotos[0]}" alt="${produto.nome}" onerror="this.parentElement.innerHTML='<i class=\'fas fa-box\'></i>'">`;
                     } else {
-                        imagemHtml = `<i class="fas fa-mobile-alt"></i>`;
+                        imagemHtml = `<i class="fas fa-box"></i>`;
                     }
+                    
+                    // Calcular parcelamento (exemplo: 10x sem juros)
+                    const parcelas = 10;
+                    const valorParcela = produto.valor_exposicao / parcelas;
                     
                     card.innerHTML = `
                         <div class="produto-imagem">
@@ -349,9 +388,24 @@
                         </div>
                         <div class="produto-info">
                             <h3>${escapeHtml(produto.nome)}</h3>
-                            <div class="descricao">${escapeHtml(produto.descricao?.substring(0, 80) || '')}${produto.descricao?.length > 80 ? '...' : ''}</div>
+                            <div class="detalhes">
+                                <span><i class="fas fa-tag"></i> ${escapeHtml(produto.categoria)}</span>
+                                <span><i class="far fa-clock"></i> Hoje</span>
+                            </div>
+                            <div class="avaliacao">
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                                <span class="reviews">(42 avaliações)</span>
+                            </div>
+                            <div class="descricao">${escapeHtml(produto.descricao?.substring(0, 100) || '')}${produto.descricao?.length > 100 ? '...' : ''}</div>
                             <div class="preco">R$ ${produto.valor_exposicao?.toFixed(2)}</div>
-                            <div class="preco-antigo">Vendedor pretende: R$ ${produto.valor_pretendido?.toFixed(2)}</div>
+                            <div class="preco-antigo">R$ ${produto.valor_pretendido?.toFixed(2)}</div>
+                            <div class="parcelamento">ou ${parcelas}x de R$ ${valorParcela.toFixed(2)} sem juros</div>
                             <div class="oferta-area">
                                 <input type="number" id="valor-${produto.id}" placeholder="Sua oferta" step="0.01">
                                 <button class="btn-ofertar" onclick="fazerOferta(${produto.id})">Ofertar</button>
@@ -378,7 +432,6 @@
         }
 
         async function fazerOferta(produtoId) {
-            const token = localStorage.getItem('access_token');
             if (!usuarioId) {
                 alert('Faça login para fazer uma oferta!');
                 window.location.href = 'login.html';
