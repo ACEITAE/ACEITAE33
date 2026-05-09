@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, initial-scale=1.0">
-    <title>ACEITAÊ - Ofertas que você decide</title>
+    <title>ACEITAÊ - Faça a oferta. Torça pelo ACEITAÊ!</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -86,9 +86,22 @@
             color: #00C853;
         }
 
+        .slogan-header {
+            font-size: 11px;
+            color: #666;
+            margin-left: 15px;
+            padding-left: 15px;
+            border-left: 1px solid #ddd;
+        }
+
+        .slogan-header i {
+            color: #00C853;
+            margin-right: 4px;
+        }
+
         .search-box {
             flex: 1;
-            max-width: 400px;
+            max-width: 350px;
             display: flex;
             background: #f0f0f0;
             border-radius: 20px;
@@ -112,16 +125,55 @@
             cursor: pointer;
         }
 
-        .user-actions {
+        .action-buttons {
             display: flex;
             gap: 12px;
             align-items: center;
         }
 
-        .user-actions a {
-            color: #666;
-            text-decoration: none;
-            font-size: 16px;
+        .btn-favorite {
+            background: transparent;
+            border: none;
+            font-size: 18px;
+            color: #ff4757;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #00C853;
+            color: #00C853;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-outline i {
+            font-size: 12px;
+        }
+
+        .btn-primary {
+            background: #00C853;
+            border: none;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary i {
+            font-size: 12px;
         }
 
         /* Categorias */
@@ -198,14 +250,13 @@
             color: #333;
         }
 
-        /* Grid de produtos - RESPONSIVO */
+        /* Grid de produtos */
         .produtos-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
             gap: 12px;
         }
 
-        /* Responsivo: mobile 2 colunas, desktop 5-6 */
         @media (min-width: 480px) {
             .produtos-grid {
                 grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -227,10 +278,31 @@
             transition: box-shadow 0.2s;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             cursor: pointer;
+            position: relative;
         }
 
         .produto-card:hover {
             box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        .card-favorite {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .card-favorite i {
+            color: #ff4757;
+            font-size: 14px;
         }
 
         .produto-imagem {
@@ -306,7 +378,7 @@
             outline: none;
         }
 
-        .btn-ofertar {
+        .btn-ofertar-card {
             background: #00C853;
             color: white;
             border: none;
@@ -315,10 +387,17 @@
             font-size: 10px;
             font-weight: bold;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
             white-space: nowrap;
         }
 
-        .btn-ofertar:hover {
+        .btn-ofertar-card i {
+            font-size: 10px;
+        }
+
+        .btn-ofertar-card:hover {
             background: #00A844;
         }
 
@@ -381,9 +460,18 @@
             .header-container {
                 flex-direction: column;
             }
+            .slogan-header {
+                margin-left: 0;
+                padding-left: 0;
+                border-left: none;
+                text-align: center;
+            }
             .search-box {
                 max-width: 100%;
                 width: 100%;
+            }
+            .action-buttons {
+                justify-content: center;
             }
             .categories-container {
                 gap: 12px;
@@ -391,9 +479,6 @@
             .banner {
                 margin: 12px;
                 padding: 16px;
-            }
-            .banner h2 {
-                font-size: 14px;
             }
         }
     </style>
@@ -423,14 +508,24 @@
             <div class="logo-area">
                 <img src="logo.jpeg" alt="ACEITAÊ" class="logo-img" onerror="this.style.display='none'">
                 <div class="logo-text">ACEIT<span>AÊ</span></div>
+                <div class="slogan-header">
+                    <i class="fas fa-gavel"></i> Faça sua oferta. Torça pelo ACEITAÊ, a gente garante!
+                </div>
             </div>
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="Buscar produtos...">
                 <button onclick="filtrarProdutos()"><i class="fas fa-search"></i></button>
             </div>
-            <div class="user-actions" id="userActions">
-                <a href="#"><i class="fas fa-heart"></i></a>
-                <a href="#"><i class="fas fa-bell"></i></a>
+            <div class="action-buttons">
+                <button class="btn-favorite" onclick="alert('❤️ Seus favoritos em breve!')">
+                    <i class="fas fa-heart"></i>
+                </button>
+                <button class="btn-outline" id="btnOfertarHeader" onclick="document.querySelector('.produtos-grid')?.scrollIntoView({behavior: 'smooth'})">
+                    <i class="fas fa-gavel"></i> Ofertar
+                </button>
+                <button class="btn-primary" onclick="location.href='anunciar.html'">
+                    <i class="fas fa-plus-circle"></i> Anunciar Grátis
+                </button>
             </div>
         </div>
     </div>
@@ -489,9 +584,9 @@
                 <p>com ofertas condicionais</p>
             </div>
             <div class="footer-section">
-                <h4>Institucional</h4>
-                <p>Sobre nós</p>
-                <p>Como funciona</p>
+                <h4>Links úteis</h4>
+                <p>Como comprar</p>
+                <p>Como vender</p>
                 <p>Segurança</p>
             </div>
             <div class="footer-section">
@@ -501,7 +596,7 @@
             </div>
         </div>
         <div class="copyright">
-            ACEITAÊ - Você oferta, o vendedor decide, a gente garante.
+            ACEITAÊ - Faça a oferta. Torça pelo ACEITAÊ!
         </div>
     </div>
 
@@ -598,6 +693,9 @@
                 const valorParcela = produto.valor_exposicao / parcelas;
                 
                 card.innerHTML = `
+                    <div class="card-favorite" onclick="event.stopPropagation(); alert('❤️ Adicionado aos favoritos!')">
+                        <i class="fas fa-heart"></i>
+                    </div>
                     <div class="produto-imagem">
                         <div class="popular-badge">🔥 POPULAR</div>
                         ${imagemHtml}
@@ -608,7 +706,9 @@
                         <div class="parcelamento">${parcelas}x de R$ ${valorParcela.toFixed(2)}</div>
                         <div class="oferta-area">
                             <input type="number" id="valor-${produto.id}" placeholder="Sua oferta" step="0.01">
-                            <button class="btn-ofertar" onclick="fazerOferta(${produto.id})">Ofertar</button>
+                            <button class="btn-ofertar-card" onclick="fazerOferta(${produto.id})">
+                                <i class="fas fa-gavel"></i> Ofertar
+                            </button>
                         </div>
                         <div id="msg-${produto.id}" class="mensagem"></div>
                     </div>
