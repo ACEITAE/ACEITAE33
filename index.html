@@ -131,13 +131,32 @@
             align-items: center;
         }
 
-        .btn-favorite {
+        .btn-icon {
             background: transparent;
             border: none;
             font-size: 18px;
-            color: #ff4757;
+            color: #666;
             cursor: pointer;
             position: relative;
+            transition: color 0.3s;
+        }
+
+        .btn-icon:hover {
+            color: #00C853;
+        }
+
+        .btn-icon .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff4757;
+            color: white;
+            font-size: 9px;
+            font-weight: bold;
+            padding: 2px 5px;
+            border-radius: 10px;
+            min-width: 16px;
+            text-align: center;
         }
 
         .btn-outline {
@@ -517,8 +536,12 @@
                 <button onclick="filtrarProdutos()"><i class="fas fa-search"></i></button>
             </div>
             <div class="action-buttons">
-                <button class="btn-favorite" onclick="alert('❤️ Seus favoritos em breve!')">
+                <button class="btn-icon" onclick="alert('❤️ Seus favoritos em breve!')">
                     <i class="fas fa-heart"></i>
+                </button>
+                <button class="btn-icon" onclick="alert('🛒 Carrinho de compras em breve!')">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="badge" id="cartBadge" style="display: none;">0</span>
                 </button>
                 <button class="btn-outline" id="btnOfertarHeader" onclick="document.querySelector('.produtos-grid')?.scrollIntoView({behavior: 'smooth'})">
                     <i class="fas fa-gavel"></i> Ofertar
