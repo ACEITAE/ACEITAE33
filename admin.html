@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACEITAÊ - Painel Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header {
+            background: #1A237E;
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { font-size: 24px; font-weight: bold; }
+        .logo span { color: #00C853; }
+        .btn-voltar {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+        }
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            flex: 1;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-number { font-size: 36px; font-weight: bold; color: #00C853; }
+        .produtos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+        .produto-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .produto-imagem {
+            height: 180px;
+            background: #f9f9f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .produto-imagem img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .produto-imagem i { font-size: 48px; color: #ccc; }
+        .produto-info { padding: 16px; }
+        .produto-info h3 { margin-bottom: 8px; color: #1A237E; }
+        .produto-info p { color: #666; font-size: 13px; margin-bottom: 8px; }
+        .preco { font-size: 20px; font-weight: bold; color: #00C853; }
+        .botoes { display: flex; gap: 12px; margin-top: 16px; }
+        .btn-aprovar {
+            flex: 1;
+            background: #00C853;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-reprovar {
+            flex: 1;
+            background: #c62828;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .loading { text-align: center; padding: 40px; color: #999; }
+        .sem-produtos { text-align: center; padding: 40px; color: #999; }
+        @media (max-width: 768px) {
+            .stats { flex-direction: column; }
+            .produtos-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">ACEIT<span>AÊ</span></div>
+            <a href="index.html" class="btn-voltar"><i class="fas fa-arrow-left"></i> Voltar</a>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="total-pendentes">0</div>
+                <div class="stat-label">Aguardando vistoria</div>
+            </div>
+        </div>
+
+        <h2 style="margin-bottom: 20px;"><i class="fas fa-clipboard-list"></i> Produtos para análise</h2>
+        <div id="produtos" class="loading">Carregando produtos...</div>
+    </div>
+
+    <script>
+        const API_URL = 'https://aceitae33-api.onrender.com';
+        const token = localStorage.getItem('access_token');
+
+        async function carregarProdutosPendentes() {
+            try {
+                const response = await fetch(`${API_URL}/admin/produtos/pendentes`);
+                const data = await response.json();
+                
+                document.getElementById('total-pendentes').textContent = data.total || 0;
+                
+                if (!data.produtos || data.produtos.length === 0) {
+                    document.getElementById('produtos').innerHTML = '<div class="sem-produtos">🎉 Nenhum produto aguardando vistoria!</div>';
+                    return;
+                }
+                
+                document.getElementById('produtos').innerHTML = '<div class="produtos-grid"></div>';
+                const grid = document.querySelector('.produtos-grid');
+                
+                for (const produto of data.produtos) {
+                    const card = document.createElement('div');
+                    card.className = 'produto-card';
+                    
+                    let imagemHtml = '';
+                    if (produto.fotos && produto.fotos.length > 0) {
+                        imagemHtml = `<img src="${produto.fotos[0]}" alt="${produto.nome}">`;
+                    } else {
+                        imagemHtml = `<i class="fas fa-box"></i>`;
+                    }
+                    
+                    card.innerHTML = `
+                        <div class="produto-imagem">
+                            ${imagemHtml}
+                        </div>
+                        <div class="produto-info">
+                            <h3>${escapeHtml(produto.nome)}</h3>
+                            <p>${escapeHtml(produto.descricao?.substring(0, 120) || '')}${produto.descricao?.length > 120 ? '...' : ''}</p>
+                            <p><strong>Categoria:</strong> ${escapeHtml(produto.categoria)}</p>
+                            <div class="preco">R$ ${produto.valor_pretendido?.toFixed(2)}</div>
+                            <p><small>Vendedor: ${escapeHtml(produto.vendedor_nome)}</small></p>
+                            <div class="botoes">
+                                <button class="btn-aprovar" onclick="aprovarProduto(${produto.id})">
+                                    <i class="fas fa-check"></i> Aprovar
+                                </button>
+                                <button class="btn-reprovar" onclick="reprovarProduto(${produto.id})">
+                                    <i class="fas fa-times"></i> Reprovar
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('produtos').innerHTML = '<div class="sem-produtos">❌ Erro ao carregar produtos</div>';
+            }
+        }
+
+        async function aprovarProduto(produtoId) {
+            if (!confirm('Aprovar este produto? Ele ficará visível na loja.')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/admin/produtos/${produtoId}/aprovar`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('✅ Produto aprovado com sucesso!');
+                    carregarProdutosPendentes();
+                } else {
+                    alert('❌ ' + data.detail);
+                }
+            } catch (error) {
+                alert('Erro: ' + error.message);
+            }
+        }
+
+        async function reprovarProduto(produtoId) {
+            const motivo = prompt('Motivo da reprovação:', 'Produto não atende aos critérios');
+            if (!motivo) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/admin/produtos/${produtoId}/reprovar`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('❌ Produto reprovado!');
+                    carregarProdutosPendentes();
+                } else {
+                    alert('❌ ' + data.detail);
+                }
+            } catch (error) {
+                alert('Erro: ' + error.message);
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        carregarProdutosPendentes();
+    </script>
+</body>
+</html>
