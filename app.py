@@ -264,6 +264,38 @@ async def upload_foto(arquivo: UploadFile = File(...)):
     except Exception as e:
         print(f"Erro no upload: {str(e)}")
         raise HTTPException(400, detail=str(e))
+
+# ==================================================
+# ADMIN: LISTAR PRODUTOS PENDENTES
+# ==================================================
+
+@app.get("/admin/produtos/pendentes")
+def listar_produtos_pendentes():
+    result = supabase.table("produtos").select("*").eq("status", "aguardando_vistoria").execute()
+    return {"produtos": result.data, "total": len(result.data)}
+
+# ==================================================
+# ADMIN: APROVAR PRODUTO
+# ==================================================
+
+@app.put("/admin/produtos/{produto_id}/aprovar")
+def admin_aprovar_produto(produto_id: int):
+    result = supabase.table("produtos").update({"status": "aprovado"}).eq("id", produto_id).execute()
+    if not result.data:
+        raise HTTPException(404, "Produto não encontrado")
+    return {"mensagem": "Produto aprovado com sucesso!"}
+
+# ==================================================
+# ADMIN: REPROVAR PRODUTO
+# ==================================================
+
+@app.put("/admin/produtos/{produto_id}/reprovar")
+def admin_reprovar_produto(produto_id: int):
+    result = supabase.table("produtos").update({"status": "reprovado"}).eq("id", produto_id).execute()
+    if not result.data:
+        raise HTTPException(404, "Produto não encontrado")
+    return {"mensagem": "Produto reprovado!"}
+
 # ==================================================
 # ROTAS BÁSICAS
 # ==================================================
