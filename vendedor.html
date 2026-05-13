@@ -2,66 +2,795 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ACEITAÊ - Painel do Vendedor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: Arial; background: #f0f0f0; margin: 0; padding: 20px; }
-        .header { background: #1A237E; color: white; padding: 15px; display: flex; justify-content: space-between; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
-        button { background: #00C853; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
-        button:hover { background: #00A844; }
-        .logout { background: #c62828; }
-        .logout:hover { background: #b71c1c; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 12px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-img {
+            height: 36px;
+            width: auto;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1A237E;
+        }
+
+        .logo-text span {
+            color: #00C853;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #1A237E;
+            font-weight: 500;
+        }
+
+        .btn-voltar {
+            background: #f0f0f0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #666;
+            font-size: 13px;
+            transition: background 0.3s;
+        }
+
+        .btn-voltar:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-sair {
+            background: #c62828;
+            padding: 6px 14px;
+            border-radius: 20px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-sair:hover {
+            background: #b71c1c;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Título */
+        .titulo {
+            margin-bottom: 24px;
+        }
+
+        .titulo h1 {
+            font-size: 24px;
+            color: #1A237E;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .titulo p {
+            color: #666;
+            margin-top: 8px;
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #00C853;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: #00C853;
+            border-bottom: 2px solid #00C853;
+        }
+
+        /* Grid de ofertas */
+        .ofertas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 20px;
+        }
+
+        /* Card de oferta */
+        .oferta-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .oferta-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .oferta-status {
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .status-pendente {
+            background: #FFC107;
+            color: #1A237E;
+        }
+
+        .status-aceita {
+            background: #00C853;
+        }
+
+        .status-recusada {
+            background: #999;
+        }
+
+        .status-venda_automatica {
+            background: #1A237E;
+        }
+
+        .oferta-info {
+            padding: 16px;
+        }
+
+        .produto-nome {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1A237E;
+            margin-bottom: 8px;
+        }
+
+        .produto-descricao {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .detalhes-oferta {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .detalhes-oferta .linha {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .detalhes-oferta .label {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .detalhes-oferta .valor {
+            font-size: 18px;
+            font-weight: bold;
+            color: #00C853;
+        }
+
+        .detalhes-oferta .diferenca {
+            font-size: 12px;
+            color: #f57f17;
+            font-weight: bold;
+        }
+
+        .detalhes-oferta .comissao {
+            color: #c62828;
+        }
+
+        .detalhes-oferta .liquido {
+            color: #2e7d32;
+        }
+
+        .botoes-acao {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .btn-aceitar {
+            flex: 1;
+            padding: 12px;
+            background: #00C853;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+
+        .btn-aceitar:hover {
+            background: #00A844;
+        }
+
+        .btn-recusar {
+            flex: 1;
+            padding: 12px;
+            background: #f5f5f5;
+            color: #666;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-recusar:hover {
+            background: #ffebee;
+            border-color: #c62828;
+            color: #c62828;
+        }
+
+        .sem-ofertas {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+        }
+
+        /* Produtos do vendedor */
+        .produtos-vendedor {
+            margin-top: 30px;
+        }
+
+        .produtos-vendedor h3 {
+            margin-bottom: 16px;
+            color: #1A237E;
+        }
+
+        .produtos-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .produto-item {
+            background: white;
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .produto-item-img {
+            width: 60px;
+            height: 60px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .produto-item-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .produto-item-img i {
+            font-size: 24px;
+            color: #ccc;
+        }
+
+        .produto-item-info {
+            flex: 1;
+        }
+
+        .produto-item-info h4 {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .produto-item-info .status {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .status-aprovado {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-aguardando {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+
+        .status-vendido {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        @media (max-width: 768px) {
+            .ofertas-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats {
+                flex-direction: column;
+            }
+            .tabs {
+                justify-content: center;
+            }
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .header-actions {
+                flex-direction: column;
+            }
+            .produtos-list {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-<div class="header">
-    <h2>ACEITAÊ - Painel do Vendedor</h2>
-    <div>
-        <span id="userNome"></span>
-        <button class="logout" onclick="logout()">Sair</button>
+    <div class="header">
+        <div class="logo-area">
+            <img src="logo.jpeg" alt="ACEITAÊ" class="logo-img" onerror="this.style.display='none'">
+            <div class="logo-text">ACEIT<span>AÊ</span></div>
+        </div>
+        <div class="header-actions">
+            <div id="userInfo" class="user-info"></div>
+            <a href="index.html" class="btn-voltar"><i class="fas fa-arrow-left"></i> Voltar para loja</a>
+            <a href="anunciar.html" class="btn-voltar" style="background:#00C853; color:white;"><i class="fas fa-plus-circle"></i> Novo Anúncio</a>
+        </div>
     </div>
-</div>
-<div class="container">
-    <div class="card">
-        <h3>Seus Produtos</h3>
-        <div id="produtos"></div>
-        <button onclick="location.href='anunciar.html'">+ Novo Anúncio</button>
-    </div>
-</div>
 
-<script>
-    const API_URL = 'https://aceitae33-api.onrender.com';
-    const usuarioId = localStorage.getItem('usuario_id');
-    const usuarioNome = localStorage.getItem('usuario_nome');
+    <div class="container">
+        <div class="titulo">
+            <h1><i class="fas fa-store"></i> Painel do Vendedor</h1>
+            <p>Gerencie seus produtos e ofertas. Você decide se ACEITAÊ ou recusa.</p>
+        </div>
 
-    if (!usuarioId) window.location.href = 'login.html';
-
-    document.getElementById('userNome').innerText = `Olá, ${usuarioNome || 'Vendedor'}`;
-
-    async function carregarProdutos() {
-        const response = await fetch(`${API_URL}/produtos?vendedor_id=${usuarioId}`);
-        const data = await response.json();
-        const container = document.getElementById('produtos');
-        if (!data.produtos || data.produtos.length === 0) {
-            container.innerHTML = '<p>Nenhum produto anunciado ainda.</p>';
-            return;
-        }
-        container.innerHTML = data.produtos.map(p => `
-            <div style="border:1px solid #ddd; padding:10px; margin:10px 0; border-radius:8px;">
-                <strong>${p.nome}</strong><br>
-                Status: ${p.status}<br>
-                Valor pretendido: R$ ${p.valor_pretendido}
+        <!-- Stats -->
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="total-produtos">0</div>
+                <div class="stat-label">Produtos anunciados</div>
             </div>
-        `).join('');
-    }
+            <div class="stat-card">
+                <div class="stat-number" id="total-ofertas">0</div>
+                <div class="stat-label">Ofertas recebidas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="ofertas-pendentes">0</div>
+                <div class="stat-label">Aguardando decisão</div>
+            </div>
+        </div>
 
-    function logout() {
-        localStorage.clear();
-        window.location.href = 'login.html';
-    }
+        <!-- Meus Produtos -->
+        <div class="produtos-vendedor">
+            <h3><i class="fas fa-box"></i> Meus Produtos</h3>
+            <div id="meus-produtos" class="loading">Carregando produtos...</div>
+        </div>
 
-    carregarProdutos();
-</script>
+        <!-- Tabs de ofertas -->
+        <div style="margin-top: 30px;">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="pendentes" onclick="mudarTab('pendentes')">Pendentes</button>
+                <button class="tab-btn" data-tab="todas" onclick="mudarTab('todas')">Todas ofertas</button>
+                <button class="tab-btn" data-tab="aceitas" onclick="mudarTab('aceitas')">Aceitas</button>
+                <button class="tab-btn" data-tab="recusadas" onclick="mudarTab('recusadas')">Recusadas</button>
+            </div>
+            <div id="ofertas-container" class="loading">
+                Carregando ofertas...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://aceitae33-api.onrender.com';
+        
+        const VENDEDOR_ID = localStorage.getItem('usuario_id');
+        const VENDEDOR_NOME = localStorage.getItem('usuario_nome');
+        const USUARIO_TIPO = localStorage.getItem('usuario_tipo');
+        
+        if (!VENDEDOR_ID) {
+            window.location.href = 'login.html';
+        }
+        
+        if (USUARIO_TIPO !== 'vendedor' && USUARIO_TIPO !== 'ambos') {
+            alert('Esta área é exclusiva para vendedores!');
+            window.location.href = 'index.html';
+        }
+        
+        if (VENDEDOR_NOME) {
+            document.getElementById('userInfo').innerHTML = `
+                <span class="user-name"><i class="fas fa-user-circle"></i> Olá, ${VENDEDOR_NOME}</span>
+                <button class="btn-sair" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            `;
+        }
+        
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+        
+        let todasOfertas = [];
+        let tabAtual = 'pendentes';
+        let meusProdutos = [];
+
+        async function carregarMeusProdutos() {
+            try {
+                const response = await fetch(`${API_URL}/produtos?vendedor_id=${VENDEDOR_ID}`);
+                const data = await response.json();
+                meusProdutos = data.produtos || [];
+                
+                const container = document.getElementById('meus-produtos');
+                const totalProdutos = meusProdutos.length;
+                document.getElementById('total-produtos').textContent = totalProdutos;
+                
+                if (meusProdutos.length === 0) {
+                    container.innerHTML = '<div class="sem-ofertas">📦 Você ainda não tem produtos anunciados. <a href="anunciar.html">Anunciar agora</a></div>';
+                    return;
+                }
+                
+                container.innerHTML = '<div class="produtos-list"></div>';
+                const grid = container.querySelector('.produtos-list');
+                
+                for (const produto of meusProdutos) {
+                    let statusClass = '';
+                    let statusText = '';
+                    
+                    if (produto.status === 'aprovado') {
+                        statusClass = 'status-aprovado';
+                        statusText = '✅ Aprovado';
+                    } else if (produto.status === 'aguardando_vistoria') {
+                        statusClass = 'status-aguardando';
+                        statusText = '⏳ Aguardando vistoria';
+                    } else if (produto.status === 'vendido') {
+                        statusClass = 'status-vendido';
+                        statusText = '💰 Vendido';
+                    } else {
+                        statusClass = 'status-aguardando';
+                        statusText = produto.status;
+                    }
+                    
+                    let imagemHtml = '';
+                    if (produto.fotos && produto.fotos.length > 0) {
+                        imagemHtml = `<img src="${produto.fotos[0]}" alt="${produto.nome}">`;
+                    } else {
+                        imagemHtml = `<i class="fas fa-box"></i>`;
+                    }
+                    
+                    const produtoItem = document.createElement('div');
+                    produtoItem.className = 'produto-item';
+                    produtoItem.innerHTML = `
+                        <div class="produto-item-img">
+                            ${imagemHtml}
+                        </div>
+                        <div class="produto-item-info">
+                            <h4>${escapeHtml(produto.nome)}</h4>
+                            <div class="status ${statusClass}">${statusText}</div>
+                            <div><strong>R$ ${produto.valor_exposicao?.toFixed(2)}</strong></div>
+                        </div>
+                    `;
+                    grid.appendChild(produtoItem);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('meus-produtos').innerHTML = '<div class="sem-ofertas">❌ Erro ao carregar produtos</div>';
+            }
+        }
+
+        async function carregarOfertas() {
+            try {
+                const response = await fetch(`${API_URL}/vendedor/${VENDEDOR_ID}/ofertas`);
+                const data = await response.json();
+                
+                todasOfertas = data.ofertas || [];
+                
+                const ofertasPendentes = todasOfertas.filter(o => o.status === 'pendente').length;
+                
+                document.getElementById('total-ofertas').textContent = todasOfertas.length;
+                document.getElementById('ofertas-pendentes').textContent = ofertasPendentes;
+                
+                renderizarOfertas();
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('ofertas-container').innerHTML = `
+                    <div class="sem-ofertas">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Erro ao carregar ofertas.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function formatarData(dataISO) {
+            if (!dataISO) return 'Data não informada';
+            const data = new Date(dataISO);
+            return data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR');
+        }
+
+        function renderizarOfertas() {
+            let ofertasFiltradas = [];
+            
+            if (tabAtual === 'pendentes') {
+                ofertasFiltradas = todasOfertas.filter(o => o.status === 'pendente');
+            } else if (tabAtual === 'aceitas') {
+                ofertasFiltradas = todasOfertas.filter(o => o.status === 'aceita');
+            } else if (tabAtual === 'recusadas') {
+                ofertasFiltradas = todasOfertas.filter(o => o.status === 'recusada');
+            } else {
+                ofertasFiltradas = todasOfertas;
+            }
+            
+            const container = document.getElementById('ofertas-container');
+            
+            if (ofertasFiltradas.length === 0) {
+                let mensagem = tabAtual === 'pendentes' ? '🎉 Nenhuma oferta pendente!' : 'Nenhuma oferta encontrada.';
+                container.innerHTML = `<div class="sem-ofertas"><i class="fas fa-inbox"></i><p>${mensagem}</p></div>`;
+                return;
+            }
+            
+            container.innerHTML = '<div class="ofertas-grid"></div>';
+            const grid = container.querySelector('.ofertas-grid');
+            
+            for (const oferta of ofertasFiltradas) {
+                const diferenca = oferta.valor_pretendido - oferta.valor_ofertado;
+                const comissao = oferta.valor_ofertado * 0.10;
+                const valorLiquido = oferta.valor_ofertado - comissao;
+                const statusText = getStatusText(oferta.status);
+                const statusClass = getStatusClass(oferta.status);
+                
+                const card = document.createElement('div');
+                card.className = 'oferta-card';
+                card.innerHTML = `
+                    <div class="oferta-status ${statusClass}">
+                        ${statusText}
+                    </div>
+                    <div class="oferta-info">
+                        <div class="produto-nome">${escapeHtml(oferta.produto_nome)}</div>
+                        <div class="produto-descricao">${escapeHtml(oferta.produto_descricao?.substring(0, 100) || '')}${oferta.produto_descricao?.length > 100 ? '...' : ''}</div>
+                        <div class="detalhes-oferta">
+                            <div class="linha">
+                                <span class="label"><i class="fas fa-user"></i> Comprador:</span>
+                                <span><strong>${escapeHtml(oferta.comprador_nome)}</strong></span>
+                            </div>
+                            <div class="linha">
+                                <span class="label"><i class="fas fa-tag"></i> Valor ofertado:</span>
+                                <span class="valor">R$ ${oferta.valor_ofertado.toFixed(2)}</span>
+                            </div>
+                            <div class="linha">
+                                <span class="label"><i class="fas fa-dollar-sign"></i> Valor pretendido:</span>
+                                <span>R$ ${oferta.valor_pretendido.toFixed(2)}</span>
+                            </div>
+                            ${diferenca > 0 ? `<div class="linha">
+                                <span class="label"><i class="fas fa-chart-line"></i> Diferença:</span>
+                                <span class="diferenca">R$ ${diferenca.toFixed(2)} abaixo</span>
+                            </div>` : ''}
+                            <div class="linha">
+                                <span class="label"><i class="fas fa-percent"></i> Comissão ACEITAÊ (10%):</span>
+                                <span class="comissao">- R$ ${comissao.toFixed(2)}</span>
+                            </div>
+                            <div class="linha">
+                                <span class="label"><i class="fas fa-money-bill-wave"></i> Você receberá:</span>
+                                <span class="liquido">R$ ${valorLiquido.toFixed(2)}</span>
+                            </div>
+                            <div class="linha">
+                                <span class="label"><i class="fas fa-calendar"></i> Data:</span>
+                                <span>${formatarData(oferta.criado_em)}</span>
+                            </div>
+                        </div>
+                        ${oferta.status === 'pendente' ? `
+                            <div class="botoes-acao">
+                                <button class="btn-aceitar" onclick="confirmarAceitar(${oferta.oferta_id}, ${oferta.valor_ofertado})">
+                                    <i class="fas fa-gavel"></i> ACEITAÊ!
+                                </button>
+                                <button class="btn-recusar" onclick="responderOferta(${oferta.oferta_id}, 'RECUSAR')">
+                                    <i class="fas fa-times"></i> Recusar
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        function confirmarAceitar(ofertaId, valor) {
+            const comissao = valor * 0.10;
+            const liquido = valor - comissao;
+            const confirmado = confirm(
+                `⚠️ CONFIRMAR ACEITAÇÃO\n\n` +
+                `Você está prestes a ACEITAR esta oferta.\n\n` +
+                `📊 Detalhes:\n` +
+                `• Valor da oferta: R$ ${valor.toFixed(2)}\n` +
+                `• Comissão ACEITAÊ (10%): R$ ${comissao.toFixed(2)}\n` +
+                `• Você receberá: R$ ${liquido.toFixed(2)}\n\n` +
+                `⚠️ Esta ação NÃO pode ser desfeita!\n\n` +
+                `Deseja continuar?`
+            );
+            if (confirmado) {
+                responderOferta(ofertaId, 'ACEITAÊ');
+            }
+        }
+        
+        function getStatusText(status) {
+            const statusMap = {
+                'pendente': '🟡 AGUARDANDO SUA DECISÃO',
+                'aceita': '✅ OFERTA ACEITA',
+                'recusada': '❌ OFERTA RECUSADA',
+                'venda_automatica': '💰 VENDA AUTOMÁTICA'
+            };
+            return statusMap[status] || status;
+        }
+        
+        function getStatusClass(status) {
+            const classMap = {
+                'pendente': 'status-pendente',
+                'aceita': 'status-aceita',
+                'recusada': 'status-recusada',
+                'venda_automatica': 'status-venda_automatica'
+            };
+            return classMap[status] || '';
+        }
+        
+        async function responderOferta(ofertaId, acao) {
+            try {
+                const response = await fetch(`${API_URL}/ofertas/${ofertaId}/responder?acao=${encodeURIComponent(acao)}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert(data.mensagem);
+                    carregarOfertas();
+                    carregarMeusProdutos();
+                } else {
+                    alert('Erro: ' + (data.detail || 'Não foi possível processar sua resposta'));
+                }
+            } catch (error) {
+                alert('Erro de conexão: ' + error.message);
+            }
+        }
+        
+        function mudarTab(tab) {
+            tabAtual = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-tab') === tab) {
+                    btn.classList.add('active');
+                }
+            });
+            renderizarOfertas();
+        }
+        
+        carregarMeusProdutos();
+        carregarOfertas();
+    </script>
 </body>
 </html>
