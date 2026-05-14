@@ -8,8 +8,9 @@ import hashlib
 import time
 from datetime import datetime
 
-app = FastAPI(title="ACEITAÊ API")
+app = FastAPI(title="ACEITAÊ API", version="3.0.0")
 
+# CORS - totalmente aberto
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -31,6 +32,7 @@ class Usuario(BaseModel):
     cpf: Optional[str] = None
     pix: Optional[str] = None
     endereco: Optional[str] = None
+    whatsapp: Optional[str] = None
 
 class LoginData(BaseModel):
     email: str
@@ -55,6 +57,22 @@ class Oferta(BaseModel):
 def gerar_token(user_id: int, email: str):
     token_data = f"{user_id}:{email}:{time.time()}"
     return hashlib.sha256(token_data.encode()).hexdigest()
+
+# ==================================================
+# FUNÇÃO PARA GERAR LINK DO WHATSAPP
+# ==================================================
+
+def gerar_link_whatsapp(telefone: str, mensagem: str):
+    import re
+    from urllib.parse import quote
+    
+    # Remove caracteres não numéricos
+    numero = re.sub(r'\D', '', telefone)
+    if not numero.startswith('55'):
+        numero = '55' + numero
+    
+    mensagem_codificada = quote(mensagem)
+    return f"https://wa.me/{numero}?text={mensagem_codificada}"
 
 # ==================================================
 # ROTAS DE USUÁRIO
@@ -136,7 +154,7 @@ def aprovar_produto(produto_id: int):
 # ==================================================
 
 @app.post("/ofertas")
-def fazer_oferta(oferta: Oferta, comprador_id: int):
+def fazer_oferta(oferta: Oferta, comprador_id: int, comprador_nome: str):
     produto = supabase.table("produtos").select("*").eq("id", oferta.produto_id).execute()
     if not produto.data:
         raise HTTPException(404, "Produto não encontrado")
@@ -146,13 +164,13 @@ def fazer_oferta(oferta: Oferta, comprador_id: int):
     if produto["status"] != "aprovado":
         raise HTTPException(400, "Produto não está disponível para ofertas")
     
-    comprador = supabase.table("usuarios").select("*").eq("id", comprador_id).execute()
-    comprador_nome = comprador.data[0]["nome"] if comprador.data else "Anônimo"
+    valor_pretendido = produto["valor_pretendido"]
+    valor_oferta = oferta.valor
     
-    if oferta.valor >= produto["valor_pretendido"]:
+    if valor_oferta >= valor_pretendido:
         status_oferta = "venda_automatica"
         supabase.table("produtos").update({"status": "vendido"}).eq("id", oferta.produto_id).execute()
-        mensagem = f"✅ Venda automática! Produto vendido por R$ {oferta.valor:.2f}"
+        mensagem = f"✅ Venda automática! Produto vendido por R$ {valor_oferta:.2f}"
     else:
         status_oferta = "pendente"
         mensagem = f"🟡 Oferta condicional enviada! Aguardando vendedor decidir"
@@ -161,14 +179,24 @@ def fazer_oferta(oferta: Oferta, comprador_id: int):
         "produto_id": oferta.produto_id,
         "comprador_id": comprador_id,
         "comprador_nome": comprador_nome,
-        "valor": oferta.valor,
+        "valor": valor_oferta,
         "status": status_oferta,
-        "condicional": oferta.valor < produto["valor_pretendido"],
-        "valor_pretendido": produto["valor_pretendido"],
+        "condicional": valor_oferta < valor_pretendido,
+        "valor_pretendido": valor_pretendido,
         "criado_em": datetime.now().isoformat()
     }
     
     result = supabase.table("ofertas").insert(nova_oferta).execute()
+    
+    # NOTIFICAÇÃO WHATSAPP (link wa.me)
+    vendedor_info = supabase.table("usuarios").select("whatsapp, nome").eq("id", produto["vendedor_id"]).execute()
+    if vendedor_info.data and vendedor_info.data[0].get("whatsapp"):
+        telefone = vendedor_info.data[0]["whatsapp"]
+        mensagem_whatsapp = f"🛒 NOVA OFERTA no ACEITAÊ!\n\n📦 Produto: {produto['nome']}\n💰 Valor ofertado: R$ {valor_oferta:.2f}\n👤 Comprador: {comprador_nome}\n\n👉 Acesse seu painel para ACEITAÊ ou recusar: https://aceitae.com.br/vendedor.html"
+        
+        link_whatsapp = gerar_link_whatsapp(telefone, mensagem_whatsapp)
+        print(f"🔔 Link do WhatsApp: {link_whatsapp}")  # Log no servidor
+    
     return {"mensagem": mensagem, "oferta_id": result.data[0]["id"], "status": status_oferta}
 
 @app.put("/ofertas/{oferta_id}/responder")
@@ -228,34 +256,28 @@ def listar_ofertas_vendedor(vendedor_id: int):
 @app.post("/upload-foto")
 async def upload_foto(arquivo: UploadFile = File(...)):
     try:
-        # Aceita qualquer tipo de imagem
         if not arquivo.content_type.startswith("image/"):
             raise HTTPException(400, "Formato inválido. Envie uma imagem.")
         
         conteudo = await arquivo.read()
         
-        # Limite de 10MB
         if len(conteudo) > 10 * 1024 * 1024:
             raise HTTPException(400, "Arquivo muito grande (máx 10MB)")
         
-        # Pega extensão correta
         extensao = arquivo.filename.split(".")[-1].lower()
         if extensao not in ["jpg", "jpeg", "png", "gif", "webp"]:
             extensao = "jpg"
         
         nome_arquivo = f"{uuid.uuid4()}.{extensao}"
         
-        # Upload para o Supabase
         supabase.storage.from_("produtos").upload(
             nome_arquivo,
             conteudo,
             file_options={"content-type": arquivo.content_type}
         )
         
-        # Gera URL pública
         url = supabase.storage.from_("produtos").get_public_url(nome_arquivo)
         
-        # Garante que a URL está completa
         if not url.startswith("https://"):
             url = f"https://{url}"
         
