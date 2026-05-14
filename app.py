@@ -6,6 +6,8 @@ from supabase_config import supabase
 import uuid
 import hashlib
 import time
+import re
+from urllib.parse import quote
 from datetime import datetime
 
 app = FastAPI(title="ACEITAÊ API", version="3.0.0")
@@ -58,21 +60,64 @@ def gerar_token(user_id: int, email: str):
     token_data = f"{user_id}:{email}:{time.time()}"
     return hashlib.sha256(token_data.encode()).hexdigest()
 
+
 # ==================================================
-# FUNÇÃO PARA GERAR LINK DO WHATSAPP
+# FUNÇÃO PARA GERAR LINK DO WHATSAPP (MELHORADA)
 # ==================================================
 
 def gerar_link_whatsapp(telefone: str, mensagem: str):
-    import re
-    from urllib.parse import quote
-    
+    """
+    Gera link direto para WhatsApp com mensagem pré-preenchida
+    """
     # Remove caracteres não numéricos
     numero = re.sub(r'\D', '', telefone)
+    
+    # Adiciona 55 se não tiver
     if not numero.startswith('55'):
         numero = '55' + numero
     
+    # Garante que tem pelo menos 12 dígitos (55 + DDD + número)
+    if len(numero) == 12:  # 55 + 2 (DDD) + 8 números
+        # Adiciona 9 na frente
+        numero = numero[:4] + '9' + numero[4:]
+    
     mensagem_codificada = quote(mensagem)
     return f"https://wa.me/{numero}?text={mensagem_codificada}"
+
+
+def gerar_mensagem_oferta(produto_nome: str, valor_ofertado: float, comprador_nome: str, valor_pretendido: float):
+    """
+    Gera a mensagem personalizada para o vendedor
+    """
+    diferenca = valor_pretendido - valor_ofertado
+    comissao = valor_ofertado * 0.10
+    valor_liquido = valor_ofertado - comissao
+    
+    if diferenca > 0:
+        texto_diferenca = f"⚠️ *{diferenca:.2f} abaixo* do seu valor pretendido"
+    else:
+        texto_diferenca = "✅ *Igual ou superior* ao seu valor pretendido"
+    
+    mensagem = f"""🛒 *NOVA OFERTA no ACEITAÊ!*
+
+📦 *Produto:* {produto_nome}
+💰 *Valor ofertado:* R$ {valor_ofertado:.2f}
+👤 *Comprador:* {comprador_nome}
+
+{texto_diferenca}
+Valor pretendido: R$ {valor_pretendido:.2f}
+
+📊 *Simulação:*
+• Comissão ACEITAÊ (10%): R$ {comissao:.2f}
+• Você receberá: R$ {valor_liquido:.2f}
+
+🔗 *Para ACEITAR ou RECUSAR, acesse:*
+https://aceitae.com.br/vendedor.html
+
+⚠️ Oferta condicionada à sua aceitação. Você tem 48h para decidir."""
+    
+    return mensagem
+
 
 # ==================================================
 # ROTAS DE USUÁRIO
@@ -80,11 +125,16 @@ def gerar_link_whatsapp(telefone: str, mensagem: str):
 
 @app.post("/cadastrar")
 def cadastrar(user: Usuario):
+    # Verifica se e-mail já existe
     existing = supabase.table("usuarios").select("*").eq("email", user.email).execute()
     if existing.data:
         raise HTTPException(400, "E-mail já cadastrado")
+    
+    # Insere o usuário (incluindo WhatsApp se fornecido)
     supabase.table("usuarios").insert(user.dict()).execute()
+    
     return {"mensagem": "Cadastro realizado com sucesso!"}
+
 
 @app.post("/login")
 def login(credenciais: LoginData):
@@ -100,8 +150,28 @@ def login(credenciais: LoginData):
         "access_token": access_token,
         "usuario_id": user["id"],
         "nome": user["nome"],
-        "tipo": user["tipo"]
+        "tipo": user["tipo"],
+        "whatsapp": user.get("whatsapp", "")
     }
+
+
+@app.get("/usuarios/{usuario_id}/whatsapp")
+def obter_whatsapp_usuario(usuario_id: int):
+    """Endpoint para obter/atualizar WhatsApp do usuário"""
+    result = supabase.table("usuarios").select("whatsapp").eq("id", usuario_id).execute()
+    if not result.data:
+        raise HTTPException(404, "Usuário não encontrado")
+    return {"whatsapp": result.data[0].get("whatsapp", "")}
+
+
+@app.put("/usuarios/{usuario_id}/whatsapp")
+def atualizar_whatsapp(usuario_id: int, whatsapp: str):
+    """Atualiza o WhatsApp do usuário"""
+    result = supabase.table("usuarios").update({"whatsapp": whatsapp}).eq("id", usuario_id).execute()
+    if not result.data:
+        raise HTTPException(404, "Usuário não encontrado")
+    return {"mensagem": "WhatsApp atualizado com sucesso!", "whatsapp": whatsapp}
+
 
 # ==================================================
 # ROTAS DE PRODUTO
@@ -132,6 +202,7 @@ def criar_produto(produto: Produto, vendedor_id: int):
     result = supabase.table("produtos").insert(novo_produto).execute()
     return {"produto_id": result.data[0]["id"], "mensagem": "Produto cadastrado! Aguardando vistoria."}
 
+
 @app.get("/produtos")
 def listar_produtos(status: Optional[str] = None, vendedor_id: Optional[int] = None):
     query = supabase.table("produtos").select("*")
@@ -142,6 +213,7 @@ def listar_produtos(status: Optional[str] = None, vendedor_id: Optional[int] = N
     result = query.execute()
     return {"produtos": result.data}
 
+
 @app.put("/produtos/{produto_id}/aprovar")
 def aprovar_produto(produto_id: int):
     result = supabase.table("produtos").update({"status": "aprovado"}).eq("id", produto_id).execute()
@@ -149,12 +221,14 @@ def aprovar_produto(produto_id: int):
         raise HTTPException(404, "Produto não encontrado")
     return {"mensagem": "Produto aprovado!"}
 
+
 # ==================================================
-# ROTAS DE OFERTA
+# ROTAS DE OFERTA (COM NOTIFICAÇÃO WHATSAPP)
 # ==================================================
 
 @app.post("/ofertas")
 def fazer_oferta(oferta: Oferta, comprador_id: int, comprador_nome: str):
+    # Busca o produto
     produto = supabase.table("produtos").select("*").eq("id", oferta.produto_id).execute()
     if not produto.data:
         raise HTTPException(404, "Produto não encontrado")
@@ -167,6 +241,16 @@ def fazer_oferta(oferta: Oferta, comprador_id: int, comprador_nome: str):
     valor_pretendido = produto["valor_pretendido"]
     valor_oferta = oferta.valor
     
+    # Verifica se já existe oferta pendente do mesmo comprador
+    oferta_existente = supabase.table("ofertas").select("*")\
+        .eq("produto_id", oferta.produto_id)\
+        .eq("comprador_id", comprador_id)\
+        .eq("status", "pendente").execute()
+    
+    if oferta_existente.data:
+        raise HTTPException(400, "Você já tem uma oferta pendente para este produto")
+    
+    # Determina status da oferta
     if valor_oferta >= valor_pretendido:
         status_oferta = "venda_automatica"
         supabase.table("produtos").update({"status": "vendido"}).eq("id", oferta.produto_id).execute()
@@ -175,6 +259,7 @@ def fazer_oferta(oferta: Oferta, comprador_id: int, comprador_nome: str):
         status_oferta = "pendente"
         mensagem = f"🟡 Oferta condicional enviada! Aguardando vendedor decidir"
     
+    # Cria a oferta
     nova_oferta = {
         "produto_id": oferta.produto_id,
         "comprador_id": comprador_id,
@@ -187,17 +272,55 @@ def fazer_oferta(oferta: Oferta, comprador_id: int, comprador_nome: str):
     }
     
     result = supabase.table("ofertas").insert(nova_oferta).execute()
+    oferta_id = result.data[0]["id"]
     
-    # NOTIFICAÇÃO WHATSAPP (link wa.me)
+    # ================================================
+    # ENVIA NOTIFICAÇÃO WHATSAPP (se vendedor tiver cadastrado)
+    # ================================================
+    link_whatsapp = None
     vendedor_info = supabase.table("usuarios").select("whatsapp, nome").eq("id", produto["vendedor_id"]).execute()
+    
     if vendedor_info.data and vendedor_info.data[0].get("whatsapp"):
         telefone = vendedor_info.data[0]["whatsapp"]
-        mensagem_whatsapp = f"🛒 NOVA OFERTA no ACEITAÊ!\n\n📦 Produto: {produto['nome']}\n💰 Valor ofertado: R$ {valor_oferta:.2f}\n👤 Comprador: {comprador_nome}\n\n👉 Acesse seu painel para ACEITAÊ ou recusar: https://aceitae.com.br/vendedor.html"
         
+        # Gera a mensagem personalizada
+        mensagem_whatsapp = gerar_mensagem_oferta(
+            produto_nome=produto["nome"],
+            valor_ofertado=valor_oferta,
+            comprador_nome=comprador_nome,
+            valor_pretendido=valor_pretendido
+        )
+        
+        # Gera o link do WhatsApp
         link_whatsapp = gerar_link_whatsapp(telefone, mensagem_whatsapp)
-        print(f"🔔 Link do WhatsApp: {link_whatsapp}")  # Log no servidor
+        
+        # Salva log da notificação (opcional - cria tabela se não existir)
+        try:
+            supabase.table("notificacoes").insert({
+                "oferta_id": oferta_id,
+                "tipo": "whatsapp",
+                "link": link_whatsapp,
+                "enviado_em": datetime.now().isoformat()
+            }).execute()
+        except:
+            # Tabela de notificações pode não existir ainda
+            pass
+        
+        print(f"🔔 ========================================")
+        print(f"📱 NOTIFICAÇÃO WHATSAPP GERADA!")
+        print(f"📦 Produto: {produto['nome']}")
+        print(f"💰 Valor: R$ {valor_oferta:.2f}")
+        print(f"👤 Comprador: {comprador_nome}")
+        print(f"🔗 Link: {link_whatsapp}")
+        print(f"🔔 ========================================")
     
-    return {"mensagem": mensagem, "oferta_id": result.data[0]["id"], "status": status_oferta}
+    return {
+        "mensagem": mensagem,
+        "oferta_id": oferta_id,
+        "status": status_oferta,
+        "notificationLink": link_whatsapp
+    }
+
 
 @app.put("/ofertas/{oferta_id}/responder")
 def responder_oferta(oferta_id: int, acao: str):
@@ -225,6 +348,7 @@ def responder_oferta(oferta_id: int, acao: str):
     else:
         raise HTTPException(400, "Ação inválida. Use 'ACEITAÊ' ou 'RECUSAR'")
 
+
 @app.get("/vendedor/{vendedor_id}/ofertas")
 def listar_ofertas_vendedor(vendedor_id: int):
     produtos = supabase.table("produtos").select("*").eq("vendedor_id", vendedor_id).execute()
@@ -241,6 +365,7 @@ def listar_ofertas_vendedor(vendedor_id: int):
             resultado.append({
                 "oferta_id": oferta["id"],
                 "produto_nome": produto["nome"],
+                "produto_descricao": produto.get("descricao", ""),
                 "comprador_nome": oferta["comprador_nome"],
                 "valor_ofertado": oferta["valor"],
                 "valor_pretendido": oferta["valor_pretendido"],
@@ -248,6 +373,7 @@ def listar_ofertas_vendedor(vendedor_id: int):
                 "criado_em": oferta["criado_em"]
             })
     return {"ofertas": resultado}
+
 
 # ==================================================
 # UPLOAD DE FOTOS
@@ -287,6 +413,7 @@ async def upload_foto(arquivo: UploadFile = File(...)):
         print(f"Erro no upload: {str(e)}")
         raise HTTPException(400, detail=str(e))
 
+
 # ==================================================
 # ADMIN: LISTAR PRODUTOS PENDENTES
 # ==================================================
@@ -296,9 +423,6 @@ def listar_produtos_pendentes():
     result = supabase.table("produtos").select("*").eq("status", "aguardando_vistoria").execute()
     return {"produtos": result.data, "total": len(result.data)}
 
-# ==================================================
-# ADMIN: APROVAR PRODUTO
-# ==================================================
 
 @app.put("/admin/produtos/{produto_id}/aprovar")
 def admin_aprovar_produto(produto_id: int):
@@ -307,9 +431,6 @@ def admin_aprovar_produto(produto_id: int):
         raise HTTPException(404, "Produto não encontrado")
     return {"mensagem": "Produto aprovado com sucesso!"}
 
-# ==================================================
-# ADMIN: REPROVAR PRODUTO
-# ==================================================
 
 @app.put("/admin/produtos/{produto_id}/reprovar")
 def admin_reprovar_produto(produto_id: int):
@@ -318,6 +439,7 @@ def admin_reprovar_produto(produto_id: int):
         raise HTTPException(404, "Produto não encontrado")
     return {"mensagem": "Produto reprovado!"}
 
+
 # ==================================================
 # ROTAS BÁSICAS
 # ==================================================
@@ -325,6 +447,7 @@ def admin_reprovar_produto(produto_id: int):
 @app.get("/")
 def root():
     return {"mensagem": "ACEITAÊ está no ar!"}
+
 
 @app.get("/health")
 def health():
