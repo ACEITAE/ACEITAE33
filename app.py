@@ -120,7 +120,7 @@ https://aceitae.com.br/vendedor.html
 
 
 # ==================================================
-# ROTAS DE USUÁRIO
+# ROTAS DE USUÁRIO (CORRIGIDAS)
 # ==================================================
 
 @app.post("/cadastrar")
@@ -130,8 +130,31 @@ def cadastrar(user: Usuario):
     if existing.data:
         raise HTTPException(400, "E-mail já cadastrado")
     
-    # Insere o usuário (incluindo WhatsApp se fornecido)
-    supabase.table("usuarios").insert(user.dict()).execute()
+    # 🔧 DICIONÁRIO EXPLÍCITO - GARANTE A COLUNA CORRETA DO WHATSAPP
+    usuario_data = {
+        "nome": user.nome,
+        "email": user.email,
+        "telefone": user.telefone,
+        "tipo": user.tipo,
+        "senha": user.senha,
+        "cpf": user.cpf,
+        "pix": user.pix,
+        "endereco": user.endereco,
+        "whatsapp": user.whatsapp,  # ← EXPLÍCITO, VAI PARA A COLUNA CERTA
+        "criado_em": datetime.now().isoformat()
+    }
+    
+    # LOG PARA DEBUG
+    print(f"📝 ========================================")
+    print(f"📝 CADASTRANDO NOVO USUÁRIO:")
+    print(f"   Nome: {user.nome}")
+    print(f"   Email: {user.email}")
+    print(f"   WhatsApp: {user.whatsapp}")
+    print(f"   Tipo: {user.tipo}")
+    print(f"📝 ========================================")
+    
+    # Insere o usuário com dicionário explícito
+    result = supabase.table("usuarios").insert(usuario_data).execute()
     
     return {"mensagem": "Cadastro realizado com sucesso!"}
 
@@ -157,11 +180,15 @@ def login(credenciais: LoginData):
 
 @app.get("/usuarios/{usuario_id}/whatsapp")
 def obter_whatsapp_usuario(usuario_id: int):
-    """Endpoint para obter/atualizar WhatsApp do usuário"""
+    """Endpoint para obter WhatsApp do usuário"""
     result = supabase.table("usuarios").select("whatsapp").eq("id", usuario_id).execute()
     if not result.data:
         raise HTTPException(404, "Usuário não encontrado")
-    return {"whatsapp": result.data[0].get("whatsapp", "")}
+    
+    whatsapp = result.data[0].get("whatsapp", "")
+    print(f"📞 WhatsApp do usuário {usuario_id}: {whatsapp}")
+    
+    return {"whatsapp": whatsapp}
 
 
 @app.put("/usuarios/{usuario_id}/whatsapp")
@@ -170,7 +197,45 @@ def atualizar_whatsapp(usuario_id: int, whatsapp: str):
     result = supabase.table("usuarios").update({"whatsapp": whatsapp}).eq("id", usuario_id).execute()
     if not result.data:
         raise HTTPException(404, "Usuário não encontrado")
+    
+    print(f"✅ WhatsApp atualizado: usuário {usuario_id} -> {whatsapp}")
+    
     return {"mensagem": "WhatsApp atualizado com sucesso!", "whatsapp": whatsapp}
+
+
+# ==================================================
+# ROTA DE TESTE WHATSAPP
+# ==================================================
+
+@app.get("/test-whatsapp/{vendedor_id}")
+def testar_whatsapp(vendedor_id: int):
+    """Rota de teste para verificar se o WhatsApp está cadastrado"""
+    vendedor = supabase.table("usuarios").select("whatsapp, nome, email").eq("id", vendedor_id).execute()
+    
+    if not vendedor.data:
+        return {"erro": "Vendedor não encontrado"}
+    
+    if not vendedor.data[0].get("whatsapp"):
+        return {
+            "erro": "WhatsApp não cadastrado",
+            "vendedor": vendedor.data[0]["nome"],
+            "whatsapp": None,
+            "acao": "Cadastre o WhatsApp no perfil do vendedor"
+        }
+    
+    telefone = vendedor.data[0]["whatsapp"]
+    numero_limpo = re.sub(r'\D', '', telefone)
+    if not numero_limpo.startswith('55'):
+        numero_limpo = '55' + numero_limpo
+    
+    return {
+        "vendedor": vendedor.data[0]["nome"],
+        "email": vendedor.data[0]["email"],
+        "whatsapp_original": telefone,
+        "whatsapp_formatado": numero_limpo,
+        "link_teste": f"https://wa.me/{numero_limpo}?text=Teste%20ACEITA%C3%8A%20-%20sua%20notifica%C3%A7%C3%A3o%20est%C3%A1%20funcionando!",
+        "instrucao": "Clique no link_teste para ver se chega no seu WhatsApp"
+    }
 
 
 # ==================================================
@@ -278,41 +343,44 @@ def fazer_oferta(oferta: Oferta, comprador_id: int, comprador_nome: str):
     # ENVIA NOTIFICAÇÃO WHATSAPP (se vendedor tiver cadastrado)
     # ================================================
     link_whatsapp = None
+    
+    # Busca o WhatsApp do vendedor
     vendedor_info = supabase.table("usuarios").select("whatsapp, nome").eq("id", produto["vendedor_id"]).execute()
     
-    if vendedor_info.data and vendedor_info.data[0].get("whatsapp"):
-        telefone = vendedor_info.data[0]["whatsapp"]
+    print(f"🔍 DEBUG: Vendedor ID: {produto['vendedor_id']}")
+    print(f"🔍 DEBUG: Vendedor info: {vendedor_info.data}")
+    
+    if vendedor_info.data:
+        whatsapp_vendedor = vendedor_info.data[0].get("whatsapp")
+        print(f"🔍 DEBUG: WhatsApp encontrado: {whatsapp_vendedor}")
         
-        # Gera a mensagem personalizada
-        mensagem_whatsapp = gerar_mensagem_oferta(
-            produto_nome=produto["nome"],
-            valor_ofertado=valor_oferta,
-            comprador_nome=comprador_nome,
-            valor_pretendido=valor_pretendido
-        )
-        
-        # Gera o link do WhatsApp
-        link_whatsapp = gerar_link_whatsapp(telefone, mensagem_whatsapp)
-        
-        # Salva log da notificação (opcional - cria tabela se não existir)
-        try:
-            supabase.table("notificacoes").insert({
-                "oferta_id": oferta_id,
-                "tipo": "whatsapp",
-                "link": link_whatsapp,
-                "enviado_em": datetime.now().isoformat()
-            }).execute()
-        except:
-            # Tabela de notificações pode não existir ainda
-            pass
-        
-        print(f"🔔 ========================================")
-        print(f"📱 NOTIFICAÇÃO WHATSAPP GERADA!")
-        print(f"📦 Produto: {produto['nome']}")
-        print(f"💰 Valor: R$ {valor_oferta:.2f}")
-        print(f"👤 Comprador: {comprador_nome}")
-        print(f"🔗 Link: {link_whatsapp}")
-        print(f"🔔 ========================================")
+        if whatsapp_vendedor:
+            telefone = whatsapp_vendedor
+            
+            # Gera a mensagem personalizada
+            mensagem_whatsapp = gerar_mensagem_oferta(
+                produto_nome=produto["nome"],
+                valor_ofertado=valor_oferta,
+                comprador_nome=comprador_nome,
+                valor_pretendido=valor_pretendido
+            )
+            
+            # Gera o link do WhatsApp
+            link_whatsapp = gerar_link_whatsapp(telefone, mensagem_whatsapp)
+            
+            print(f"🔔 ========================================")
+            print(f"📱 NOTIFICAÇÃO WHATSAPP GERADA!")
+            print(f"📦 Produto: {produto['nome']}")
+            print(f"💰 Valor ofertado: R$ {valor_oferta:.2f}")
+            print(f"💰 Valor pretendido: R$ {valor_pretendido:.2f}")
+            print(f"👤 Comprador: {comprador_nome}")
+            print(f"📞 WhatsApp vendedor: {telefone}")
+            print(f"🔗 Link: {link_whatsapp}")
+            print(f"🔔 ========================================")
+        else:
+            print(f"⚠️ Vendedor não tem WhatsApp cadastrado!")
+    else:
+        print(f"❌ Vendedor não encontrado na tabela usuários!")
     
     return {
         "mensagem": mensagem,
