@@ -206,73 +206,230 @@
             background: #00C853;
         }
 
-        /* Modal de imagens */
-        .modal {
+        /* Modal de compra estilo Shopee */
+        .modal-compra {
             display: none;
             position: fixed;
-            z-index: 1000;
+            z-index: 2000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.95);
+            background-color: rgba(0,0,0,0.5);
             justify-content: center;
             align-items: center;
-            flex-direction: column;
-        }
-        .modal-content {
-            max-width: 90%;
-            max-height: 60vh;
-            margin: auto;
-            display: block;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.3);
-        }
-        .modal-descricao {
-            background: white;
-            max-width: 500px;
-            width: 90%;
-            margin: 20px auto;
-            padding: 20px;
-            border-radius: 16px;
-            text-align: left;
-            color: #333;
-        }
-        .modal-descricao h3 {
-            margin-bottom: 10px;
-            color: #1A237E;
-        }
-        .fechar-modal {
-            position: absolute;
-            top: 20px;
-            right: 35px;
-            color: white;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 1001;
-        }
-        .prev, .next {
-            cursor: pointer;
-            position: absolute;
-            top: 50%;
-            width: auto;
-            padding: 16px;
-            color: white;
-            font-weight: bold;
-            font-size: 24px;
-            user-select: none;
-            background: rgba(0,0,0,0.5);
-            border-radius: 50%;
-            transform: translateY(-50%);
-        }
-        .prev { left: 20px; }
-        .next { right: 20px; }
-        .prev:hover, .next:hover {
-            background: rgba(0,0,0,0.8);
         }
 
-        /* Loading */
+        .modal-compra-content {
+            background: white;
+            max-width: 900px;
+            width: 90%;
+            max-height: 90vh;
+            border-radius: 20px;
+            overflow-y: auto;
+            position: relative;
+            animation: modalFadeIn 0.3s;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-compra-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        .modal-compra-header h2 {
+            font-size: 18px;
+            color: #1A237E;
+        }
+
+        .fechar-compra {
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-compra-body {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+            gap: 24px;
+        }
+
+        /* Galeria de imagens */
+        .galeria {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .imagem-principal {
+            width: 100%;
+            border-radius: 12px;
+            background: #f5f5f5;
+        }
+
+        .imagem-principal img {
+            width: 100%;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .thumbnails {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .thumbnail {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            object-fit: cover;
+        }
+
+        .thumbnail.active {
+            border-color: #00C853;
+        }
+
+        /* Informações do produto */
+        .info-compra {
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .info-compra h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: #1A237E;
+        }
+
+        .preco-destaque {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00C853;
+            margin: 12px 0;
+        }
+
+        .descricao-produto {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        /* Variações */
+        .variacao-group {
+            margin-bottom: 20px;
+        }
+
+        .variacao-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .variacao-opcoes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .variacao-btn {
+            padding: 8px 20px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .variacao-btn.selected {
+            background: #1A237E;
+            color: white;
+            border-color: #1A237E;
+        }
+
+        /* Cores (bolinhas) */
+        .cores-opcoes {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .cor-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #ddd;
+            transition: all 0.2s;
+        }
+        .cor-btn.selected {
+            border-color: #1A237E;
+            transform: scale(1.1);
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #1A237E;
+        }
+
+        /* Quantidade */
+        .quantidade-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .quantidade-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+            background: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .quantidade-valor {
+            font-size: 18px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .total {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 16px 0;
+            padding: 12px 0;
+            border-top: 1px solid #eee;
+        }
+
+        .btn-comprar {
+            background: #00C853;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        .btn-comprar:hover {
+            background: #00A844;
+        }
+
         .loading {
             text-align: center;
             padding: 60px;
@@ -287,9 +444,11 @@
             .produto-imagem {
                 height: 150px;
             }
-            .modal-descricao {
-                max-height: 30vh;
-                overflow-y: auto;
+            .modal-compra-body {
+                flex-direction: column;
+            }
+            .preco-destaque {
+                font-size: 22px;
             }
         }
     </style>
@@ -302,7 +461,7 @@
         <div class="logo-text">ACEIT<span>AÊ</span></div>
     </div>
     <div class="header-actions" id="headerActions">
-        <!-- Será preenchido via JS (login/logout) -->
+        <a href="login.html" class="btn-header"><i class="fas fa-sign-in-alt"></i> Entrar</a>
         <a href="vendedor.html" class="btn-header"><i class="fas fa-store"></i> Sou Vendedor</a>
         <a href="anunciar.html" class="btn-header"><i class="fas fa-plus-circle"></i> Anunciar</a>
     </div>
@@ -311,28 +470,33 @@
 <div class="container">
     <div class="titulo">
         <h1><i class="fas fa-tags"></i> Produtos em destaque</h1>
-        <p>Produtos vistoriados e garantia de correspondência. Faça sua oferta!</p>
+        <p>Produtos vistoriados com garantia. Escolha tamanho, cor ou número e faça sua oferta!</p>
     </div>
     <div id="produtos-container" class="loading">
         Carregando produtos...
     </div>
 </div>
 
-<!-- Modal de imagens -->
-<div id="modalImagens" class="modal">
-    <span class="fechar-modal">&times;</span>
-    <a class="prev">&#10094;</a>
-    <a class="next">&#10095;</a>
-    <img class="modal-content" id="imgModal">
-    <div id="modalDescricao" class="modal-descricao"></div>
+<!-- Modal de compra estilo Shopee -->
+<div id="modalCompra" class="modal-compra">
+    <div class="modal-compra-content">
+        <div class="modal-compra-header">
+            <h2><i class="fas fa-shopping-bag"></i> Detalhes do produto</h2>
+            <span class="fechar-compra">&times;</span>
+        </div>
+        <div class="modal-compra-body" id="modalCompraBody">
+            <!-- Preenchido via JavaScript -->
+        </div>
+    </div>
 </div>
 
 <script>
     const API_URL = 'https://aceitae33-api.onrender.com';
     let produtosGlobal = [];
     let usuarioLogado = null;
-    let fotosAtuais = [];
-    let indiceFotoAtual = 0;
+    let produtoAtual = null;
+    let variacoesSelecionadas = { tamanho: null, cor: null, numero: null };
+    let quantidade = 1;
 
     // ==================== Helper ====================
     function getUsuarioLogado() {
@@ -367,57 +531,6 @@
         window.location.reload();
     }
 
-    // ==================== Modal ====================
-    function abrirModal(produto) {
-        fotosAtuais = produto.fotos && produto.fotos.length ? produto.fotos : [];
-        indiceFotoAtual = 0;
-        const modal = document.getElementById('modalImagens');
-        const imgModal = document.getElementById('imgModal');
-        const descModal = document.getElementById('modalDescricao');
-        
-        if (fotosAtuais.length === 0) {
-            imgModal.src = 'https://via.placeholder.com/500?text=Sem+imagem';
-        } else {
-            imgModal.src = fotosAtuais[0];
-        }
-        
-        // Descrição completa com formatação
-        let descricaoHtml = `
-            <h3>${escapeHtml(produto.nome)}</h3>
-            <p><strong>Descrição:</strong> ${escapeHtml(produto.descricao || 'Sem descrição')}</p>
-            <p><strong>Preço sugerido:</strong> R$ ${produto.valor_exposicao?.toFixed(2)}</p>
-            <p><strong>Vendedor:</strong> ${escapeHtml(produto.vendedor_nome || 'ACEITAÊ')}</p>
-        `;
-        // Se for produto próprio (vendedor especial) você pode adicionar selo
-        if (produto.vendedor_id === 1) { // exemplo: vendedor_id 1 é a própria plataforma
-            descricaoHtml += `<p><span style="background:#00C853; color:white; padding:2px 8px; border-radius:20px;">✅ Vendido por ACEITAÊ</span></p>`;
-        }
-        descModal.innerHTML = descricaoHtml;
-        modal.style.display = 'flex';
-    }
-
-    function navegarModal(direcao) {
-        if (fotosAtuais.length === 0) return;
-        indiceFotoAtual += direcao;
-        if (indiceFotoAtual < 0) indiceFotoAtual = fotosAtuais.length - 1;
-        if (indiceFotoAtual >= fotosAtuais.length) indiceFotoAtual = 0;
-        const imgModal = document.getElementById('imgModal');
-        imgModal.src = fotosAtuais[indiceFotoAtual];
-    }
-
-    function configurarModalEventos() {
-        const modal = document.getElementById('modalImagens');
-        document.querySelector('.fechar-modal').onclick = () => {
-            modal.style.display = 'none';
-        };
-        document.querySelector('.prev').onclick = () => navegarModal(-1);
-        document.querySelector('.next').onclick = () => navegarModal(1);
-        window.onclick = (e) => {
-            if (e.target === modal) modal.style.display = 'none';
-        };
-    }
-
-    // ==================== Renderizar produtos ====================
     function escapeHtml(text) {
         if (!text) return '';
         return text.replace(/[&<>]/g, function(m) {
@@ -428,11 +541,206 @@
         });
     }
 
+    // ==================== MODAL DE COMPRA ====================
+    function abrirModalCompra(produto) {
+        produtoAtual = produto;
+        variacoesSelecionadas = { tamanho: null, cor: null, numero: null };
+        quantidade = 1;
+        
+        const modal = document.getElementById('modalCompra');
+        const body = document.getElementById('modalCompraBody');
+        
+        // Detecta categoria para mostrar variações apropriadas
+        const categoria = (produto.categoria || '').toLowerCase();
+        let variacoesHTML = '';
+        
+        if (categoria === 'roupa' || categoria === 'vestuario' || categoria === 'moda') {
+            variacoesHTML += `
+                <div class="variacao-group">
+                    <label class="variacao-label">Tamanho:</label>
+                    <div class="variacao-opcoes" id="opcoes-tamanho">
+                        ${['PP', 'P', 'M', 'G', 'GG'].map(t => `<button class="variacao-btn" data-tipo="tamanho" data-valor="${t}">${t}</button>`).join('')}
+                    </div>
+                </div>
+                <div class="variacao-group">
+                    <label class="variacao-label">Cor:</label>
+                    <div class="cores-opcoes" id="opcoes-cor">
+                        ${['#000000', '#8B4513', '#D2B48C', '#FFFFFF', '#FF0000', '#0000FF', '#008000'].map(cor => `<div class="cor-btn" data-cor="${cor}" style="background: ${cor}; border: 1px solid #ddd;"></div>`).join('')}
+                    </div>
+                </div>
+            `;
+        } 
+        else if (categoria === 'calcado' || categoria === 'tenis' || categoria === 'sapato') {
+            variacoesHTML += `
+                <div class="variacao-group">
+                    <label class="variacao-label">Número:</label>
+                    <div class="variacao-opcoes" id="opcoes-numero">
+                        ${[33,34,35,36,37,38,39,40,41,42,43,44].map(n => `<button class="variacao-btn" data-tipo="numero" data-valor="${n}">${n}</button>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Monta o HTML completo
+        const fotos = produto.fotos && produto.fotos.length ? produto.fotos : ['https://via.placeholder.com/500?text=Sem+imagem'];
+        
+        body.innerHTML = `
+            <div class="galeria">
+                <div class="imagem-principal">
+                    <img id="imgPrincipal" src="${fotos[0]}" alt="${escapeHtml(produto.nome)}">
+                </div>
+                <div class="thumbnails" id="thumbnails">
+                    ${fotos.map((foto, idx) => `<img src="${foto}" class="thumbnail" data-idx="${idx}">`).join('')}
+                </div>
+            </div>
+            <div class="info-compra">
+                <h3>${escapeHtml(produto.nome)}</h3>
+                <div class="preco-destaque">R$ ${produto.valor_exposicao?.toFixed(2)}</div>
+                <div class="descricao-produto">${escapeHtml(produto.descricao || 'Sem descrição')}</div>
+                ${variacoesHTML}
+                <div class="quantidade-control">
+                    <button class="quantidade-btn" id="menosQtde">-</button>
+                    <span class="quantidade-valor" id="quantidadeValor">1</span>
+                    <button class="quantidade-btn" id="maisQtde">+</button>
+                </div>
+                <div class="total">Total: R$ <span id="totalValor">${produto.valor_exposicao?.toFixed(2)}</span></div>
+                <button class="btn-comprar" id="btnFinalizarOferta">
+                    <i class="fas fa-gavel"></i> Fazer oferta
+                </button>
+            </div>
+        `;
+        
+        modal.style.display = 'flex';
+        inicializarEventosModal(produto);
+    }
+
+    function inicializarEventosModal(produto) {
+        // Thumbnails
+        const thumbnails = document.querySelectorAll('.thumbnail');
+        const imgPrincipal = document.getElementById('imgPrincipal');
+        
+        thumbnails.forEach(thumb => {
+            thumb.onclick = () => {
+                imgPrincipal.src = thumb.src;
+                thumbnails.forEach(t => t.classList.remove('active'));
+                thumb.classList.add('active');
+            };
+        });
+        if (thumbnails.length) thumbnails[0].classList.add('active');
+        
+        // Botões de variação (tamanho/número)
+        document.querySelectorAll('.variacao-btn').forEach(btn => {
+            btn.onclick = () => {
+                const tipo = btn.getAttribute('data-tipo');
+                const valor = btn.getAttribute('data-valor');
+                variacoesSelecionadas[tipo] = valor;
+                document.querySelectorAll(`.variacao-btn[data-tipo="${tipo}"]`).forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+            };
+        });
+        
+        // Cores
+        document.querySelectorAll('.cor-btn').forEach(corBtn => {
+            corBtn.onclick = () => {
+                const cor = corBtn.getAttribute('data-cor');
+                variacoesSelecionadas.cor = cor;
+                document.querySelectorAll('.cor-btn').forEach(c => c.classList.remove('selected'));
+                corBtn.classList.add('selected');
+            };
+        });
+        
+        // Quantidade
+        const menosBtn = document.getElementById('menosQtde');
+        const maisBtn = document.getElementById('maisQtde');
+        const qtdeSpan = document.getElementById('quantidadeValor');
+        const totalSpan = document.getElementById('totalValor');
+        
+        menosBtn.onclick = () => {
+            if (quantidade > 1) {
+                quantidade--;
+                qtdeSpan.textContent = quantidade;
+                totalSpan.textContent = (produto.valor_exposicao * quantidade).toFixed(2);
+            }
+        };
+        
+        maisBtn.onclick = () => {
+            quantidade++;
+            qtdeSpan.textContent = quantidade;
+            totalSpan.textContent = (produto.valor_exposicao * quantidade).toFixed(2);
+        };
+        
+        // Botão finalizar oferta
+        document.getElementById('btnFinalizarOferta').onclick = () => {
+            fazerOfertaComVariacoes(produto);
+        };
+    }
+
+    async function fazerOfertaComVariacoes(produto) {
+        const usuario = getUsuarioLogado();
+        if (!usuario) {
+            if (confirm('Você precisa estar logado para fazer uma oferta. Ir para o login?')) {
+                window.location.href = 'login.html';
+            }
+            return;
+        }
+        
+        let valorOferta = produto.valor_exposicao * quantidade;
+        
+        // Constrói descrição das variações
+        let variacoesTexto = [];
+        if (variacoesSelecionadas.tamanho) variacoesTexto.push(`Tamanho: ${variacoesSelecionadas.tamanho}`);
+        if (variacoesSelecionadas.numero) variacoesTexto.push(`Número: ${variacoesSelecionadas.numero}`);
+        if (variacoesSelecionadas.cor) {
+            const nomeCor = { '#000000': 'Preto', '#8B4513': 'Marrom', '#D2B48C': 'Bege', '#FFFFFF': 'Branco', '#FF0000': 'Vermelho', '#0000FF': 'Azul', '#008000': 'Verde' }[variacoesSelecionadas.cor] || 'Personalizada';
+            variacoesTexto.push(`Cor: ${nomeCor}`);
+        }
+        let variacoesStr = variacoesTexto.length ? `\n📌 ${variacoesTexto.join(' · ')}` : '';
+        
+        const confirmMsg = `✅ Confirmar oferta?\n\n📦 Produto: ${produto.nome}${variacoesStr}\n📊 Quantidade: ${quantidade}\n💰 Valor total: R$ ${valorOferta.toFixed(2)}\n\n💸 Comissão ACEITAÊ (10%): R$ ${(valorOferta * 0.10).toFixed(2)}\n💵 Você pagará: R$ ${valorOferta.toFixed(2)}`;
+        
+        if (!confirm(confirmMsg)) return;
+        
+        try {
+            const response = await fetch(`${API_URL}/ofertas?comprador_id=${usuario.id}&comprador_nome=${encodeURIComponent(usuario.nome)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    produto_id: produto.id, 
+                    valor: valorOferta,
+                    quantidade: quantidade,
+                    variacoes: variacoesSelecionadas,
+                    observacao: variacoesTexto.join(', ')
+                })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                alert(data.mensagem || 'Oferta enviada com sucesso!');
+                document.getElementById('modalCompra').style.display = 'none';
+                if (data.status === 'venda_automatica') {
+                    carregarProdutos();
+                }
+            } else {
+                alert('Erro: ' + (data.detail || 'Não foi possível enviar a oferta'));
+            }
+        } catch (error) {
+            alert('Erro de conexão: ' + error.message);
+        }
+    }
+
+    // Fechar modal
+    document.querySelector('.fechar-compra').onclick = () => {
+        document.getElementById('modalCompra').style.display = 'none';
+    };
+    window.onclick = (e) => {
+        const modal = document.getElementById('modalCompra');
+        if (e.target === modal) modal.style.display = 'none';
+    };
+
+    // ==================== RENDERIZAR PRODUTOS ====================
     function criarCardProduto(produto) {
         const card = document.createElement('div');
         card.className = 'produto-card';
         
-        // Imagem clicável
         const imgDiv = document.createElement('div');
         imgDiv.className = 'produto-imagem';
         const img = document.createElement('img');
@@ -442,11 +750,10 @@
         img.style.cursor = 'pointer';
         img.onclick = (e) => {
             e.stopPropagation();
-            abrirModal(produto);
+            abrirModalCompra(produto);
         };
         imgDiv.appendChild(img);
         
-        // Informações
         const infoDiv = document.createElement('div');
         infoDiv.className = 'produto-info';
         const descricaoCurta = produto.descricao ? produto.descricao.substring(0, 80) : '';
@@ -454,19 +761,17 @@
             <h3>${escapeHtml(produto.nome)}</h3>
             <div class="descricao-resumo">${escapeHtml(descricaoCurta)}${produto.descricao && produto.descricao.length > 80 ? '...' : ''}</div>
             <div class="preco">R$ ${produto.valor_exposicao?.toFixed(2)}</div>
-            <button class="btn-oferta" data-id="${produto.id}" data-nome="${escapeHtml(produto.nome)}" data-valor="${produto.valor_exposicao}">Fazer oferta</button>
+            <button class="btn-oferta" data-id="${produto.id}">Ver detalhes</button>
         `;
+        
+        const btn = infoDiv.querySelector('.btn-oferta');
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            abrirModalCompra(produto);
+        };
         
         card.appendChild(imgDiv);
         card.appendChild(infoDiv);
-        
-        // Evento do botão oferta
-        const btn = infoDiv.querySelector('.btn-oferta');
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            fazerOferta(produto.id, produto.nome, produto.valor_exposicao);
-        });
-        
         return card;
     }
 
@@ -496,50 +801,9 @@
         }
     }
 
-    // ==================== Fazer oferta ====================
-    async function fazerOferta(produtoId, produtoNome, valorExposicao) {
-        const usuario = getUsuarioLogado();
-        if (!usuario) {
-            if (confirm('Você precisa estar logado para fazer uma oferta. Deseja ir para o login?')) {
-                window.location.href = 'login.html';
-            }
-            return;
-        }
-        
-        // Pergunta o valor da oferta (pode ser livre)
-        let valorOferta = prompt(`Produto: ${produtoNome}\nPreço sugerido: R$ ${valorExposicao.toFixed(2)}\n\nDigite o valor da sua oferta (R$):`);
-        if (!valorOferta) return;
-        valorOferta = parseFloat(valorOferta.replace(',', '.'));
-        if (isNaN(valorOferta) || valorOferta <= 0) {
-            alert('Valor inválido.');
-            return;
-        }
-        
-        try {
-            const response = await fetch(`${API_URL}/ofertas?comprador_id=${usuario.id}&comprador_nome=${encodeURIComponent(usuario.nome)}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ produto_id: produtoId, valor: valorOferta })
-            });
-            const data = await response.json();
-            if (response.ok) {
-                alert(data.mensagem || 'Oferta enviada com sucesso!');
-                // Se for venda automática, recarrega a página para atualizar o status do produto
-                if (data.status === 'venda_automatica') {
-                    carregarProdutos();
-                }
-            } else {
-                alert('Erro: ' + (data.detail || data.mensagem || 'Não foi possível enviar a oferta'));
-            }
-        } catch (error) {
-            alert('Erro de conexão: ' + error.message);
-        }
-    }
-
-    // ==================== Inicialização ====================
+    // ==================== INICIALIZAÇÃO ====================
     function init() {
         atualizarHeader();
-        configurarModalEventos();
         carregarProdutos();
     }
     
