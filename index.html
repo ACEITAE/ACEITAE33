@@ -465,7 +465,6 @@
             margin-bottom: 6px;
         }
 
-        /* Cores no card */
         .cores-preview {
             display: flex;
             gap: 4px;
@@ -539,7 +538,7 @@
             display: none;
         }
 
-        /* Modal de imagens (lightbox) */
+        /* Lightbox lado a lado */
         .modal-lightbox {
             display: none;
             position: fixed;
@@ -551,60 +550,194 @@
             background-color: rgba(0,0,0,0.95);
             justify-content: center;
             align-items: center;
+        }
+
+        .lightbox-container {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 1100px;
+            width: 90%;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .lightbox-left {
+            flex: 1.2;
+            min-width: 280px;
+            background: #f5f5f5;
+            display: flex;
             flex-direction: column;
+            align-items: center;
+            padding: 20px;
         }
 
         .modal-lightbox-content {
-            max-width: 90%;
-            max-height: 70vh;
-            display: block;
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
             border-radius: 8px;
         }
 
-        .modal-lightbox-info {
+        .lightbox-thumbnails {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .lightbox-thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            object-fit: cover;
+        }
+
+        .lightbox-thumb.active {
+            border-color: #00C853;
+        }
+
+        .lightbox-right {
+            flex: 0.8;
+            min-width: 280px;
             background: white;
-            max-width: 500px;
-            width: 90%;
-            margin: 20px auto;
             padding: 20px;
-            border-radius: 16px;
-            text-align: left;
-            color: #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-lightbox-info {
+            flex: 1;
         }
 
         .modal-lightbox-info h3 {
-            margin-bottom: 10px;
+            font-size: 20px;
+            margin-bottom: 12px;
             color: #1A237E;
         }
 
-        .fechar-lightbox {
-            position: absolute;
-            top: 20px;
-            right: 35px;
+        .modal-lightbox-info .preco-modal {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00C853;
+            margin: 12px 0;
+        }
+
+        .modal-lightbox-info .descricao-modal {
+            color: #666;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .modal-lightbox-info .detalhe-item {
+            margin-bottom: 10px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detalhe-item i {
+            width: 20px;
+            color: #00C853;
+        }
+
+        .botoes-acao-modal {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-pagar-agora {
+            flex: 1;
+            background: #1A237E;
             color: white;
-            font-size: 40px;
+            border: none;
+            padding: 12px;
+            border-radius: 30px;
             font-weight: bold;
             cursor: pointer;
-            z-index: 2001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-ofertar-modal {
+            flex: 1;
+            background: #00C853;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .quantidade-modal {
+            margin: 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .quantidade-modal input {
+            width: 60px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .frete-modal {
+            margin: 12px 0;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            font-size: 12px;
         }
 
         .prev-lightbox, .next-lightbox {
-            cursor: pointer;
             position: absolute;
             top: 50%;
-            width: auto;
-            padding: 16px;
-            color: white;
-            font-weight: bold;
-            font-size: 24px;
-            user-select: none;
-            background: rgba(0,0,0,0.5);
-            border-radius: 50%;
             transform: translateY(-50%);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 10;
         }
 
-        .prev-lightbox { left: 20px; }
-        .next-lightbox { right: 20px; }
+        .prev-lightbox { left: 10px; }
+        .next-lightbox { right: 10px; }
+
+        .fechar-lightbox {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            color: white;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 11;
+            background: rgba(0,0,0,0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
         .loading {
             text-align: center;
@@ -649,6 +782,21 @@
             opacity: 0.6;
         }
 
+        @media (max-width: 768px) {
+            .lightbox-container {
+                flex-direction: column;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+            .prev-lightbox, .next-lightbox {
+                top: 30%;
+            }
+            .slogan-header {
+                white-space: normal;
+                text-align: center;
+            }
+        }
+
         @media (max-width: 480px) {
             .top-bar {
                 justify-content: center;
@@ -680,6 +828,9 @@
             }
             .produtos-grid {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            .botoes-acao-modal {
+                flex-direction: column;
             }
         }
     </style>
@@ -800,13 +951,20 @@
         <div id="produtos" class="loading">Carregando produtos...</div>
     </div>
 
-    <!-- Modal Lightbox para fotos -->
+    <!-- Modal Lightbox - Lado a lado -->
     <div id="lightboxModal" class="modal-lightbox">
         <span class="fechar-lightbox">&times;</span>
+        <div class="lightbox-container">
+            <div class="lightbox-left">
+                <img class="modal-lightbox-content" id="lightboxImg">
+                <div class="lightbox-thumbnails" id="lightboxThumbnails"></div>
+            </div>
+            <div class="lightbox-right">
+                <div id="lightboxInfo" class="modal-lightbox-info"></div>
+            </div>
+        </div>
         <a class="prev-lightbox">&#10094;</a>
         <a class="next-lightbox">&#10095;</a>
-        <img class="modal-lightbox-content" id="lightboxImg">
-        <div id="lightboxInfo" class="modal-lightbox-info"></div>
     </div>
 
     <!-- Footer -->
@@ -879,46 +1037,141 @@
             const modal = document.getElementById('lightboxModal');
             const imgModal = document.getElementById('lightboxImg');
             const infoDiv = document.getElementById('lightboxInfo');
+            const thumbnailsDiv = document.getElementById('lightboxThumbnails');
             
             if (fotosAtuais.length === 0) {
-                imgModal.src = 'https://via.placeholder.com/500?text=Sem+imagem';
+                imgModal.src = 'https://via.placeholder.com/400?text=Sem+imagem';
             } else {
                 imgModal.src = fotosAtuais[0];
             }
             
-            // Informações do produto
+            // Monta thumbnails
+            thumbnailsDiv.innerHTML = '';
+            fotosAtuais.forEach((foto, idx) => {
+                const thumb = document.createElement('img');
+                thumb.src = foto;
+                thumb.className = 'lightbox-thumb';
+                if (idx === 0) thumb.classList.add('active');
+                thumb.onclick = () => {
+                    imgModal.src = foto;
+                    document.querySelectorAll('.lightbox-thumb').forEach(t => t.classList.remove('active'));
+                    thumb.classList.add('active');
+                    indiceFotoAtual = idx;
+                };
+                thumbnailsDiv.appendChild(thumb);
+            });
+            
+            // Cores disponíveis
             let coresHtml = '';
             if (produto.cores && produto.cores.length > 0) {
-                coresHtml = `<p><strong>Cores disponíveis:</strong> </p><div style="display:flex; gap:8px; margin-top:5px;">`;
+                coresHtml = `<div class="detalhe-item"><i class="fas fa-palette"></i> <strong>Cores:</strong> </div><div style="display:flex; gap:8px; margin-bottom:16px;">`;
                 produto.cores.forEach(cor => {
                     coresHtml += `<div style="width:30px; height:30px; border-radius:50%; background:${cor}; border:1px solid #ddd;"></div>`;
                 });
                 coresHtml += `</div>`;
             }
             
+            const quantidadeDisp = produto.quantidade || 1;
+            const valorReal = produto.valor_exposicao;
+            
             infoDiv.innerHTML = `
                 <h3>${escapeHtml(produto.nome)}</h3>
-                <p><strong>Descrição:</strong> ${escapeHtml(produto.descricao || 'Sem descrição')}</p>
-                <p><strong>Preço sugerido:</strong> R$ ${produto.valor_exposicao?.toFixed(2)}</p>
-                <p><strong>Condição:</strong> ${produto.condicao === 'novo' ? '🆕 Novo' : '🔄 Usado'}</p>
-                <p><strong>Quantidade disponível:</strong> ${produto.quantidade || 1} unidade(s)</p>
+                <div class="preco-modal">R$ ${valorReal.toFixed(2)}</div>
+                <div class="descricao-modal">${escapeHtml(produto.descricao || 'Sem descrição')}</div>
+                
+                <div class="detalhe-item"><i class="fas fa-tag"></i> <strong>Condição:</strong> ${produto.condicao === 'novo' ? '🆕 Produto novo' : '🔄 Produto usado (veja as fotos)'}</div>
+                <div class="detalhe-item"><i class="fas fa-boxes"></i> <strong>Estoque:</strong> ${quantidadeDisp} unidade(s) disponíveis</div>
+                <div class="detalhe-item"><i class="fas fa-store"></i> <strong>Vendedor:</strong> ${escapeHtml(produto.vendedor_nome || 'ACEITAÊ')}</div>
                 ${coresHtml}
-                <p><strong>Vendedor:</strong> ${escapeHtml(produto.vendedor_nome || 'ACEITAÊ')}</p>
-                <button onclick="fazerOfertaLightbox()" style="margin-top:12px; background:#00C853; color:white; border:none; padding:8px 16px; border-radius:20px; cursor:pointer; width:100%;">
-                    <i class="fas fa-gavel"></i> Fazer oferta
-                </button>
+                
+                <div class="quantidade-modal">
+                    <i class="fas fa-sort-amount-up"></i>
+                    <strong>Quantidade:</strong>
+                    <input type="number" id="quantidadeModal" value="1" min="1" max="${quantidadeDisp}" onchange="atualizarTotalModal()">
+                </div>
+                
+                <div class="frete-modal">
+                    <i class="fas fa-truck"></i> <strong>Frete:</strong> Calcular frete no próximo passo
+                </div>
+                
+                <div class="botoes-acao-modal">
+                    <button class="btn-pagar-agora" onclick="comprarValorReal()">
+                        <i class="fas fa-bolt"></i> Comprar agora
+                    </button>
+                    <button class="btn-ofertar-modal" onclick="fazerOfertaLightbox()">
+                        <i class="fas fa-gavel"></i> Fazer oferta
+                    </button>
+                </div>
             `;
             modal.style.display = 'flex';
         }
 
+        function atualizarTotalModal() {
+            const qtd = document.getElementById('quantidadeModal')?.value || 1;
+            console.log(`Quantidade selecionada: ${qtd}`);
+        }
+
+        function comprarValorReal() {
+            if (!produtoAtualLightbox) return;
+            if (!usuarioId) {
+                alert('Faça login para comprar!');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const quantidade = document.getElementById('quantidadeModal')?.value || 1;
+            const valorTotal = produtoAtualLightbox.valor_exposicao * quantidade;
+            
+            if (confirm(`🛒 COMPRAR AGORA!\n\nProduto: ${produtoAtualLightbox.nome}\nQuantidade: ${quantidade}\nValor total: R$ ${valorTotal.toFixed(2)}\n\nComissão ACEITAÊ (10%): R$ ${(valorTotal * 0.10).toFixed(2)}\nVocê pagará: R$ ${valorTotal.toFixed(2)}\n\nDeseja continuar?`)) {
+                fazerOfertaDireta(produtoAtualLightbox.id, valorTotal);
+            }
+        }
+
         function fazerOfertaLightbox() {
             if (!produtoAtualLightbox) return;
-            document.getElementById('lightboxModal').style.display = 'none';
-            const valorInput = document.getElementById(`valor-${produtoAtualLightbox.id}`);
-            if (valorInput) {
-                valorInput.focus();
-            } else {
-                fazerOferta(produtoAtualLightbox.id);
+            if (!usuarioId) {
+                alert('Faça login para fazer uma oferta!');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const quantidade = document.getElementById('quantidadeModal')?.value || 1;
+            let valorOferta = prompt(`Produto: ${produtoAtualLightbox.nome}\nPreço sugerido: R$ ${produtoAtualLightbox.valor_exposicao.toFixed(2)}\nQuantidade: ${quantidade}\n\nDigite o valor da SUA OFERTA (R$):`);
+            
+            if (!valorOferta) return;
+            valorOferta = parseFloat(valorOferta.replace(',', '.'));
+            if (isNaN(valorOferta) || valorOferta <= 0) {
+                alert('Valor inválido.');
+                return;
+            }
+            
+            const valorTotal = valorOferta * quantidade;
+            
+            if (confirm(`🔨 FAZER OFERTA!\n\nProduto: ${produtoAtualLightbox.nome}\nQuantidade: ${quantidade}\nSua oferta: R$ ${valorOferta.toFixed(2)}/unidade\nValor total: R$ ${valorTotal.toFixed(2)}\n\nComissão ACEITAÊ (10%): R$ ${(valorTotal * 0.10).toFixed(2)}\nVocê pagará: R$ ${valorTotal.toFixed(2)}\n\nO vendedor pode ACEITAR ou RECUSAR sua oferta.\n\nDeseja continuar?`)) {
+                fazerOferta(produtoAtualLightbox.id, valorTotal);
+                document.getElementById('lightboxModal').style.display = 'none';
+            }
+        }
+
+        async function fazerOfertaDireta(produtoId, valor) {
+            try {
+                const response = await fetch(`${API_URL}/ofertas?comprador_id=${usuarioId}&comprador_nome=${usuarioNome || 'Usuario'}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ produto_id: produtoId, valor: valor })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.mensagem || 'Compra realizada com sucesso!');
+                    document.getElementById('lightboxModal').style.display = 'none';
+                    if (data.status === 'venda_automatica') {
+                        setTimeout(() => carregarProdutos(), 2000);
+                    }
+                } else {
+                    alert('Erro: ' + (data.detail || 'Não foi possível finalizar'));
+                }
+            } catch (error) {
+                alert('Erro de conexão: ' + error.message);
             }
         }
 
@@ -929,6 +1182,10 @@
             if (indiceFotoAtual >= fotosAtuais.length) indiceFotoAtual = 0;
             const imgModal = document.getElementById('lightboxImg');
             imgModal.src = fotosAtuais[indiceFotoAtual];
+            document.querySelectorAll('.lightbox-thumb').forEach((thumb, idx) => {
+                if (idx === indiceFotoAtual) thumb.classList.add('active');
+                else thumb.classList.remove('active');
+            });
         }
 
         function configurarLightboxEventos() {
@@ -1001,7 +1258,6 @@
                     imagemHtml = `<i class="fas fa-box"></i>`;
                 }
                 
-                // Badge de condição (novo/usado)
                 let condicaoBadge = '';
                 if (produto.condicao === 'novo') {
                     condicaoBadge = '<span class="badge-novo">🆕 NOVO</span>';
@@ -1009,7 +1265,6 @@
                     condicaoBadge = '<span class="badge-usado">🔄 USADO</span>';
                 }
                 
-                // Preview de cores
                 let coresPreviewHtml = '';
                 if (produto.cores && produto.cores.length > 0) {
                     coresPreviewHtml = `<div class="cores-preview">`;
@@ -1094,24 +1349,24 @@
             });
         }
 
-        async function fazerOferta(produtoId) {
+        async function fazerOferta(produtoId, valorPersonalizado = null) {
             if (!usuarioId) {
                 alert('Faça login para fazer uma oferta!');
                 window.location.href = 'login.html';
                 return;
             }
             
-            const input = document.getElementById(`valor-${produtoId}`);
-            const valor = parseFloat(input.value);
-            const msgDiv = document.getElementById(`msg-${produtoId}`);
-            
-            if (!valor || valor <= 0) {
-                mostrarMensagem(msgDiv, 'Digite um valor válido!', 'erro');
-                return;
+            let valor = valorPersonalizado;
+            if (!valor) {
+                const input = document.getElementById(`valor-${produtoId}`);
+                valor = parseFloat(input.value);
+                
+                if (!valor || valor <= 0) {
+                    const msgDiv = document.getElementById(`msg-${produtoId}`);
+                    mostrarMensagem(msgDiv, 'Digite um valor válido!', 'erro');
+                    return;
+                }
             }
-            
-            msgDiv.style.display = 'block';
-            msgDiv.innerHTML = '⏳ Enviando...';
             
             try {
                 const response = await fetch(`${API_URL}/ofertas?comprador_id=${usuarioId}&comprador_nome=${usuarioNome || 'Usuario'}`, {
@@ -1123,16 +1378,24 @@
                 const data = await response.json();
                 
                 if (response.ok) {
-                    mostrarMensagem(msgDiv, data.mensagem, 'sucesso');
-                    input.value = '';
+                    const msgDiv = document.getElementById(`msg-${produtoId}`);
+                    if (msgDiv) mostrarMensagem(msgDiv, data.mensagem, 'sucesso');
+                    else alert(data.mensagem);
+                    
+                    if (document.getElementById(`valor-${produtoId}`)) {
+                        document.getElementById(`valor-${produtoId}`).value = '';
+                    }
+                    
                     if (data.status === 'venda_automatica') {
                         setTimeout(() => carregarProdutos(), 2000);
                     }
                 } else {
-                    mostrarMensagem(msgDiv, data.detail || 'Erro ao fazer oferta', 'erro');
+                    const msgDiv = document.getElementById(`msg-${produtoId}`);
+                    if (msgDiv) mostrarMensagem(msgDiv, data.detail || 'Erro ao fazer oferta', 'erro');
+                    else alert('Erro: ' + data.detail);
                 }
             } catch (error) {
-                mostrarMensagem(msgDiv, 'Erro de conexão', 'erro');
+                alert('Erro de conexão: ' + error.message);
             }
         }
         
