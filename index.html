@@ -324,19 +324,19 @@
         /* Grid de produtos */
         .produtos-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 12px;
         }
 
         @media (min-width: 480px) {
             .produtos-grid {
-                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             }
         }
 
         @media (min-width: 768px) {
             .produtos-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
                 gap: 16px;
             }
         }
@@ -377,19 +377,25 @@
         }
 
         .produto-imagem {
-            height: 150px;
+            height: 160px;
             background: #f9f9f9;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             overflow: hidden;
+            cursor: pointer;
         }
 
         .produto-imagem img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .produto-imagem:hover img {
+            transform: scale(1.05);
         }
 
         .produto-imagem i {
@@ -397,10 +403,34 @@
             color: #ccc;
         }
 
-        .popular-badge {
+        .badge-container {
             position: absolute;
             top: 6px;
             left: 6px;
+            display: flex;
+            gap: 4px;
+            z-index: 2;
+        }
+
+        .badge-novo {
+            background: #00C853;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        .badge-usado {
+            background: #FF9800;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        .popular-badge {
             background: #FFC107;
             color: #1A237E;
             padding: 2px 8px;
@@ -432,7 +462,36 @@
         .parcelamento {
             font-size: 10px;
             color: #00C853;
+            margin-bottom: 6px;
+        }
+
+        /* Cores no card */
+        .cores-preview {
+            display: flex;
+            gap: 4px;
             margin-bottom: 8px;
+        }
+
+        .cor-preview {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+        }
+
+        .condicao-produto {
+            font-size: 9px;
+            color: #666;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .quantidade-info {
+            font-size: 9px;
+            color: #666;
+            margin-bottom: 6px;
         }
 
         .oferta-area {
@@ -479,6 +538,73 @@
             font-size: 9px;
             display: none;
         }
+
+        /* Modal de imagens (lightbox) */
+        .modal-lightbox {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.95);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .modal-lightbox-content {
+            max-width: 90%;
+            max-height: 70vh;
+            display: block;
+            border-radius: 8px;
+        }
+
+        .modal-lightbox-info {
+            background: white;
+            max-width: 500px;
+            width: 90%;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: left;
+            color: #333;
+        }
+
+        .modal-lightbox-info h3 {
+            margin-bottom: 10px;
+            color: #1A237E;
+        }
+
+        .fechar-lightbox {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 2001;
+        }
+
+        .prev-lightbox, .next-lightbox {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: auto;
+            padding: 16px;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            user-select: none;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            transform: translateY(-50%);
+        }
+
+        .prev-lightbox { left: 20px; }
+        .next-lightbox { right: 20px; }
 
         .loading {
             text-align: center;
@@ -551,6 +677,9 @@
             .banner {
                 margin: 12px;
                 padding: 16px;
+            }
+            .produtos-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             }
         }
     </style>
@@ -671,6 +800,15 @@
         <div id="produtos" class="loading">Carregando produtos...</div>
     </div>
 
+    <!-- Modal Lightbox para fotos -->
+    <div id="lightboxModal" class="modal-lightbox">
+        <span class="fechar-lightbox">&times;</span>
+        <a class="prev-lightbox">&#10094;</a>
+        <a class="next-lightbox">&#10095;</a>
+        <img class="modal-lightbox-content" id="lightboxImg">
+        <div id="lightboxInfo" class="modal-lightbox-info"></div>
+    </div>
+
     <!-- Footer -->
     <div class="footer">
         <div class="footer-content">
@@ -705,6 +843,11 @@
         let categoriaAtual = 'todos';
         let termoBusca = '';
 
+        // Variáveis do lightbox
+        let fotosAtuais = [];
+        let indiceFotoAtual = 0;
+        let produtoAtualLightbox = null;
+
         if (usuarioNome) {
             const topBar = document.querySelector('.top-bar');
             const loginBtn = topBar.querySelector('a[href="login.html"]');
@@ -728,6 +871,79 @@
             topBar.appendChild(logoutBtn);
         }
 
+        // ==================== LIGHTBOX ====================
+        function abrirLightbox(produto) {
+            produtoAtualLightbox = produto;
+            fotosAtuais = produto.fotos && produto.fotos.length ? produto.fotos : [];
+            indiceFotoAtual = 0;
+            const modal = document.getElementById('lightboxModal');
+            const imgModal = document.getElementById('lightboxImg');
+            const infoDiv = document.getElementById('lightboxInfo');
+            
+            if (fotosAtuais.length === 0) {
+                imgModal.src = 'https://via.placeholder.com/500?text=Sem+imagem';
+            } else {
+                imgModal.src = fotosAtuais[0];
+            }
+            
+            // Informações do produto
+            let coresHtml = '';
+            if (produto.cores && produto.cores.length > 0) {
+                coresHtml = `<p><strong>Cores disponíveis:</strong> </p><div style="display:flex; gap:8px; margin-top:5px;">`;
+                produto.cores.forEach(cor => {
+                    coresHtml += `<div style="width:30px; height:30px; border-radius:50%; background:${cor}; border:1px solid #ddd;"></div>`;
+                });
+                coresHtml += `</div>`;
+            }
+            
+            infoDiv.innerHTML = `
+                <h3>${escapeHtml(produto.nome)}</h3>
+                <p><strong>Descrição:</strong> ${escapeHtml(produto.descricao || 'Sem descrição')}</p>
+                <p><strong>Preço sugerido:</strong> R$ ${produto.valor_exposicao?.toFixed(2)}</p>
+                <p><strong>Condição:</strong> ${produto.condicao === 'novo' ? '🆕 Novo' : '🔄 Usado'}</p>
+                <p><strong>Quantidade disponível:</strong> ${produto.quantidade || 1} unidade(s)</p>
+                ${coresHtml}
+                <p><strong>Vendedor:</strong> ${escapeHtml(produto.vendedor_nome || 'ACEITAÊ')}</p>
+                <button onclick="fazerOfertaLightbox()" style="margin-top:12px; background:#00C853; color:white; border:none; padding:8px 16px; border-radius:20px; cursor:pointer; width:100%;">
+                    <i class="fas fa-gavel"></i> Fazer oferta
+                </button>
+            `;
+            modal.style.display = 'flex';
+        }
+
+        function fazerOfertaLightbox() {
+            if (!produtoAtualLightbox) return;
+            document.getElementById('lightboxModal').style.display = 'none';
+            const valorInput = document.getElementById(`valor-${produtoAtualLightbox.id}`);
+            if (valorInput) {
+                valorInput.focus();
+            } else {
+                fazerOferta(produtoAtualLightbox.id);
+            }
+        }
+
+        function navegarLightbox(direcao) {
+            if (fotosAtuais.length === 0) return;
+            indiceFotoAtual += direcao;
+            if (indiceFotoAtual < 0) indiceFotoAtual = fotosAtuais.length - 1;
+            if (indiceFotoAtual >= fotosAtuais.length) indiceFotoAtual = 0;
+            const imgModal = document.getElementById('lightboxImg');
+            imgModal.src = fotosAtuais[indiceFotoAtual];
+        }
+
+        function configurarLightboxEventos() {
+            const modal = document.getElementById('lightboxModal');
+            document.querySelector('.fechar-lightbox').onclick = () => {
+                modal.style.display = 'none';
+            };
+            document.querySelector('.prev-lightbox').onclick = () => navegarLightbox(-1);
+            document.querySelector('.next-lightbox').onclick = () => navegarLightbox(1);
+            window.onclick = (e) => {
+                if (e.target === modal) modal.style.display = 'none';
+            };
+        }
+
+        // ==================== PRODUTOS ====================
         async function carregarProdutos() {
             try {
                 const response = await fetch(`${API_URL}/produtos?status=aprovado`);
@@ -785,118 +1001,31 @@
                     imagemHtml = `<i class="fas fa-box"></i>`;
                 }
                 
+                // Badge de condição (novo/usado)
+                let condicaoBadge = '';
+                if (produto.condicao === 'novo') {
+                    condicaoBadge = '<span class="badge-novo">🆕 NOVO</span>';
+                } else if (produto.condicao === 'usado') {
+                    condicaoBadge = '<span class="badge-usado">🔄 USADO</span>';
+                }
+                
+                // Preview de cores
+                let coresPreviewHtml = '';
+                if (produto.cores && produto.cores.length > 0) {
+                    coresPreviewHtml = `<div class="cores-preview">`;
+                    produto.cores.slice(0, 3).forEach(cor => {
+                        coresPreviewHtml += `<div class="cor-preview" style="background:${cor};"></div>`;
+                    });
+                    if (produto.cores.length > 3) {
+                        coresPreviewHtml += `<span style="font-size:9px;">+${produto.cores.length-3}</span>`;
+                    }
+                    coresPreviewHtml += `</div>`;
+                }
+                
                 const parcelas = Math.min(10, Math.max(1, Math.floor(produto.valor_exposicao / 50)));
                 const valorParcela = produto.valor_exposicao / parcelas;
+                const quantidadeDisp = produto.quantidade || 1;
                 
                 card.innerHTML = `
                     <div class="card-favorite" onclick="event.stopPropagation(); alert('❤️ Adicionado aos favoritos!')">
-                        <i class="fas fa-heart"></i>
-                    </div>
-                    <div class="produto-imagem">
-                        <div class="popular-badge">🔥 POPULAR</div>
-                        ${imagemHtml}
-                    </div>
-                    <div class="produto-info">
-                        <h3>${escapeHtml(produto.nome)}</h3>
-                        <div class="preco">R$ ${produto.valor_exposicao?.toFixed(2)}</div>
-                        <div class="parcelamento">${parcelas}x de R$ ${valorParcela.toFixed(2)}</div>
-                        <div class="oferta-area">
-                            <input type="number" id="valor-${produto.id}" placeholder="Sua oferta" step="0.01">
-                            <button class="btn-ofertar-card" onclick="fazerOferta(${produto.id})">
-                                <i class="fas fa-gavel"></i> Ofertar
-                            </button>
-                        </div>
-                        <div id="msg-${produto.id}" class="mensagem"></div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            }
-        }
-
-        function filtrarPorCategoria(categoria) {
-            categoriaAtual = categoria;
-            document.querySelectorAll('.category-item').forEach(item => {
-                const itemCat = item.getAttribute('data-cat');
-                if (itemCat === categoria) {
-                    item.classList.add('active');
-                } else {
-                    item.classList.remove('active');
-                }
-            });
-            aplicarFiltros();
-        }
-
-        function filtrarProdutos() {
-            termoBusca = document.getElementById('searchInput').value;
-            aplicarFiltros();
-        }
-
-        document.getElementById('searchInput').addEventListener('keyup', function(e) {
-            if (e.key === 'Enter') filtrarProdutos();
-        });
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            return text.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
-
-        async function fazerOferta(produtoId) {
-            if (!usuarioId) {
-                alert('Faça login para fazer uma oferta!');
-                window.location.href = 'login.html';
-                return;
-            }
-            
-            const input = document.getElementById(`valor-${produtoId}`);
-            const valor = parseFloat(input.value);
-            const msgDiv = document.getElementById(`msg-${produtoId}`);
-            
-            if (!valor || valor <= 0) {
-                mostrarMensagem(msgDiv, 'Digite um valor válido!', 'erro');
-                return;
-            }
-            
-            msgDiv.style.display = 'block';
-            msgDiv.innerHTML = '⏳ Enviando...';
-            
-            try {
-                const response = await fetch(`${API_URL}/ofertas?comprador_id=${usuarioId}&comprador_nome=${usuarioNome || 'Usuario'}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ produto_id: produtoId, valor: valor })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    mostrarMensagem(msgDiv, data.mensagem, 'sucesso');
-                    input.value = '';
-                    if (data.status === 'venda_automatica') {
-                        setTimeout(() => carregarProdutos(), 2000);
-                    }
-                } else {
-                    mostrarMensagem(msgDiv, data.detail || 'Erro ao fazer oferta', 'erro');
-                }
-            } catch (error) {
-                mostrarMensagem(msgDiv, 'Erro de conexão', 'erro');
-            }
-        }
-        
-        function mostrarMensagem(elemento, texto, tipo) {
-            elemento.innerHTML = texto;
-            elemento.className = `mensagem ${tipo}`;
-            elemento.style.display = 'block';
-            setTimeout(() => {
-                elemento.style.display = 'none';
-            }, 4000);
-        }
-
-        carregarProdutos();
-    </script>
-</body>
-</html>
+                        <i class="
