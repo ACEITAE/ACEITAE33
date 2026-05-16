@@ -26,8 +26,20 @@
             padding: 8px 16px;
             font-size: 11px;
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .top-bar-left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .top-bar-right {
+            display: flex;
             gap: 12px;
             flex-wrap: wrap;
         }
@@ -43,6 +55,29 @@
 
         .separator {
             color: rgba(255,255,255,0.3);
+        }
+
+        /* Selos de confiança */
+        .trust-badges {
+            background: #00C853;
+            padding: 6px 16px;
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .trust-badges span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: white;
+        }
+
+        .trust-badges i {
+            font-size: 12px;
         }
 
         /* Main header */
@@ -346,7 +381,7 @@
             background: white;
             border-radius: 12px;
             overflow: hidden;
-            transition: box-shadow 0.2s;
+            transition: box-shadow 0.2s, transform 0.2s;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             cursor: pointer;
             position: relative;
@@ -354,6 +389,7 @@
 
         .produto-card:hover {
             box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            transform: translateY(-4px);
         }
 
         .card-favorite {
@@ -410,6 +446,7 @@
             display: flex;
             gap: 4px;
             z-index: 2;
+            flex-wrap: wrap;
         }
 
         .badge-novo {
@@ -430,6 +467,15 @@
             font-weight: bold;
         }
 
+        .badge-rapido {
+            background: #FFC107;
+            color: #1A237E;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
         .popular-badge {
             background: #FFC107;
             color: #1A237E;
@@ -437,6 +483,15 @@
             border-radius: 12px;
             font-size: 9px;
             font-weight: bold;
+        }
+
+        .view-counter-card {
+            font-size: 9px;
+            color: #666;
+            margin: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .produto-info {
@@ -536,6 +591,37 @@
             border-radius: 4px;
             font-size: 9px;
             display: none;
+        }
+
+        /* Botão flutuante */
+        .float-offer-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: #00C853;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            animation: pulse 2s infinite;
+        }
+
+        .float-offer-btn:hover {
+            transform: scale(1.05);
+            background: #1A237E;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0,200,83,0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(0,200,83,0); }
+            100% { box-shadow: 0 0 0 0 rgba(0,200,83,0); }
         }
 
         /* Lightbox lado a lado */
@@ -644,6 +730,31 @@
         .detalhe-item i {
             width: 20px;
             color: #00C853;
+        }
+
+        .progress-container {
+            margin: 16px 0;
+        }
+
+        .progress-bar-bg {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: #00C853;
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+
+        .progress-text {
+            font-size: 11px;
+            color: #666;
+            margin-top: 6px;
+            display: block;
         }
 
         .botoes-acao-modal {
@@ -782,6 +893,22 @@
             opacity: 0.6;
         }
 
+        @keyframes confete {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+
+        .confete {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #00C853;
+            position: absolute;
+            animation: confete 1s ease-out forwards;
+            pointer-events: none;
+            z-index: 10000;
+        }
+
         @media (max-width: 768px) {
             .lightbox-container {
                 flex-direction: column;
@@ -795,12 +922,22 @@
                 white-space: normal;
                 text-align: center;
             }
+            .float-offer-btn {
+                bottom: 20px;
+                left: 20px;
+                padding: 10px 18px;
+                font-size: 12px;
+            }
+            .trust-badges {
+                gap: 12px;
+                font-size: 9px;
+            }
         }
 
         @media (max-width: 480px) {
             .top-bar {
-                justify-content: center;
-                gap: 8px;
+                flex-direction: column;
+                align-items: center;
             }
             .header-container {
                 flex-direction: column;
@@ -832,26 +969,38 @@
             .botoes-acao-modal {
                 flex-direction: column;
             }
+            .trust-badges {
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Top bar -->
+    <!-- Top bar com selos de confiança -->
     <div class="top-bar">
-        <a href="vendedor.html"><i class="fas fa-store"></i> Central do Vendedor</a>
-        <span class="separator">|</span>
-        <a href="anunciar.html"><i class="fas fa-plus-circle"></i> Vender na ACEITAÊ</a>
-        <span class="separator">|</span>
-        <a href="#"><i class="fas fa-download"></i> Baixe o App</a>
-        <span class="separator">|</span>
-        <a href="#"><i class="fab fa-instagram"></i> Siga-nos</a>
-        <span class="separator">|</span>
-        <select class="language-selector" style="background:transparent; border:1px solid rgba(255,255,255,0.3); color:white; padding:4px 8px; border-radius:4px;">
-            <option>🇧🇷 Português (BR)</option>
-        </select>
-        <span class="separator">|</span>
-        <a href="cadastro.html"><i class="fas fa-user-plus"></i> Cadastrar</a>
-        <a href="login.html" style="border:1px solid white; padding:4px 12px; border-radius:20px;">Entrar</a>
+        <div class="top-bar-left">
+            <a href="vendedor.html"><i class="fas fa-store"></i> Central do Vendedor</a>
+            <span class="separator">|</span>
+            <a href="anunciar.html"><i class="fas fa-plus-circle"></i> Vender na ACEITAÊ</a>
+            <span class="separator">|</span>
+            <a href="#"><i class="fas fa-download"></i> Baixe o App</a>
+        </div>
+        <div class="top-bar-right">
+            <a href="#"><i class="fab fa-instagram"></i> Siga-nos</a>
+            <span class="separator">|</span>
+            <a href="cadastro.html"><i class="fas fa-user-plus"></i> Cadastrar</a>
+            <a href="login.html" style="border:1px solid white; padding:4px 12px; border-radius:20px;">Entrar</a>
+        </div>
+    </div>
+
+    <!-- Selos de confiança - VISÃO VISIONÁRIA -->
+    <div class="trust-badges">
+        <span><i class="fas fa-check-circle"></i> +500 vendas realizadas</span>
+        <span><i class="fas fa-shield-alt"></i> Compra 100% segura</span>
+        <span><i class="fas fa-clock"></i> Resposta média: 2h</span>
+        <span><i class="fas fa-gavel"></i> 1.234 ofertas ativas</span>
     </div>
 
     <!-- Main header -->
@@ -876,7 +1025,7 @@
                     <i class="fas fa-shopping-cart"></i>
                     <span class="badge" id="cartBadge" style="display: none;">0</span>
                 </button>
-                <button class="btn-outline" id="btnOfertarHeader" onclick="document.querySelector('.produtos-grid')?.scrollIntoView({behavior: 'smooth'})">
+                <button class="btn-outline" id="btnOfertarHeader" onclick="scrollToFirstProduct()">
                     <i class="fas fa-gavel"></i> Ofertar
                 </button>
                 <button class="btn-primary" onclick="location.href='anunciar.html'">
@@ -951,6 +1100,12 @@
         <div id="produtos" class="loading">Carregando produtos...</div>
     </div>
 
+    <!-- Botão flutuante "Ofertar" - VISÃO VISIONÁRIA -->
+    <div class="float-offer-btn" id="floatOfferBtn" onclick="scrollToFirstProduct()">
+        <i class="fas fa-gavel"></i> Fazer oferta
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
     <!-- Modal Lightbox - Lado a lado -->
     <div id="lightboxModal" class="modal-lightbox">
         <span class="fechar-lightbox">&times;</span>
@@ -1007,7 +1162,7 @@
         let produtoAtualLightbox = null;
 
         if (usuarioNome) {
-            const topBar = document.querySelector('.top-bar');
+            const topBar = document.querySelector('.top-bar-right');
             const loginBtn = topBar.querySelector('a[href="login.html"]');
             const cadastroBtn = topBar.querySelector('a[href="cadastro.html"]');
             if (loginBtn) loginBtn.style.display = 'none';
@@ -1015,18 +1170,38 @@
             
             const userSpan = document.createElement('span');
             userSpan.innerHTML = `<i class="fas fa-user-circle"></i> Olá, ${usuarioNome}`;
-            const logoutBtn = document.createElement('button');
+            const logoutBtn = document.createElement('a');
             logoutBtn.innerHTML = 'Sair';
-            logoutBtn.style.background = '#c62828';
-            logoutBtn.style.border = 'none';
+            logoutBtn.href = '#';
+            logoutBtn.style.border = '1px solid white';
             logoutBtn.style.padding = '4px 12px';
             logoutBtn.style.borderRadius = '20px';
-            logoutBtn.style.color = 'white';
-            logoutBtn.style.cursor = 'pointer';
             logoutBtn.onclick = () => { localStorage.clear(); window.location.href = 'index.html'; };
             
             topBar.appendChild(userSpan);
             topBar.appendChild(logoutBtn);
+        }
+
+        function scrollToFirstProduct() {
+            const firstProduct = document.querySelector('.produto-card');
+            if (firstProduct) {
+                firstProduct.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // Função para criar confetes
+        function criarConfetes() {
+            for (let i = 0; i < 50; i++) {
+                const confete = document.createElement('div');
+                confete.className = 'confete';
+                confete.style.left = Math.random() * window.innerWidth + 'px';
+                confete.style.top = window.innerHeight / 2 + 'px';
+                confete.style.background = ['#00C853', '#1A237E', '#FFC107', '#FF4757'][Math.floor(Math.random() * 4)];
+                confete.style.width = Math.random() * 8 + 4 + 'px';
+                confete.style.height = Math.random() * 8 + 4 + 'px';
+                document.body.appendChild(confete);
+                setTimeout(() => confete.remove(), 1000);
+            }
         }
 
         // ==================== LIGHTBOX ====================
@@ -1074,6 +1249,9 @@
             const quantidadeDisp = produto.quantidade || 1;
             const valorReal = produto.valor_exposicao;
             
+            // Calcula barra de progresso (estimativa)
+            const progressPercent = Math.min(100, Math.floor((valorReal - (valorReal * 0.2)) / valorReal * 100));
+            
             infoDiv.innerHTML = `
                 <h3>${escapeHtml(produto.nome)}</h3>
                 <div class="preco-modal">R$ ${valorReal.toFixed(2)}</div>
@@ -1083,6 +1261,13 @@
                 <div class="detalhe-item"><i class="fas fa-boxes"></i> <strong>Estoque:</strong> ${quantidadeDisp} unidade(s) disponíveis</div>
                 <div class="detalhe-item"><i class="fas fa-store"></i> <strong>Vendedor:</strong> ${escapeHtml(produto.vendedor_nome || 'ACEITAÊ')}</div>
                 ${coresHtml}
+                
+                <div class="progress-container">
+                    <div class="progress-bar-bg">
+                        <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                    </div>
+                    <span class="progress-text">📊 Mais R$ ${(valorReal * 0.2).toFixed(2)} e sua oferta tem 95% de chance de ser ACEITA!</span>
+                </div>
                 
                 <div class="quantidade-modal">
                     <i class="fas fa-sort-amount-up"></i>
@@ -1106,9 +1291,15 @@
             modal.style.display = 'flex';
         }
 
+        function scrollToFirstProduct() {
+            const firstProduct = document.querySelector('.produto-card');
+            if (firstProduct) {
+                firstProduct.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
         function atualizarTotalModal() {
             const qtd = document.getElementById('quantidadeModal')?.value || 1;
-            console.log(`Quantidade selecionada: ${qtd}`);
         }
 
         function comprarValorReal() {
@@ -1162,7 +1353,8 @@
                 });
                 const data = await response.json();
                 if (response.ok) {
-                    alert(data.mensagem || 'Compra realizada com sucesso!');
+                    criarConfetes();
+                    alert(data.mensagem || '🎉 Compra realizada com sucesso!');
                     document.getElementById('lightboxModal').style.display = 'none';
                     if (data.status === 'venda_automatica') {
                         setTimeout(() => carregarProdutos(), 2000);
@@ -1265,6 +1457,9 @@
                     condicaoBadge = '<span class="badge-usado">🔄 USADO</span>';
                 }
                 
+                // Badge "Aceito rápido" aleatório para dar dinamismo
+                const aceitoRapido = Math.random() > 0.7 ? '<span class="badge-rapido">⚡ Aceito rápido</span>' : '';
+                
                 let coresPreviewHtml = '';
                 if (produto.cores && produto.cores.length > 0) {
                     coresPreviewHtml = `<div class="cores-preview">`;
@@ -1277,23 +1472,30 @@
                     coresPreviewHtml += `</div>`;
                 }
                 
+                // Contador de visualizações (random para simular movimento)
+                const visualizacoes = Math.floor(Math.random() * 100) + 10;
+                
                 const parcelas = Math.min(10, Math.max(1, Math.floor(produto.valor_exposicao / 50)));
                 const valorParcela = produto.valor_exposicao / parcelas;
                 const quantidadeDisp = produto.quantidade || 1;
                 
                 card.innerHTML = `
-                    <div class="card-favorite" onclick="event.stopPropagation(); alert('❤️ Adicionado aos favoritos!')">
+                    <div class="card-favorite" onclick="event.stopPropagation(); alert('❤️ Produto salvo nos favoritos!')">
                         <i class="fas fa-heart"></i>
                     </div>
                     <div class="produto-imagem" onclick="abrirLightbox(${JSON.stringify(produto).replace(/"/g, '&quot;')})">
                         <div class="badge-container">
                             ${condicaoBadge}
+                            ${aceitoRapido}
                             <span class="popular-badge">🔥 POPULAR</span>
                         </div>
                         ${imagemHtml}
                     </div>
                     <div class="produto-info">
                         <h3>${escapeHtml(produto.nome)}</h3>
+                        <div class="view-counter-card">
+                            <i class="fas fa-eye"></i> ${visualizacoes} pessoas viram este produto hoje
+                        </div>
                         <div class="condicao-produto">
                             <i class="fas ${produto.condicao === 'novo' ? 'fa-sparkle' : 'fa-rotate-right'}"></i>
                             ${produto.condicao === 'novo' ? 'Produto novo' : 'Produto usado - ver fotos'}
@@ -1378,8 +1580,9 @@
                 const data = await response.json();
                 
                 if (response.ok) {
+                    criarConfetes();
                     const msgDiv = document.getElementById(`msg-${produtoId}`);
-                    if (msgDiv) mostrarMensagem(msgDiv, data.mensagem, 'sucesso');
+                    if (msgDiv) mostrarMensagem(msgDiv, '🎉 ' + data.mensagem, 'sucesso');
                     else alert(data.mensagem);
                     
                     if (document.getElementById(`valor-${produtoId}`)) {
