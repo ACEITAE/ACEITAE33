@@ -1028,4 +1028,125 @@
                 
                 card.innerHTML = `
                     <div class="card-favorite" onclick="event.stopPropagation(); alert('❤️ Adicionado aos favoritos!')">
-                        <i class="
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="produto-imagem" onclick="abrirLightbox(${JSON.stringify(produto).replace(/"/g, '&quot;')})">
+                        <div class="badge-container">
+                            ${condicaoBadge}
+                            <span class="popular-badge">🔥 POPULAR</span>
+                        </div>
+                        ${imagemHtml}
+                    </div>
+                    <div class="produto-info">
+                        <h3>${escapeHtml(produto.nome)}</h3>
+                        <div class="condicao-produto">
+                            <i class="fas ${produto.condicao === 'novo' ? 'fa-sparkle' : 'fa-rotate-right'}"></i>
+                            ${produto.condicao === 'novo' ? 'Produto novo' : 'Produto usado - ver fotos'}
+                        </div>
+                        <div class="quantidade-info">
+                            <i class="fas fa-boxes"></i> Estoque: ${quantidadeDisp} unidade(s)
+                        </div>
+                        ${coresPreviewHtml}
+                        <div class="preco">R$ ${produto.valor_exposicao?.toFixed(2)}</div>
+                        <div class="parcelamento">${parcelas}x de R$ ${valorParcela.toFixed(2)}</div>
+                        <div class="oferta-area">
+                            <input type="number" id="valor-${produto.id}" placeholder="Sua oferta" step="0.01">
+                            <button class="btn-ofertar-card" onclick="fazerOferta(${produto.id})">
+                                <i class="fas fa-gavel"></i> Ofertar
+                            </button>
+                        </div>
+                        <div id="msg-${produto.id}" class="mensagem"></div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+        }
+
+        function filtrarPorCategoria(categoria) {
+            categoriaAtual = categoria;
+            document.querySelectorAll('.category-item').forEach(item => {
+                const itemCat = item.getAttribute('data-cat');
+                if (itemCat === categoria) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+            aplicarFiltros();
+        }
+
+        function filtrarProdutos() {
+            termoBusca = document.getElementById('searchInput').value;
+            aplicarFiltros();
+        }
+
+        document.getElementById('searchInput').addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') filtrarProdutos();
+        });
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        async function fazerOferta(produtoId) {
+            if (!usuarioId) {
+                alert('Faça login para fazer uma oferta!');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const input = document.getElementById(`valor-${produtoId}`);
+            const valor = parseFloat(input.value);
+            const msgDiv = document.getElementById(`msg-${produtoId}`);
+            
+            if (!valor || valor <= 0) {
+                mostrarMensagem(msgDiv, 'Digite um valor válido!', 'erro');
+                return;
+            }
+            
+            msgDiv.style.display = 'block';
+            msgDiv.innerHTML = '⏳ Enviando...';
+            
+            try {
+                const response = await fetch(`${API_URL}/ofertas?comprador_id=${usuarioId}&comprador_nome=${usuarioNome || 'Usuario'}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ produto_id: produtoId, valor: valor })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    mostrarMensagem(msgDiv, data.mensagem, 'sucesso');
+                    input.value = '';
+                    if (data.status === 'venda_automatica') {
+                        setTimeout(() => carregarProdutos(), 2000);
+                    }
+                } else {
+                    mostrarMensagem(msgDiv, data.detail || 'Erro ao fazer oferta', 'erro');
+                }
+            } catch (error) {
+                mostrarMensagem(msgDiv, 'Erro de conexão', 'erro');
+            }
+        }
+        
+        function mostrarMensagem(elemento, texto, tipo) {
+            elemento.innerHTML = texto;
+            elemento.className = `mensagem ${tipo}`;
+            elemento.style.display = 'block';
+            setTimeout(() => {
+                elemento.style.display = 'none';
+            }, 4000);
+        }
+
+        configurarLightboxEventos();
+        carregarProdutos();
+    </script>
+</body>
+</html>
