@@ -2,8 +2,8 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, initial-scale=1.0">
-    <title>ACEITAÊ - Faça a oferta. Torça pelo ACEITAÊ!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>ACEITAÊ - Compre com Segurança</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -15,60 +15,29 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
-            color: #333;
+            color: #1A237E;
             min-height: 100vh;
         }
 
-        /* Top bar */
-        .top-bar {
-            background: #1A237E;
-            color: white;
-            padding: 8px 16px;
-            font-size: 11px;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .top-bar a {
-            color: white;
-            text-decoration: none;
-        }
-
-        .top-bar a:hover {
-            opacity: 0.8;
-        }
-
-        .separator {
-            color: rgba(255,255,255,0.3);
-        }
-
-        /* Main header */
-        .main-header {
+        /* Header */
+        .header {
             background: white;
-            padding: 12px 16px;
+            padding: 12px 24px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
             position: sticky;
             top: 0;
             z-index: 100;
         }
 
-        .header-container {
-            max-width: 1280px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
         .logo-area {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
         }
 
         .logo-img {
@@ -86,743 +55,495 @@
             color: #00C853;
         }
 
-        .slogan-header {
-            font-size: 11px;
-            color: #666;
-            margin-left: 15px;
-            padding-left: 15px;
-            border-left: 1px solid #ddd;
-        }
-
-        .slogan-header i {
-            color: #00C853;
-            margin-right: 4px;
-        }
-
-        .search-box {
-            flex: 1;
-            max-width: 350px;
-            display: flex;
-            background: #f0f0f0;
-            border-radius: 20px;
-            overflow: hidden;
-        }
-
-        .search-box input {
-            flex: 1;
-            padding: 8px 16px;
-            border: none;
-            background: transparent;
-            font-size: 13px;
-            outline: none;
-        }
-
-        .search-box button {
-            background: #00C853;
-            border: none;
-            padding: 0 16px;
-            color: white;
-            cursor: pointer;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .btn-icon {
-            background: transparent;
-            border: none;
-            font-size: 18px;
-            color: #666;
-            cursor: pointer;
-            position: relative;
-            transition: color 0.3s;
-        }
-
-        .btn-icon:hover {
-            color: #00C853;
-        }
-
-        .btn-icon .badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #ff4757;
-            color: white;
-            font-size: 9px;
-            font-weight: bold;
-            padding: 2px 5px;
-            border-radius: 10px;
-            min-width: 16px;
-            text-align: center;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid #00C853;
-            color: #00C853;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
+        .header-actions {
             display: flex;
             align-items: center;
-            gap: 6px;
-        }
-
-        .btn-outline i {
-            font-size: 12px;
-        }
-
-        .btn-primary {
-            background: #00C853;
-            border: none;
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-primary i {
-            font-size: 12px;
-        }
-
-        /* Categorias */
-        .categories {
-            background: white;
-            padding: 10px 16px;
-            border-bottom: 1px solid #e0e0e0;
-            overflow-x: auto;
-            white-space: nowrap;
-        }
-
-        .categories-container {
-            max-width: 1280px;
-            margin: 0 auto;
-            display: flex;
             gap: 20px;
+            flex-wrap: wrap;
         }
 
-        .category-item {
-            display: inline-flex;
-            flex-direction: column;
+        .user-info {
+            display: flex;
             align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #1A237E;
+            font-weight: 500;
+        }
+
+        .btn-header {
+            background: #f0f0f0;
+            padding: 8px 16px;
+            border-radius: 20px;
             text-decoration: none;
             color: #666;
-            font-size: 11px;
-            gap: 4px;
-            transition: color 0.3s;
+            font-size: 13px;
+            transition: background 0.3s;
         }
 
-        .category-item i {
-            font-size: 20px;
+        .btn-header:hover {
+            background: #e0e0e0;
         }
 
-        .category-item:hover {
-            color: #00C853;
-        }
-
-        /* Banner */
-        .banner {
-            background: linear-gradient(135deg, #1A237E 0%, #00C853 100%);
-            margin: 16px;
-            border-radius: 16px;
-            padding: 20px;
+        .btn-sair {
+            background: #c62828;
+            padding: 6px 14px;
+            border-radius: 20px;
             color: white;
-            text-align: center;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
         }
 
-        .banner h2 {
-            font-size: 18px;
-            margin-bottom: 4px;
-        }
-
-        .banner p {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-
-        /* Container */
+        /* Container e produtos grid */
         .container {
             max-width: 1280px;
             margin: 0 auto;
-            padding: 0 16px;
+            padding: 24px;
         }
 
-        .section-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 20px 0 12px;
+        .titulo h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
         }
 
-        .section-title h2 {
-            font-size: 16px;
-            color: #333;
+        .titulo p {
+            color: #666;
+            margin-bottom: 24px;
         }
 
-        /* Grid de produtos */
         .produtos-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 24px;
         }
 
-        @media (min-width: 480px) {
-            .produtos-grid {
-                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            }
-        }
-
-        @media (min-width: 768px) {
-            .produtos-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-                gap: 16px;
-            }
-        }
-
-        /* Card do produto */
         .produto-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            transition: box-shadow 0.2s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
             cursor: pointer;
-            position: relative;
         }
 
         .produto-card:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-        }
-
-        .card-favorite {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: rgba(255,255,255,0.9);
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 2;
-        }
-
-        .card-favorite i {
-            color: #ff4757;
-            font-size: 14px;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
         }
 
         .produto-imagem {
-            height: 150px;
+            width: 100%;
+            height: 200px;
             background: #f9f9f9;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
             overflow: hidden;
+            position: relative;
         }
 
         .produto-imagem img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.3s;
         }
 
-        .produto-imagem i {
-            font-size: 40px;
-            color: #ccc;
-        }
-
-        .popular-badge {
-            position: absolute;
-            top: 6px;
-            left: 6px;
-            background: #FFC107;
-            color: #1A237E;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 9px;
-            font-weight: bold;
+        .produto-card:hover .produto-imagem img {
+            transform: scale(1.02);
         }
 
         .produto-info {
-            padding: 10px;
+            padding: 16px;
         }
 
         .produto-info h3 {
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 4px;
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #1A237E;
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap;
+        }
+
+        .descricao-resumo {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .preco {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
-            color: #1A237E;
-            margin: 6px 0 2px;
-        }
-
-        .parcelamento {
-            font-size: 10px;
             color: #00C853;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
-        .oferta-area {
-            display: flex;
-            gap: 6px;
-        }
-
-        .oferta-area input {
-            flex: 1;
-            padding: 6px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 10px;
-            outline: none;
-        }
-
-        .btn-ofertar-card {
-            background: #00C853;
+        .btn-oferta {
+            background: #1A237E;
             color: white;
             border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 10px;
+            padding: 10px 16px;
+            border-radius: 30px;
             font-weight: bold;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            white-space: nowrap;
+            width: 100%;
+            transition: background 0.3s;
         }
 
-        .btn-ofertar-card i {
-            font-size: 10px;
+        .btn-oferta:hover {
+            background: #00C853;
         }
 
-        .btn-ofertar-card:hover {
-            background: #00A844;
-        }
-
-        .mensagem {
-            margin-top: 6px;
-            padding: 4px;
-            border-radius: 4px;
-            font-size: 9px;
+        /* Modal de imagens */
+        .modal {
             display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.95);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .modal-content {
+            max-width: 90%;
+            max-height: 60vh;
+            margin: auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+        .modal-descricao {
+            background: white;
+            max-width: 500px;
+            width: 90%;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: left;
+            color: #333;
+        }
+        .modal-descricao h3 {
+            margin-bottom: 10px;
+            color: #1A237E;
+        }
+        .fechar-modal {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: auto;
+            padding: 16px;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            user-select: none;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            transform: translateY(-50%);
+        }
+        .prev { left: 20px; }
+        .next { right: 20px; }
+        .prev:hover, .next:hover {
+            background: rgba(0,0,0,0.8);
         }
 
+        /* Loading */
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: 60px;
             color: #999;
         }
 
-        /* Footer */
-        .footer {
-            background: #1A237E;
-            color: white;
-            margin-top: 40px;
-            padding: 32px 16px 20px;
-        }
-
-        .footer-content {
-            max-width: 1280px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 24px;
-        }
-
-        .footer-section h4 {
-            margin-bottom: 10px;
-            font-size: 13px;
-        }
-
-        .footer-section p {
-            font-size: 11px;
-            opacity: 0.8;
-            margin-bottom: 4px;
-        }
-
-        .copyright {
-            text-align: center;
-            padding-top: 20px;
-            margin-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            font-size: 10px;
-            opacity: 0.6;
-        }
-
-        @media (max-width: 480px) {
-            .top-bar {
-                justify-content: center;
-                gap: 8px;
+        @media (max-width: 640px) {
+            .produtos-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 16px;
             }
-            .header-container {
-                flex-direction: column;
+            .produto-imagem {
+                height: 150px;
             }
-            .slogan-header {
-                margin-left: 0;
-                padding-left: 0;
-                border-left: none;
-                text-align: center;
-            }
-            .search-box {
-                max-width: 100%;
-                width: 100%;
-            }
-            .action-buttons {
-                justify-content: center;
-            }
-            .categories-container {
-                gap: 12px;
-            }
-            .banner {
-                margin: 12px;
-                padding: 16px;
+            .modal-descricao {
+                max-height: 30vh;
+                overflow-y: auto;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Top bar -->
-    <div class="top-bar">
-        <a href="vendedor.html"><i class="fas fa-store"></i> Central do Vendedor</a>
-        <span class="separator">|</span>
-        <a href="anunciar.html"><i class="fas fa-plus-circle"></i> Vender na ACEITAÊ</a>
-        <span class="separator">|</span>
-        <a href="#"><i class="fas fa-download"></i> Baixe o App</a>
-        <span class="separator">|</span>
-        <a href="#"><i class="fab fa-instagram"></i> Siga-nos</a>
-        <span class="separator">|</span>
-        <select class="language-selector" style="background:transparent; border:1px solid rgba(255,255,255,0.3); color:white; padding:4px 8px; border-radius:4px;">
-            <option>🇧🇷 Português (BR)</option>
-        </select>
-        <span class="separator">|</span>
-        <a href="cadastro.html"><i class="fas fa-user-plus"></i> Cadastrar</a>
-        <a href="login.html" style="border:1px solid white; padding:4px 12px; border-radius:20px;">Entrar</a>
+
+<div class="header">
+    <div class="logo-area">
+        <img src="logo.jpeg" alt="ACEITAÊ" class="logo-img" onerror="this.style.display='none'">
+        <div class="logo-text">ACEIT<span>AÊ</span></div>
     </div>
-
-    <!-- Main header -->
-    <div class="main-header">
-        <div class="header-container">
-            <div class="logo-area">
-                <img src="logo.jpeg" alt="ACEITAÊ" class="logo-img" onerror="this.style.display='none'">
-                <div class="logo-text">ACEIT<span>AÊ</span></div>
-                <div class="slogan-header">
-                    <i class="fas fa-gavel"></i> Faça sua oferta. Torça pelo ACEITAÊ, a gente garante!
-                </div>
-            </div>
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Buscar produtos...">
-                <button onclick="filtrarProdutos()"><i class="fas fa-search"></i></button>
-            </div>
-            <div class="action-buttons">
-                <button class="btn-icon" onclick="alert('❤️ Seus favoritos em breve!')">
-                    <i class="fas fa-heart"></i>
-                </button>
-                <button class="btn-icon" onclick="alert('🛒 Carrinho de compras em breve!')">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="badge" id="cartBadge" style="display: none;">0</span>
-                </button>
-                <button class="btn-outline" id="btnOfertarHeader" onclick="document.querySelector('.produtos-grid')?.scrollIntoView({behavior: 'smooth'})">
-                    <i class="fas fa-gavel"></i> Ofertar
-                </button>
-                <button class="btn-primary" onclick="location.href='anunciar.html'">
-                    <i class="fas fa-plus-circle"></i> Anunciar Grátis
-                </button>
-            </div>
-        </div>
+    <div class="header-actions" id="headerActions">
+        <!-- Será preenchido via JS (login/logout) -->
+        <a href="vendedor.html" class="btn-header"><i class="fas fa-store"></i> Sou Vendedor</a>
+        <a href="anunciar.html" class="btn-header"><i class="fas fa-plus-circle"></i> Anunciar</a>
     </div>
+</div>
 
-    <!-- Categorias -->
-    <div class="categories">
-        <div class="categories-container">
-            <a href="#" class="category-item" data-cat="todos" onclick="filtrarPorCategoria('todos'); return false;">
-                <i class="fas fa-th-large"></i>
-                <span>Todos</span>
-            </a>
-            <a href="#" class="category-item" data-cat="Eletrônicos" onclick="filtrarPorCategoria('Eletrônicos'); return false;">
-                <i class="fas fa-mobile-alt"></i>
-                <span>Eletrônicos</span>
-            </a>
-            <a href="#" class="category-item" data-cat="Moda" onclick="filtrarPorCategoria('Moda'); return false;">
-                <i class="fas fa-tshirt"></i>
-                <span>Moda</span>
-            </a>
-            <a href="#" class="category-item" data-cat="Casa" onclick="filtrarPorCategoria('Casa'); return false;">
-                <i class="fas fa-home"></i>
-                <span>Casa</span>
-            </a>
-            <a href="#" class="category-item" data-cat="Esporte" onclick="filtrarPorCategoria('Esporte'); return false;">
-                <i class="fas fa-futbol"></i>
-                <span>Esporte</span>
-            </a>
-            <a href="#" class="category-item" data-cat="Outros" onclick="filtrarPorCategoria('Outros'); return false;">
-                <i class="fas fa-box"></i>
-                <span>Outros</span>
-            </a>
-        </div>
+<div class="container">
+    <div class="titulo">
+        <h1><i class="fas fa-tags"></i> Produtos em destaque</h1>
+        <p>Produtos vistoriados e garantia de correspondência. Faça sua oferta!</p>
     </div>
-
-    <!-- Banner -->
-    <div class="banner">
-        <h2>🔥 OFERTAS RELÂMPAGO</h2>
-        <p>Ofertas que você decide! Faça sua oferta e torça pelo ACEITAÊ!</p>
+    <div id="produtos-container" class="loading">
+        Carregando produtos...
     </div>
+</div>
 
-    <div class="container">
-        <div class="section-title">
-            <h2>📦 Produtos em destaque</h2>
-            <a href="#">Ver tudo →</a>
-        </div>
+<!-- Modal de imagens -->
+<div id="modalImagens" class="modal">
+    <span class="fechar-modal">&times;</span>
+    <a class="prev">&#10094;</a>
+    <a class="next">&#10095;</a>
+    <img class="modal-content" id="imgModal">
+    <div id="modalDescricao" class="modal-descricao"></div>
+</div>
 
-        <div id="produtos" class="loading">Carregando produtos...</div>
-    </div>
+<script>
+    const API_URL = 'https://aceitae33-api.onrender.com';
+    let produtosGlobal = [];
+    let usuarioLogado = null;
+    let fotosAtuais = [];
+    let indiceFotoAtual = 0;
 
-    <!-- Footer -->
-    <div class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h4>ACEITAÊ</h4>
-                <p>Plataforma de venda consignada</p>
-                <p>com ofertas condicionais</p>
-            </div>
-            <div class="footer-section">
-                <h4>Links úteis</h4>
-                <p>Como comprar</p>
-                <p>Como vender</p>
-                <p>Segurança</p>
-            </div>
-            <div class="footer-section">
-                <h4>Contato</h4>
-                <p>contato@aceitae.com</p>
-                <p>© 2026 ACEITAÊ</p>
-            </div>
-        </div>
-        <div class="copyright">
-            ACEITAÊ - Faça a oferta. Torça pelo ACEITAÊ!
-        </div>
-    </div>
+    // ==================== Helper ====================
+    function getUsuarioLogado() {
+        const id = localStorage.getItem('usuario_id');
+        const nome = localStorage.getItem('usuario_nome');
+        const tipo = localStorage.getItem('usuario_tipo');
+        if (id && nome) return { id: parseInt(id), nome, tipo };
+        return null;
+    }
 
-    <script>
-        const API_URL = 'https://aceitae33-api.onrender.com';
-        const usuarioId = localStorage.getItem('usuario_id');
-        const usuarioNome = localStorage.getItem('usuario_nome');
-
-        let produtosOriginais = [];
-        let categoriaAtual = 'todos';
-        let termoBusca = '';
-
-        if (usuarioNome) {
-            const topBar = document.querySelector('.top-bar');
-            const loginBtn = topBar.querySelector('a[href="login.html"]');
-            const cadastroBtn = topBar.querySelector('a[href="cadastro.html"]');
-            if (loginBtn) loginBtn.style.display = 'none';
-            if (cadastroBtn) cadastroBtn.style.display = 'none';
-            
-            const userSpan = document.createElement('span');
-            userSpan.innerHTML = `<i class="fas fa-user-circle"></i> Olá, ${usuarioNome}`;
-            const logoutBtn = document.createElement('button');
-            logoutBtn.innerHTML = 'Sair';
-            logoutBtn.style.background = '#c62828';
-            logoutBtn.style.border = 'none';
-            logoutBtn.style.padding = '4px 12px';
-            logoutBtn.style.borderRadius = '20px';
-            logoutBtn.style.color = 'white';
-            logoutBtn.style.cursor = 'pointer';
-            logoutBtn.onclick = () => { localStorage.clear(); window.location.href = 'index.html'; };
-            
-            topBar.appendChild(userSpan);
-            topBar.appendChild(logoutBtn);
+    function atualizarHeader() {
+        const header = document.getElementById('headerActions');
+        usuarioLogado = getUsuarioLogado();
+        if (usuarioLogado) {
+            header.innerHTML = `
+                <span class="user-name"><i class="fas fa-user-circle"></i> Olá, ${usuarioLogado.nome}</span>
+                <a href="vendedor.html" class="btn-header"><i class="fas fa-store"></i> Meu Painel</a>
+                <a href="anunciar.html" class="btn-header"><i class="fas fa-plus-circle"></i> Anunciar</a>
+                <button class="btn-sair" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            `;
+        } else {
+            header.innerHTML = `
+                <a href="login.html" class="btn-header"><i class="fas fa-sign-in-alt"></i> Entrar</a>
+                <a href="vendedor.html" class="btn-header"><i class="fas fa-store"></i> Sou Vendedor</a>
+                <a href="anunciar.html" class="btn-header"><i class="fas fa-plus-circle"></i> Anunciar</a>
+            `;
         }
+    }
 
-        async function carregarProdutos() {
-            try {
-                const response = await fetch(`${API_URL}/produtos?status=aprovado`);
-                const data = await response.json();
-                
-                if (!data.produtos || data.produtos.length === 0) {
-                    document.getElementById('produtos').innerHTML = '<div class="loading">😢 Nenhum produto disponível no momento.</div>';
-                    return;
-                }
+    function logout() {
+        localStorage.clear();
+        window.location.reload();
+    }
 
-                produtosOriginais = data.produtos;
-                aplicarFiltros();
-            } catch (error) {
-                console.error('Erro:', error);
-                document.getElementById('produtos').innerHTML = '<div class="loading">❌ Erro ao carregar produtos</div>';
-            }
-        }
-
-        function aplicarFiltros() {
-            let produtosFiltrados = [...produtosOriginais];
-            
-            if (categoriaAtual !== 'todos') {
-                produtosFiltrados = produtosFiltrados.filter(p => p.categoria === categoriaAtual);
-            }
-            
-            if (termoBusca) {
-                produtosFiltrados = produtosFiltrados.filter(p => 
-                    p.nome.toLowerCase().includes(termoBusca.toLowerCase()) ||
-                    (p.descricao && p.descricao.toLowerCase().includes(termoBusca.toLowerCase()))
-                );
-            }
-            
-            renderizarProdutos(produtosFiltrados);
-        }
-
-        function renderizarProdutos(produtos) {
-            const container = document.getElementById('produtos');
-            
-            if (produtos.length === 0) {
-                container.innerHTML = '<div class="loading">🔍 Nenhum produto encontrado.</div>';
-                return;
-            }
-
-            container.innerHTML = '<div class="produtos-grid"></div>';
-            const grid = container.querySelector('.produtos-grid');
-
-            for (const produto of produtos) {
-                const card = document.createElement('div');
-                card.className = 'produto-card';
-                
-                let imagemHtml = '';
-                if (produto.fotos && produto.fotos.length > 0 && produto.fotos[0]) {
-                    imagemHtml = `<img src="${produto.fotos[0]}" alt="${produto.nome}" onerror="this.parentElement.innerHTML='<i class=\'fas fa-box\'></i>'">`;
-                } else {
-                    imagemHtml = `<i class="fas fa-box"></i>`;
-                }
-                
-                const parcelas = Math.min(10, Math.max(1, Math.floor(produto.valor_exposicao / 50)));
-                const valorParcela = produto.valor_exposicao / parcelas;
-                
-                card.innerHTML = `
-                    <div class="card-favorite" onclick="event.stopPropagation(); alert('❤️ Adicionado aos favoritos!')">
-                        <i class="fas fa-heart"></i>
-                    </div>
-                    <div class="produto-imagem">
-                        <div class="popular-badge">🔥 POPULAR</div>
-                        ${imagemHtml}
-                    </div>
-                    <div class="produto-info">
-                        <h3>${escapeHtml(produto.nome)}</h3>
-                        <div class="preco">R$ ${produto.valor_exposicao?.toFixed(2)}</div>
-                        <div class="parcelamento">${parcelas}x de R$ ${valorParcela.toFixed(2)}</div>
-                        <div class="oferta-area">
-                            <input type="number" id="valor-${produto.id}" placeholder="Sua oferta" step="0.01">
-                            <button class="btn-ofertar-card" onclick="fazerOferta(${produto.id})">
-                                <i class="fas fa-gavel"></i> Ofertar
-                            </button>
-                        </div>
-                        <div id="msg-${produto.id}" class="mensagem"></div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            }
-        }
-
-        function filtrarPorCategoria(categoria) {
-            categoriaAtual = categoria;
-            document.querySelectorAll('.category-item').forEach(item => {
-                if (item.getAttribute('data-cat') === categoria) {
-                    item.style.color = '#00C853';
-                } else {
-                    item.style.color = '#666';
-                }
-            });
-            aplicarFiltros();
-        }
-
-        function filtrarProdutos() {
-            termoBusca = document.getElementById('searchInput').value;
-            aplicarFiltros();
-        }
-
-        document.getElementById('searchInput').addEventListener('keyup', function(e) {
-            if (e.key === 'Enter') filtrarProdutos();
-        });
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            return text.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
-
-        async function fazerOferta(produtoId) {
-            if (!usuarioId) {
-                alert('Faça login para fazer uma oferta!');
-                window.location.href = 'login.html';
-                return;
-            }
-            
-            const input = document.getElementById(`valor-${produtoId}`);
-            const valor = parseFloat(input.value);
-            const msgDiv = document.getElementById(`msg-${produtoId}`);
-            
-            if (!valor || valor <= 0) {
-                mostrarMensagem(msgDiv, 'Digite um valor válido!', 'erro');
-                return;
-            }
-            
-            msgDiv.style.display = 'block';
-            msgDiv.innerHTML = '⏳ Enviando...';
-            
-            try {
-                const response = await fetch(`${API_URL}/ofertas?comprador_id=${usuarioId}&comprador_nome=${usuarioNome || 'Usuario'}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ produto_id: produtoId, valor: valor })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    mostrarMensagem(msgDiv, data.mensagem, 'sucesso');
-                    input.value = '';
-                    if (data.status === 'venda_automatica') {
-                        setTimeout(() => carregarProdutos(), 2000);
-                    }
-                } else {
-                    mostrarMensagem(msgDiv, data.detail || 'Erro ao fazer oferta', 'erro');
-                }
-            } catch (error) {
-                mostrarMensagem(msgDiv, 'Erro de conexão', 'erro');
-            }
+    // ==================== Modal ====================
+    function abrirModal(produto) {
+        fotosAtuais = produto.fotos && produto.fotos.length ? produto.fotos : [];
+        indiceFotoAtual = 0;
+        const modal = document.getElementById('modalImagens');
+        const imgModal = document.getElementById('imgModal');
+        const descModal = document.getElementById('modalDescricao');
+        
+        if (fotosAtuais.length === 0) {
+            imgModal.src = 'https://via.placeholder.com/500?text=Sem+imagem';
+        } else {
+            imgModal.src = fotosAtuais[0];
         }
         
-        function mostrarMensagem(elemento, texto, tipo) {
-            elemento.innerHTML = texto;
-            elemento.className = `mensagem ${tipo}`;
-            elemento.style.display = 'block';
-            setTimeout(() => {
-                elemento.style.display = 'none';
-            }, 4000);
+        // Descrição completa com formatação
+        let descricaoHtml = `
+            <h3>${escapeHtml(produto.nome)}</h3>
+            <p><strong>Descrição:</strong> ${escapeHtml(produto.descricao || 'Sem descrição')}</p>
+            <p><strong>Preço sugerido:</strong> R$ ${produto.valor_exposicao?.toFixed(2)}</p>
+            <p><strong>Vendedor:</strong> ${escapeHtml(produto.vendedor_nome || 'ACEITAÊ')}</p>
+        `;
+        // Se for produto próprio (vendedor especial) você pode adicionar selo
+        if (produto.vendedor_id === 1) { // exemplo: vendedor_id 1 é a própria plataforma
+            descricaoHtml += `<p><span style="background:#00C853; color:white; padding:2px 8px; border-radius:20px;">✅ Vendido por ACEITAÊ</span></p>`;
         }
+        descModal.innerHTML = descricaoHtml;
+        modal.style.display = 'flex';
+    }
 
+    function navegarModal(direcao) {
+        if (fotosAtuais.length === 0) return;
+        indiceFotoAtual += direcao;
+        if (indiceFotoAtual < 0) indiceFotoAtual = fotosAtuais.length - 1;
+        if (indiceFotoAtual >= fotosAtuais.length) indiceFotoAtual = 0;
+        const imgModal = document.getElementById('imgModal');
+        imgModal.src = fotosAtuais[indiceFotoAtual];
+    }
+
+    function configurarModalEventos() {
+        const modal = document.getElementById('modalImagens');
+        document.querySelector('.fechar-modal').onclick = () => {
+            modal.style.display = 'none';
+        };
+        document.querySelector('.prev').onclick = () => navegarModal(-1);
+        document.querySelector('.next').onclick = () => navegarModal(1);
+        window.onclick = (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        };
+    }
+
+    // ==================== Renderizar produtos ====================
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function criarCardProduto(produto) {
+        const card = document.createElement('div');
+        card.className = 'produto-card';
+        
+        // Imagem clicável
+        const imgDiv = document.createElement('div');
+        imgDiv.className = 'produto-imagem';
+        const img = document.createElement('img');
+        const primeiraFoto = produto.fotos && produto.fotos.length ? produto.fotos[0] : 'https://via.placeholder.com/300?text=Sem+foto';
+        img.src = primeiraFoto;
+        img.alt = produto.nome;
+        img.style.cursor = 'pointer';
+        img.onclick = (e) => {
+            e.stopPropagation();
+            abrirModal(produto);
+        };
+        imgDiv.appendChild(img);
+        
+        // Informações
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'produto-info';
+        const descricaoCurta = produto.descricao ? produto.descricao.substring(0, 80) : '';
+        infoDiv.innerHTML = `
+            <h3>${escapeHtml(produto.nome)}</h3>
+            <div class="descricao-resumo">${escapeHtml(descricaoCurta)}${produto.descricao && produto.descricao.length > 80 ? '...' : ''}</div>
+            <div class="preco">R$ ${produto.valor_exposicao?.toFixed(2)}</div>
+            <button class="btn-oferta" data-id="${produto.id}" data-nome="${escapeHtml(produto.nome)}" data-valor="${produto.valor_exposicao}">Fazer oferta</button>
+        `;
+        
+        card.appendChild(imgDiv);
+        card.appendChild(infoDiv);
+        
+        // Evento do botão oferta
+        const btn = infoDiv.querySelector('.btn-oferta');
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fazerOferta(produto.id, produto.nome, produto.valor_exposicao);
+        });
+        
+        return card;
+    }
+
+    async function carregarProdutos() {
+        const container = document.getElementById('produtos-container');
+        container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Carregando produtos...</div>';
+        try {
+            const response = await fetch(`${API_URL}/produtos?status=aprovado`);
+            const data = await response.json();
+            produtosGlobal = data.produtos || [];
+            
+            if (produtosGlobal.length === 0) {
+                container.innerHTML = '<div class="loading">📦 Nenhum produto disponível no momento.</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            const grid = document.createElement('div');
+            grid.className = 'produtos-grid';
+            produtosGlobal.forEach(produto => {
+                grid.appendChild(criarCardProduto(produto));
+            });
+            container.appendChild(grid);
+        } catch (error) {
+            console.error(error);
+            container.innerHTML = '<div class="loading">❌ Erro ao carregar produtos. Tente novamente.</div>';
+        }
+    }
+
+    // ==================== Fazer oferta ====================
+    async function fazerOferta(produtoId, produtoNome, valorExposicao) {
+        const usuario = getUsuarioLogado();
+        if (!usuario) {
+            if (confirm('Você precisa estar logado para fazer uma oferta. Deseja ir para o login?')) {
+                window.location.href = 'login.html';
+            }
+            return;
+        }
+        
+        // Pergunta o valor da oferta (pode ser livre)
+        let valorOferta = prompt(`Produto: ${produtoNome}\nPreço sugerido: R$ ${valorExposicao.toFixed(2)}\n\nDigite o valor da sua oferta (R$):`);
+        if (!valorOferta) return;
+        valorOferta = parseFloat(valorOferta.replace(',', '.'));
+        if (isNaN(valorOferta) || valorOferta <= 0) {
+            alert('Valor inválido.');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${API_URL}/ofertas?comprador_id=${usuario.id}&comprador_nome=${encodeURIComponent(usuario.nome)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ produto_id: produtoId, valor: valorOferta })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                alert(data.mensagem || 'Oferta enviada com sucesso!');
+                // Se for venda automática, recarrega a página para atualizar o status do produto
+                if (data.status === 'venda_automatica') {
+                    carregarProdutos();
+                }
+            } else {
+                alert('Erro: ' + (data.detail || data.mensagem || 'Não foi possível enviar a oferta'));
+            }
+        } catch (error) {
+            alert('Erro de conexão: ' + error.message);
+        }
+    }
+
+    // ==================== Inicialização ====================
+    function init() {
+        atualizarHeader();
+        configurarModalEventos();
         carregarProdutos();
-    </script>
+    }
+    
+    init();
+</script>
 </body>
 </html>
