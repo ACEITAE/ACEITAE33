@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>ACEITAÊ - O Martelo da Venda Certa</title>
+    <title>ACEITAÊ - Venda Consignada com Ofertas Condicionais</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -14,17 +14,16 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-            color: #fff;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            color: #333;
             min-height: 100vh;
         }
 
-        /* Header com martelo */
+        /* Header com cores originais */
         .header {
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(10px);
+            background: white;
             padding: 12px 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -33,7 +32,6 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            border-bottom: 2px solid #ffd700;
         }
 
         .logo-area {
@@ -43,26 +41,18 @@
         }
 
         .logo-img {
-            height: 40px;
+            height: 36px;
             width: auto;
         }
 
         .logo-text {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
-            color: #ffd700;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            color: #1A237E;
         }
 
         .logo-text span {
-            color: #00ff88;
-            display: inline-block;
-            animation: marteloPulse 1s infinite;
-        }
-
-        @keyframes marteloPulse {
-            0%, 100% { transform: rotate(-5deg); }
-            50% { transform: rotate(5deg); }
+            color: #00C853;
         }
 
         .header-actions {
@@ -76,35 +66,28 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            background: rgba(255,255,255,0.1);
-            padding: 5px 15px;
-            border-radius: 40px;
         }
 
         .user-name {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 5px;
+            color: #1A237E;
             font-weight: 500;
         }
 
         .btn-header {
-            background: linear-gradient(135deg, #ffd700, #ff8c00);
-            padding: 8px 20px;
-            border-radius: 30px;
+            background: #f0f0f0;
+            padding: 8px 16px;
+            border-radius: 20px;
             text-decoration: none;
-            color: #1a1a2e;
-            font-weight: bold;
+            color: #666;
             font-size: 13px;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            transition: background 0.3s;
         }
 
         .btn-header:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(255,215,0,0.5);
+            background: #e0e0e0;
         }
 
         .btn-sair {
@@ -114,48 +97,50 @@
             color: white;
             border: none;
             cursor: pointer;
+            font-size: 13px;
         }
 
         /* Container */
         .container {
-            max-width: 1400px;
+            max-width: 1280px;
             margin: 0 auto;
             padding: 24px;
         }
 
-        /* Hero section com martelo gigante */
+        /* Hero com frase original */
         .hero {
             text-align: center;
             padding: 40px 20px;
-            background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(0,255,136,0.05));
-            border-radius: 40px;
+            background: white;
+            border-radius: 24px;
             margin-bottom: 40px;
-            border: 1px solid rgba(255,215,0,0.3);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .hero h1 {
-            font-size: 48px;
-            margin-bottom: 16px;
+            font-size: 28px;
+            color: #1A237E;
+            margin-bottom: 12px;
         }
 
         .hero h1 i {
-            color: #ffd700;
-            animation: marteloBatendo 0.5s ease-in-out infinite;
-            display: inline-block;
-        }
-
-        @keyframes marteloBatendo {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(-15deg); }
-            75% { transform: rotate(15deg); }
+            color: #00C853;
+            margin-right: 8px;
         }
 
         .hero p {
-            font-size: 18px;
-            color: #ccc;
+            font-size: 16px;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        /* Stats cards (clicáveis) */
+        .hero .destaque {
+            color: #00C853;
+            font-weight: bold;
+        }
+
+        /* Stats cards */
         .stats {
             display: flex;
             gap: 20px;
@@ -164,76 +149,58 @@
         }
 
         .stat-card {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            padding: 24px;
-            border-radius: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             flex: 1;
-            min-width: 180px;
+            min-width: 150px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
-            border: 1px solid rgba(255,215,0,0.2);
+            transition: transform 0.2s;
         }
 
         .stat-card:hover {
-            transform: translateY(-5px);
-            border-color: #ffd700;
-            box-shadow: 0 10px 30px rgba(255,215,0,0.2);
+            transform: translateY(-2px);
         }
 
         .stat-number {
-            font-size: 42px;
+            font-size: 32px;
             font-weight: bold;
-            color: #ffd700;
+            color: #00C853;
         }
 
         .stat-label {
             font-size: 14px;
-            color: #ccc;
+            color: #666;
             margin-top: 8px;
         }
 
-        /* Grid de produtos */
+        /* Grid de produtos - cards menores */
         .produtos-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
         }
 
         .produto-card {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            border-radius: 20px;
+            background: white;
+            border-radius: 12px;
             overflow: hidden;
-            transition: all 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
             cursor: pointer;
-            border: 1px solid rgba(255,215,0,0.2);
-            position: relative;
         }
 
         .produto-card:hover {
-            transform: translateY(-8px);
-            border-color: #ffd700;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-        }
-
-        .produto-card::before {
-            content: "🔨";
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 24px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .produto-card:hover::before {
-            opacity: 1;
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
         .produto-imagem {
             width: 100%;
-            height: 220px;
-            background: #0f0f1a;
+            height: 160px;
+            background: #f9f9f9;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -244,57 +211,59 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s;
-        }
-
-        .produto-card:hover .produto-imagem img {
-            transform: scale(1.05);
         }
 
         .produto-info {
-            padding: 20px;
+            padding: 12px;
         }
 
         .produto-info h3 {
-            font-size: 18px;
-            margin-bottom: 8px;
-            color: #ffd700;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #1A237E;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .descricao-resumo {
-            font-size: 13px;
-            color: #aaa;
-            margin-bottom: 12px;
-            line-height: 1.4;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .preco {
-            font-size: 22px;
+            font-size: 16px;
             font-weight: bold;
-            color: #00ff88;
-            margin-bottom: 16px;
+            color: #00C853;
+            margin-bottom: 10px;
         }
 
         .btn-oferta {
-            background: linear-gradient(135deg, #ffd700, #ff8c00);
-            color: #1a1a2e;
+            background: #1A237E;
+            color: white;
             border: none;
-            padding: 12px;
-            border-radius: 40px;
-            font-weight: bold;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 12px;
             cursor: pointer;
             width: 100%;
-            transition: all 0.3s;
+            transition: background 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            font-size: 14px;
+            gap: 6px;
         }
 
         .btn-oferta:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 15px rgba(255,215,0,0.5);
+            background: #00C853;
         }
 
         /* Carrinho flutuante */
@@ -306,26 +275,27 @@
         }
 
         .carrinho-btn {
-            background: linear-gradient(135deg, #ffd700, #ff8c00);
-            width: 65px;
-            height: 65px;
+            background: #1A237E;
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             position: relative;
         }
 
         .carrinho-btn:hover {
-            transform: scale(1.1);
+            transform: scale(1.05);
+            background: #00C853;
         }
 
         .carrinho-btn i {
-            font-size: 28px;
-            color: #1a1a2e;
+            font-size: 24px;
+            color: white;
         }
 
         .carrinho-count {
@@ -335,16 +305,16 @@
             background: #c62828;
             color: white;
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            font-size: 12px;
+            width: 22px;
+            height: 22px;
+            font-size: 11px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
         }
 
-        /* Modal Shopee (mesmo do código anterior, mantido) */
+        /* Modal Shopee */
         .modal-compra {
             display: none;
             position: fixed;
@@ -353,21 +323,20 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.8);
+            background-color: rgba(0,0,0,0.5);
             justify-content: center;
             align-items: center;
         }
 
         .modal-compra-content {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            max-width: 1000px;
+            background: white;
+            max-width: 900px;
             width: 90%;
             max-height: 90vh;
-            border-radius: 24px;
+            border-radius: 20px;
             overflow-y: auto;
             position: relative;
             animation: modalFadeIn 0.3s;
-            border: 1px solid rgba(255,215,0,0.3);
         }
 
         @keyframes modalFadeIn {
@@ -379,46 +348,50 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 24px;
-            border-bottom: 1px solid rgba(255,215,0,0.2);
+            padding: 16px 20px;
+            border-bottom: 1px solid #eee;
             position: sticky;
             top: 0;
-            background: #1a1a2e;
+            background: white;
             z-index: 10;
         }
 
         .modal-compra-header h2 {
-            font-size: 20px;
-            color: #ffd700;
+            font-size: 18px;
+            color: #1A237E;
+        }
+
+        .modal-compra-header h2 i {
+            color: #00C853;
         }
 
         .fechar-compra {
-            font-size: 32px;
+            font-size: 28px;
             cursor: pointer;
-            color: #ffd700;
+            color: #999;
         }
 
         .modal-compra-body {
             display: flex;
             flex-wrap: wrap;
-            padding: 24px;
+            padding: 20px;
             gap: 24px;
         }
 
         .galeria {
             flex: 1;
-            min-width: 280px;
+            min-width: 250px;
         }
 
         .imagem-principal {
             width: 100%;
-            border-radius: 16px;
-            background: #0f0f1a;
+            border-radius: 12px;
+            background: #f5f5f5;
         }
 
         .imagem-principal img {
             width: 100%;
-            border-radius: 16px;
+            border-radius: 12px;
             object-fit: cover;
         }
 
@@ -430,40 +403,40 @@
         }
 
         .thumbnail {
-            width: 70px;
-            height: 70px;
-            border-radius: 12px;
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
             cursor: pointer;
             border: 2px solid transparent;
             object-fit: cover;
         }
 
         .thumbnail.active {
-            border-color: #ffd700;
+            border-color: #00C853;
         }
 
         .info-compra {
             flex: 1;
-            min-width: 300px;
+            min-width: 280px;
         }
 
         .info-compra h3 {
-            font-size: 24px;
-            margin-bottom: 12px;
-            color: #ffd700;
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: #1A237E;
         }
 
         .preco-destaque {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: bold;
-            color: #00ff88;
+            color: #00C853;
             margin: 12px 0;
         }
 
         .descricao-produto {
-            color: #aaa;
-            margin-bottom: 24px;
-            line-height: 1.6;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.5;
         }
 
         .variacao-group {
@@ -472,120 +445,133 @@
 
         .variacao-label {
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             display: block;
-            color: #ffd700;
+            color: #1A237E;
         }
 
         .variacao-opcoes {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
         }
 
         .variacao-btn {
-            padding: 10px 24px;
-            border: 1px solid rgba(255,215,0,0.3);
-            background: transparent;
-            border-radius: 40px;
+            padding: 8px 20px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 30px;
             cursor: pointer;
             transition: all 0.2s;
-            color: white;
         }
 
         .variacao-btn.selected {
-            background: #ffd700;
-            color: #1a1a2e;
-            border-color: #ffd700;
+            background: #1A237E;
+            color: white;
+            border-color: #1A237E;
         }
 
         .cores-opcoes {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             flex-wrap: wrap;
         }
 
         .cor-btn {
-            width: 45px;
-            height: 45px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             cursor: pointer;
-            border: 2px solid rgba(255,215,0,0.3);
+            border: 2px solid #ddd;
             transition: all 0.2s;
         }
 
         .cor-btn.selected {
-            border-color: #ffd700;
+            border-color: #1A237E;
             transform: scale(1.1);
         }
 
         .quantidade-control {
             display: flex;
             align-items: center;
-            gap: 16px;
-            margin: 20px 0;
+            gap: 12px;
+            margin: 16px 0;
         }
 
         .quantidade-btn {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            border: 1px solid #ffd700;
-            background: transparent;
-            font-size: 20px;
+            border: 1px solid #ddd;
+            background: white;
+            font-size: 18px;
             cursor: pointer;
-            color: #ffd700;
         }
 
         .quantidade-valor {
-            font-size: 20px;
-            min-width: 50px;
+            font-size: 18px;
+            min-width: 40px;
             text-align: center;
-            color: white;
         }
 
         .total {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
-            margin: 20px 0;
-            padding: 16px 0;
-            border-top: 1px solid rgba(255,215,0,0.2);
-            color: #00ff88;
+            margin: 16px 0;
+            padding: 12px 0;
+            border-top: 1px solid #eee;
         }
 
         .btn-comprar {
-            background: linear-gradient(135deg, #ffd700, #ff8c00);
-            color: #1a1a2e;
+            background: #00C853;
+            color: white;
             border: none;
-            padding: 16px;
-            border-radius: 50px;
+            padding: 14px;
+            border-radius: 30px;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
             width: 100%;
-            transition: all 0.3s;
+            transition: background 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 8px;
         }
 
         .btn-comprar:hover {
-            transform: scale(1.02);
+            background: #00A844;
+        }
+
+        .btn-carrinho-modal {
+            background: #1A237E;
+            margin-bottom: 10px;
+        }
+
+        .btn-carrinho-modal:hover {
+            background: #0d154f;
         }
 
         .loading {
             text-align: center;
             padding: 60px;
-            color: #ffd700;
+            color: #999;
         }
 
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 32px; }
-            .produtos-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
-            .produto-imagem { height: 160px; }
-            .modal-compra-body { flex-direction: column; }
-            .preco-destaque { font-size: 24px; }
+        @media (max-width: 640px) {
+            .produtos-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 12px;
+            }
+            .produto-imagem {
+                height: 140px;
+            }
+            .modal-compra-body {
+                flex-direction: column;
+            }
+            .hero h1 {
+                font-size: 22px;
+            }
         }
     </style>
 </head>
@@ -594,7 +580,7 @@
 <div class="header">
     <div class="logo-area">
         <img src="logo.jpeg" alt="ACEITAÊ" class="logo-img" onerror="this.style.display='none'">
-        <div class="logo-text">ACEIT<span>AÊ</span> <i class="fas fa-gavel"></i></div>
+        <div class="logo-text">ACEIT<span>AÊ</span></div>
     </div>
     <div class="header-actions" id="headerActions">
         <a href="login.html" class="btn-header"><i class="fas fa-sign-in-alt"></i> Entrar</a>
@@ -604,26 +590,26 @@
 </div>
 
 <div class="container">
-    <!-- Hero com martelo -->
+    <!-- Frase original -->
     <div class="hero">
-        <h1><i class="fas fa-gavel"></i> BATEU O MARTELO, É SEU!</h1>
-        <p>Você decide o valor. Se oferta abaixo, o vendedor decide se ACEITAÊ.</p>
-        <p style="margin-top: 10px; font-size: 14px;">🔨 Produtos vistoriados | Garantia de correspondência | Comissão 10%</p>
+        <h1><i class="fas fa-handshake"></i> Venda sem dor de cabeça, compre com segurança</h1>
+        <p>Você define o valor que quer receber. Se a oferta for abaixo, o <span class="destaque">VENDEDOR decide se ACEITAÊ</span>.</p>
+        <p style="margin-top: 12px; font-size: 13px;">✅ Produtos vistoriados | 🔒 Garantia de correspondência | 💰 Comissão ACEITAÊ: 10%</p>
     </div>
 
-    <!-- Stats clicáveis -->
-    <div class="stats" id="stats">
+    <!-- Stats -->
+    <div class="stats">
         <div class="stat-card" onclick="scrollToProdutos()">
             <div class="stat-number" id="total-produtos">0</div>
-            <div class="stat-label"><i class="fas fa-box"></i> Produtos no martelo</div>
+            <div class="stat-label"><i class="fas fa-box"></i> Produtos anunciados</div>
         </div>
         <div class="stat-card" onclick="alert('Faça login para ver suas ofertas!')">
             <div class="stat-number" id="total-ofertas">0</div>
-            <div class="stat-label"><i class="fas fa-gavel"></i> Ofertas hoje</div>
+            <div class="stat-label"><i class="fas fa-tag"></i> Ofertas recebidas</div>
         </div>
-        <div class="stat-card" onclick="alert('Ofertas pendentes aguardando vendedor decidir!')">
+        <div class="stat-card" onclick="alert('Ofertas aguardando decisão do vendedor')">
             <div class="stat-number" id="ofertas-pendentes">0</div>
-            <div class="stat-label"><i class="fas fa-clock"></i> Pendentes</div>
+            <div class="stat-label"><i class="fas fa-clock"></i> Aguardando decisão</div>
         </div>
     </div>
 
@@ -632,7 +618,7 @@
     </div>
 </div>
 
-<!-- Carrinho flutuante -->
+<!-- Carrinho -->
 <div class="carrinho-flutuante">
     <div class="carrinho-btn" onclick="abrirCarrinho()">
         <i class="fas fa-shopping-cart"></i>
@@ -640,11 +626,11 @@
     </div>
 </div>
 
-<!-- Modal de compra -->
+<!-- Modal -->
 <div id="modalCompra" class="modal-compra">
     <div class="modal-compra-content">
         <div class="modal-compra-header">
-            <h2><i class="fas fa-gavel"></i> BATA O MARTELO!</h2>
+            <h2><i class="fas fa-tag"></i> Faça sua oferta</h2>
             <span class="fechar-compra">&times;</span>
         </div>
         <div class="modal-compra-body" id="modalCompraBody"></div>
@@ -676,23 +662,23 @@
         carrinho.push(item);
         localStorage.setItem('carrinho_aceitae', JSON.stringify(carrinho));
         atualizarCarrinhoUI();
-        alert(`🔨 ${produto.nome} adicionado ao carrinho!`);
+        alert(`✅ ${produto.nome} adicionado ao carrinho!`);
     }
 
     function abrirCarrinho() {
         if (carrinho.length === 0) {
-            alert('Seu carrinho está vazio. 💔');
+            alert('🛒 Seu carrinho está vazio.');
             return;
         }
-        let msg = '🛒 SEU CARRINHO ACEITAÊ:\n\n';
+        let msg = '🛒 SEU CARRINHO:\n\n';
         let total = 0;
         carrinho.forEach((item, idx) => {
             let vario = item.variacoes ? Object.values(item.variacoes).filter(v => v).join(', ') : '';
             msg += `${idx+1}. ${item.nome}${vario ? ` (${vario})` : ''} - ${item.quantidade}x R$ ${item.valor.toFixed(2)}\n`;
             total += item.valor;
         });
-        msg += `\n💰 TOTAL: R$ ${total.toFixed(2)}\n\nDeseja finalizar as ofertas?`;
-        if (confirm(msg + '\n\nClique OK para enviar todas as ofertas de uma vez!')) {
+        msg += `\n💰 TOTAL: R$ ${total.toFixed(2)}\n\nDeseja enviar todas as ofertas?`;
+        if (confirm(msg)) {
             finalizarCarrinho();
         }
     }
@@ -700,7 +686,7 @@
     async function finalizarCarrinho() {
         const usuario = getUsuarioLogado();
         if (!usuario) {
-            if (confirm('Faça login para finalizar a compra. Ir para o login?')) {
+            if (confirm('Faça login para enviar as ofertas.')) {
                 window.location.href = 'login.html';
             }
             return;
@@ -715,7 +701,7 @@
                 });
             } catch(e) {}
         }
-        alert(`🔨 ${carrinho.length} oferta(s) enviada(s) com sucesso!`);
+        alert(`✅ ${carrinho.length} oferta(s) enviada(s) com sucesso!`);
         carrinho = [];
         localStorage.setItem('carrinho_aceitae', '[]');
         atualizarCarrinhoUI();
@@ -724,7 +710,8 @@
     function getUsuarioLogado() {
         const id = localStorage.getItem('usuario_id');
         const nome = localStorage.getItem('usuario_nome');
-        if (id && nome) return { id: parseInt(id), nome };
+        const tipo = localStorage.getItem('usuario_tipo');
+        if (id && nome) return { id: parseInt(id), nome, tipo };
         return null;
     }
 
@@ -733,7 +720,7 @@
         usuarioLogado = getUsuarioLogado();
         if (usuarioLogado) {
             header.innerHTML = `
-                <span class="user-info"><i class="fas fa-user-circle"></i> ${usuarioLogado.nome}</span>
+                <span class="user-info"><i class="fas fa-user-circle"></i> Olá, ${usuarioLogado.nome}</span>
                 <a href="vendedor.html" class="btn-header"><i class="fas fa-store"></i> Meu Painel</a>
                 <a href="anunciar.html" class="btn-header"><i class="fas fa-plus-circle"></i> Anunciar</a>
                 <button class="btn-sair" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
@@ -764,18 +751,18 @@
         if (categoria === 'roupa' || categoria === 'vestuario') {
             variacoesHTML = `
                 <div class="variacao-group">
-                    <label class="variacao-label">👕 Tamanho:</label>
+                    <label class="variacao-label">Tamanho:</label>
                     <div class="variacao-opcoes">${['PP','P','M','G','GG'].map(t => `<button class="variacao-btn" data-tipo="tamanho" data-valor="${t}">${t}</button>`).join('')}</div>
                 </div>
                 <div class="variacao-group">
-                    <label class="variacao-label">🎨 Cor:</label>
+                    <label class="variacao-label">Cor:</label>
                     <div class="cores-opcoes">${['#000000','#8B4513','#D2B48C','#FFFFFF','#FF0000'].map(c => `<div class="cor-btn" data-cor="${c}" style="background:${c};"></div>`).join('')}</div>
                 </div>
             `;
         } else if (categoria === 'calcado' || categoria === 'tenis') {
             variacoesHTML = `
                 <div class="variacao-group">
-                    <label class="variacao-label">👟 Número:</label>
+                    <label class="variacao-label">Número:</label>
                     <div class="variacao-opcoes">${[35,36,37,38,39,40,41,42,43,44].map(n => `<button class="variacao-btn" data-tipo="numero" data-valor="${n}">${n}</button>`).join('')}</div>
                 </div>
             `;
@@ -797,9 +784,9 @@
                     <span class="quantidade-valor" id="quantidadeValor">1</span>
                     <button class="quantidade-btn" id="maisQtde">+</button>
                 </div>
-                <div class="total">💰 TOTAL: R$ <span id="totalValor">${produto.valor_exposicao?.toFixed(2)}</span></div>
-                <button class="btn-comprar" id="btnAdicionarCarrinho"><i class="fas fa-cart-plus"></i> Adicionar ao carrinho</button>
-                <button class="btn-comprar" id="btnFinalizarOferta" style="margin-top:10px; background:linear-gradient(135deg,#ffd700,#ff8c00);"><i class="fas fa-gavel"></i> BATER O MARTELO AGORA</button>
+                <div class="total">Total: R$ <span id="totalValor">${produto.valor_exposicao?.toFixed(2)}</span></div>
+                <button class="btn-comprar btn-carrinho-modal" id="btnAdicionarCarrinho"><i class="fas fa-cart-plus"></i> Adicionar ao carrinho</button>
+                <button class="btn-comprar" id="btnFinalizarOferta"><i class="fas fa-gavel"></i> Fazer oferta agora</button>
             </div>
         `;
         
@@ -816,15 +803,21 @@
     
     async function fazerOfertaComVariacoes(produto) {
         const usuario = getUsuarioLogado();
-        if (!usuario) { if(confirm('Login necessário.')) window.location.href='login.html'; return; }
+        if (!usuario) { if(confirm('Faça login para fazer uma oferta.')) window.location.href='login.html'; return; }
         let valor = produto.valor_exposicao * quantidade;
         let variaStr = Object.values(variacoesSelecionadas).filter(v=>v).join(', ');
-        if(confirm(`🔨 BATER O MARTELO?\n\nProduto: ${produto.nome}\n${variaStr ? `Variações: ${variaStr}\n` : ''}Quantidade: ${quantidade}\nTotal: R$ ${valor.toFixed(2)}\n\nComissão ACEITAÊ: R$ ${(valor*0.10).toFixed(2)}\nVocê paga: R$ ${valor.toFixed(2)}`)) {
-            await fetch(`${API_URL}/ofertas?comprador_id=${usuario.id}&comprador_nome=${encodeURIComponent(usuario.nome)}`, {
+        let msg = `Confirmar oferta?\n\nProduto: ${produto.nome}\n`;
+        if(variaStr) msg += `Variações: ${variaStr}\n`;
+        msg += `Quantidade: ${quantidade}\nTotal: R$ ${valor.toFixed(2)}\n\nComissão ACEITAÊ (10%): R$ ${(valor*0.10).toFixed(2)}\nVocê pagará: R$ ${valor.toFixed(2)}`;
+        
+        if(confirm(msg)) {
+            const response = await fetch(`${API_URL}/ofertas?comprador_id=${usuario.id}&comprador_nome=${encodeURIComponent(usuario.nome)}`, {
                 method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ produto_id: produto.id, valor })
             });
-            alert('🔨 MARTELADA CERTA! Oferta enviada!');
+            const data = await response.json();
+            alert(data.mensagem || 'Oferta enviada com sucesso!');
             document.getElementById('modalCompra').style.display = 'none';
+            if (data.status === 'venda_automatica') carregarProdutos();
         }
     }
     
@@ -834,9 +827,9 @@
             <div class="produto-imagem"><img src="${p.fotos?.[0] || 'https://via.placeholder.com/300'}" alt="${p.nome}"></div>
             <div class="produto-info">
                 <h3>${escapeHtml(p.nome)}</h3>
-                <div class="descricao-resumo">${escapeHtml((p.descricao||'').substring(0,80))}${(p.descricao||'').length>80?'...':''}</div>
+                <div class="descricao-resumo">${escapeHtml((p.descricao||'').substring(0,70))}${(p.descricao||'').length>70?'...':''}</div>
                 <div class="preco">R$ ${p.valor_exposicao?.toFixed(2)}</div>
-                <button class="btn-oferta"><i class="fas fa-gavel"></i> BATER MARTELO</button>
+                <button class="btn-oferta"><i class="fas fa-tag"></i> Fazer oferta</button>
             </div>
         `;
         card.querySelector('.produto-imagem img').onclick = () => abrirModalCompra(p);
@@ -851,14 +844,14 @@
             const res = await fetch(`${API_URL}/produtos?status=aprovado`);
             const data = await res.json();
             produtosGlobal = data.produtos || [];
-            if(!produtosGlobal.length) { container.innerHTML = '<div class="loading">📦 Nenhum produto no martelo ainda.</div>'; return; }
+            if(!produtosGlobal.length) { container.innerHTML = '<div class="loading">📦 Nenhum produto disponível no momento.</div>'; return; }
             document.getElementById('total-produtos').innerText = produtosGlobal.length;
-            document.getElementById('total-ofertas').innerText = Math.floor(Math.random() * 50) + 10;
-            document.getElementById('ofertas-pendentes').innerText = Math.floor(Math.random() * 20) + 5;
+            document.getElementById('total-ofertas').innerText = '0';
+            document.getElementById('ofertas-pendentes').innerText = '0';
             container.innerHTML = '<div class="produtos-grid"></div>';
             const grid = container.querySelector('.produtos-grid');
             produtosGlobal.forEach(p => grid.appendChild(criarCardProduto(p)));
-        } catch(e) { container.innerHTML = '<div class="loading">❌ Erro ao carregar</div>'; }
+        } catch(e) { container.innerHTML = '<div class="loading">❌ Erro ao carregar produtos</div>'; }
     }
     
     document.querySelector('.fechar-compra').onclick = () => document.getElementById('modalCompra').style.display = 'none';
