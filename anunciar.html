@@ -2,320 +2,745 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ACEITAÊ - Anunciar Produto</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Anunciar Produto - ACEITAÊ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #1A237E 0%, #283593 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            color: #333;
             min-height: 100vh;
-            padding: 40px 20px;
         }
-        .container { max-width: 700px; margin: 0 auto; }
-        .card {
+
+        /* Header */
+        .header {
             background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            padding: 12px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        h1 { text-align: center; color: #1A237E; margin-bottom: 10px; }
-        h1 span { color: #00C853; }
-        .sub { text-align: center; color: #666; margin-bottom: 30px; font-size: 14px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; }
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: #00C853; }
-        textarea { resize: vertical; min-height: 100px; }
-        button {
-            width: 100%;
-            padding: 14px;
-            background: #00C853;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
+
+        .logo-img {
+            height: 36px;
+            width: auto;
+        }
+
+        .logo-text {
+            font-size: 20px;
             font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
+            color: #1A237E;
         }
-        button:hover { background: #00A844; }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-        .back-link {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-            text-decoration: none;
+
+        .logo-text span {
+            color: #00C853;
+            display: inline-block;
+            animation: balanco 0.8s ease-in-out infinite;
+            transform-origin: center center;
         }
-        .back-link:hover { color: #00C853; }
-        .mensagem {
-            margin-top: 15px;
-            padding: 12px;
-            border-radius: 8px;
-            display: none;
-            text-align: center;
+
+        @keyframes balanco {
+            0%, 100% { transform: rotate(0deg); }
+            20% { transform: rotate(-10deg); }
+            40% { transform: rotate(10deg); }
+            60% { transform: rotate(-5deg); }
+            80% { transform: rotate(5deg); }
         }
-        .mensagem.sucesso { background: #e8f5e9; color: #2e7d32; display: block; }
-        .mensagem.erro { background: #ffebee; color: #c62828; display: block; }
-        .categoria-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
-        .categoria-btn {
-            padding: 10px 20px;
+
+        .btn-voltar {
             background: #f0f0f0;
+            padding: 8px 20px;
             border-radius: 30px;
-            cursor: pointer;
+            text-decoration: none;
+            color: #666;
+            font-size: 13px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-voltar:hover {
+            background: #e0e0e0;
+            transform: scale(1.02);
+        }
+
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .form-card h1 {
+            font-size: 24px;
+            color: #1A237E;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-card h1 i {
+            color: #00C853;
+        }
+
+        .form-card p {
+            color: #666;
+            margin-bottom: 24px;
             font-size: 14px;
         }
-        .categoria-btn.active { background: #00C853; color: white; }
 
-        /* Estilos para upload de fotos */
-        .foto-area {
-            border: 2px dashed #e0e0e0;
-            border-radius: 10px;
-            padding: 20px;
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1A237E;
+            font-size: 14px;
+        }
+
+        .form-group label i {
+            color: #00C853;
+            margin-right: 6px;
+        }
+
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus, 
+        .form-group select:focus, 
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #00C853;
+            box-shadow: 0 0 0 3px rgba(0,200,83,0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Upload de fotos */
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 16px;
+            padding: 30px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
+            background: #f9f9f9;
         }
-        .foto-area:hover { border-color: #00C853; }
-        .foto-area i { font-size: 48px; color: #999; margin-bottom: 10px; }
-        .foto-area p { color: #999; font-size: 14px; }
-        .preview-fotos { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
-        .preview-img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #e0e0e0; }
-        .upload-status { font-size: 12px; margin-top: 8px; color: #666; }
+
+        .upload-area:hover {
+            border-color: #00C853;
+            background: #f0f9f0;
+        }
+
+        .upload-area i {
+            font-size: 40px;
+            color: #00C853;
+            margin-bottom: 10px;
+        }
+
+        .upload-area p {
+            margin: 0;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .fotos-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .foto-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+            position: relative;
+            border: 2px solid #ddd;
+        }
+
+        /* Linha de 2 colunas */
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Cores */
+        .cores-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .cor-opcao {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #ddd;
+            transition: all 0.2s;
+        }
+
+        .cor-opcao.selected {
+            border-color: #1A237E;
+            transform: scale(1.1);
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #1A237E;
+        }
+
+        .cor-personalizada {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .cor-personalizada input {
+            width: 60px;
+            height: 40px;
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        /* Tamanhos */
+        .tamanhos-container, .numeros-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .tamanho-btn, .numero-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .tamanho-btn.selected, .numero-btn.selected {
+            background: #1A237E;
+            color: white;
+            border-color: #1A237E;
+        }
+
+        /* Botão submit */
+        .btn-submit {
+            width: 100%;
+            background: #00C853;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            margin-top: 24px;
+        }
+
+        .btn-submit:hover {
+            background: #00A844;
+            transform: scale(1.02);
+        }
+
+        .mensagem {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+        }
+
+        .mensagem.sucesso {
+            background: #e8f5e9;
+            color: #2e7d32;
+            display: block;
+        }
+
+        .mensagem.erro {
+            background: #ffebee;
+            color: #c62828;
+            display: block;
+        }
+
+        @media (max-width: 640px) {
+            .container { margin: 20px auto; }
+            .form-card { padding: 20px; }
+            .row-2 { grid-template-columns: 1fr; gap: 12px; }
+            .foto-preview { width: 60px; height: 60px; }
+        }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="card">
-        <h1>ACEIT<span>AÊ</span></h1>
-        <div class="sub">Anuncie seu produto <strong>gratuitamente</strong><br>Só paga 10% de comissão quando vender!</div>
 
-        <form id="anunciarForm">
+<div class="header">
+    <div class="logo-area">
+        <img src="logo.jpeg" alt="ACEITAÊ" class="logo-img" onerror="this.style.display='none'">
+        <div class="logo-text">ACEIT<span>AÊ</span></div>
+    </div>
+    <a href="vendedor.html" class="btn-voltar"><i class="fas fa-arrow-left"></i> Voltar ao painel</a>
+</div>
+
+<div class="container">
+    <div class="form-card">
+        <h1><i class="fas fa-plus-circle"></i> Anunciar Produto</h1>
+        <p>Preencha os dados abaixo para vender na ACEITAÊ. Após a vistoria, seu produto aparecerá na loja.</p>
+
+        <form id="formAnuncio">
+            <!-- Nome do produto -->
             <div class="form-group">
-                <label>Nome do produto *</label>
+                <label><i class="fas fa-tag"></i> Nome do produto *</label>
                 <input type="text" id="nome" placeholder="Ex: iPhone 13 128GB Azul" required>
             </div>
 
+            <!-- Descrição -->
             <div class="form-group">
-                <label>Descrição *</label>
-                <textarea id="descricao" placeholder="Descreva o produto, estado de conservação, avarias..." required></textarea>
+                <label><i class="fas fa-align-left"></i> Descrição *</label>
+                <textarea id="descricao" placeholder="Descreva o produto com detalhes (marca, modelo, estado, acessórios incluídos...)" required></textarea>
             </div>
 
+            <!-- Categoria -->
             <div class="form-group">
-                <label>Categoria *</label>
-                <div class="categoria-group" id="categoriaGroup">
-                    <div class="categoria-btn" data-cat="Eletrônicos">📱 Eletrônicos</div>
-                    <div class="categoria-btn" data-cat="Moda">👕 Moda</div>
-                    <div class="categoria-btn" data-cat="Casa">🏠 Casa</div>
-                    <div class="categoria-btn" data-cat="Esporte">⚽ Esporte</div>
-                    <div class="categoria-btn" data-cat="Outros">📦 Outros</div>
+                <label><i class="fas fa-th-large"></i> Categoria *</label>
+                <select id="categoria" required>
+                    <option value="">Selecione...</option>
+                    <option value="Eletrônicos">📱 Eletrônicos</option>
+                    <option value="Moda">👕 Moda</option>
+                    <option value="Casa">🏠 Casa e Decoração</option>
+                    <option value="Esporte">⚽ Esportes</option>
+                    <option value="Veículos">🚗 Veículos</option>
+                    <option value="Imóveis">🏢 Imóveis</option>
+                    <option value="Colecionáveis">🏆 Colecionáveis</option>
+                    <option value="Livros">📚 Livros</option>
+                    <option value="Games">🎮 Games</option>
+                    <option value="Outros">📦 Outros</option>
+                </select>
+            </div>
+
+            <!-- Valor pretendido -->
+            <div class="form-group">
+                <label><i class="fas fa-dollar-sign"></i> Valor pretendido *</label>
+                <input type="number" id="valor_pretendido" placeholder="Ex: 1000" step="0.01" required>
+                <small style="color:#666; font-size:11px;">Este é o valor MÍNIMO que você deseja receber. A plataforma pode anunciar com valor ligeiramente superior para negociação.</small>
+            </div>
+
+            <!-- Condição -->
+            <div class="form-group">
+                <label><i class="fas fa-clipboard-list"></i> Condição do produto *</label>
+                <select id="condicao" required>
+                    <option value="novo">🆕 Novo (nunca usado, na caixa)</option>
+                    <option value="usado">🔄 Usado (com marcas de uso)</option>
+                </select>
+            </div>
+
+            <!-- Quantidade -->
+            <div class="form-group">
+                <label><i class="fas fa-boxes"></i> Quantidade em estoque *</label>
+                <input type="number" id="quantidade" value="1" min="1" max="999" required>
+            </div>
+
+            <!-- Cores (opcional) -->
+            <div class="form-group">
+                <label><i class="fas fa-palette"></i> Cores disponíveis (opcional)</label>
+                <div class="cores-container" id="coresContainer">
+                    <div class="cor-opcao" style="background:#000000;" data-cor="#000000"></div>
+                    <div class="cor-opcao" style="background:#FFFFFF; border:1px solid #ddd;" data-cor="#FFFFFF"></div>
+                    <div class="cor-opcao" style="background:#FF0000;" data-cor="#FF0000"></div>
+                    <div class="cor-opcao" style="background:#0000FF;" data-cor="#0000FF"></div>
+                    <div class="cor-opcao" style="background:#00FF00;" data-cor="#00FF00"></div>
+                    <div class="cor-opcao" style="background:#FFC0CB;" data-cor="#FFC0CB"></div>
+                    <div class="cor-opcao" style="background:#8B4513;" data-cor="#8B4513"></div>
+                    <div class="cor-opcao" style="background:#FFA500;" data-cor="#FFA500"></div>
                 </div>
-                <input type="hidden" id="categoria" required>
-            </div>
-
-            <div class="form-group">
-                <label>Valor pretendido *</label>
-                <input type="number" id="valorPretendido" placeholder="R$ 0,00" step="0.01" required>
-                <small style="color:#999;">Você receberá este valor. Anunciaremos com +10%.</small>
-            </div>
-
-            <!-- CAMPO DE UPLOAD DE FOTOS -->
-            <div class="form-group">
-                <label>Fotos do produto *</label>
-                <div class="foto-area" id="fotoArea">
-                    <i class="fas fa-camera"></i>
-                    <p>Clique para adicionar fotos</p>
-                    <input type="file" id="fotosInput" multiple accept="image/*" style="display: none;">
+                <div class="cor-personalizada">
+                    <input type="color" id="corPersonalizada" value="#00C853">
+                    <button type="button" id="btnAddCor" style="padding:8px 16px; background:#1A237E; color:white; border:none; border-radius:8px; cursor:pointer;">+ Adicionar cor</button>
                 </div>
-                <div id="previewFotos" class="preview-fotos"></div>
-                <div id="uploadStatus" class="upload-status"></div>
-                <small>Adicione pelo menos uma foto do produto</small>
+                <small style="color:#666; font-size:11px;">Clique nas cores para selecionar as disponíveis para este produto.</small>
+                <div id="coresSelecionadas" style="margin-top:10px; font-size:12px; color:#1A237E;"></div>
             </div>
 
+            <!-- Tamanhos (roupas) -->
+            <div class="form-group" id="grupoTamanhos" style="display:none;">
+                <label><i class="fas fa-tshirt"></i> Tamanhos disponíveis</label>
+                <div class="tamanhos-container">
+                    <div class="tamanho-btn" data-tamanho="PP">PP</div>
+                    <div class="tamanho-btn" data-tamanho="P">P</div>
+                    <div class="tamanho-btn" data-tamanho="M">M</div>
+                    <div class="tamanho-btn" data-tamanho="G">G</div>
+                    <div class="tamanho-btn" data-tamanho="GG">GG</div>
+                    <div class="tamanho-btn" data-tamanho="XG">XG</div>
+                </div>
+                <div id="tamanhosSelecionados" style="margin-top:10px; font-size:12px; color:#1A237E;"></div>
+            </div>
+
+            <!-- Números (calçados) -->
+            <div class="form-group" id="grupoNumeros" style="display:none;">
+                <label><i class="fas fa-shoe-prints"></i> Números disponíveis</label>
+                <div class="numeros-container">
+                    <div class="numero-btn" data-numero="33">33</div>
+                    <div class="numero-btn" data-numero="34">34</div>
+                    <div class="numero-btn" data-numero="35">35</div>
+                    <div class="numero-btn" data-numero="36">36</div>
+                    <div class="numero-btn" data-numero="37">37</div>
+                    <div class="numero-btn" data-numero="38">38</div>
+                    <div class="numero-btn" data-numero="39">39</div>
+                    <div class="numero-btn" data-numero="40">40</div>
+                    <div class="numero-btn" data-numero="41">41</div>
+                    <div class="numero-btn" data-numero="42">42</div>
+                    <div class="numero-btn" data-numero="43">43</div>
+                    <div class="numero-btn" data-numero="44">44</div>
+                </div>
+                <div id="numerosSelecionados" style="margin-top:10px; font-size:12px; color:#1A237E;"></div>
+            </div>
+
+            <!-- Dimensões para frete -->
+            <div class="row-2">
+                <div class="form-group">
+                    <label><i class="fas fa-weight-hanging"></i> Peso (kg)</label>
+                    <input type="number" id="peso" value="0.5" step="0.1" placeholder="Ex: 0.5">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-arrows-alt"></i> Altura (cm)</label>
+                    <input type="number" id="altura" value="10" step="1" placeholder="Ex: 10">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-arrows-alt-h"></i> Largura (cm)</label>
+                    <input type="number" id="largura" value="15" step="1" placeholder="Ex: 15">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-arrows-alt-v"></i> Comprimento (cm)</label>
+                    <input type="number" id="comprimento" value="20" step="1" placeholder="Ex: 20">
+                </div>
+            </div>
+
+            <!-- Upload de fotos -->
             <div class="form-group">
-                <label>Link do vídeo (opcional)</label>
-                <input type="url" id="video" placeholder="YouTube, Google Drive, etc.">
+                <label><i class="fas fa-camera"></i> Fotos do produto *</label>
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Clique ou arraste fotos aqui</p>
+                    <p style="font-size:10px;">Máx 10MB por foto (JPG, PNG)</p>
+                </div>
+                <input type="file" id="fotosInput" multiple accept="image/*" style="display:none;">
+                <div class="fotos-preview" id="fotosPreview"></div>
             </div>
 
-            <button type="submit" id="btnSubmit">Anunciar Grátis</button>
+            <button type="submit" class="btn-submit" id="btnEnviar">
+                <i class="fas fa-gavel"></i> Enviar para vistoria
+            </button>
         </form>
 
-        <a href="vendedor.html" class="back-link">← Voltar para meu painel</a>
         <div id="mensagem" class="mensagem"></div>
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></script>
 <script>
     const API_URL = 'https://aceitae33-api.onrender.com';
-    const usuarioId = localStorage.getItem('usuario_id');
-    const usuarioTipo = localStorage.getItem('usuario_tipo');
+    const VENDEDOR_ID = localStorage.getItem('usuario_id');
+    const VENDEDOR_NOME = localStorage.getItem('usuario_nome');
 
-    if (!usuarioId || usuarioTipo !== 'vendedor') {
-        alert('Área exclusiva para vendedores! Faça login como vendedor.');
+    // Verifica login
+    if (!VENDEDOR_ID) {
         window.location.href = 'login.html';
     }
 
-    // ==================================================
-    // CATEGORIAS
-    // ==================================================
-    let categoriaSelecionada = '';
-    document.querySelectorAll('.categoria-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.categoria-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            categoriaSelecionada = this.getAttribute('data-cat');
-            document.getElementById('categoria').value = categoriaSelecionada;
-        });
-    });
-
-    // ==================================================
-    // UPLOAD DE FOTOS
-    // ==================================================
-    const fotoArea = document.getElementById('fotoArea');
-    const fotosInput = document.getElementById('fotosInput');
-    const previewFotos = document.getElementById('previewFotos');
-    const uploadStatus = document.getElementById('uploadStatus');
+    // Variáveis
+    let fotosSelecionadas = [];
     let fotosUrls = [];
+    let coresSelecionadas = [];
+    let tamanhosSelecionados = [];
+    let numerosSelecionados = [];
 
-    fotoArea.addEventListener('click', () => fotosInput.click());
-
- async function fazerUploadFoto(file) {
-    const token = localStorage.getItem('access_token');
-    const formData = new FormData();
-    formData.append('arquivo', file);
-
-    try {
-        const response = await fetch(`${API_URL}/upload-foto`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            body: formData
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            console.log('Upload OK, URL:', data.url);
-            return data.url;
-        } else {
-            console.error('Erro do servidor:', data);
-            throw new Error(data.detail || 'Erro no upload');
-        }
-    } catch (error) {
-        console.error('Erro de conexão:', error);
-        throw new Error(error.message);
-    }
-}
-    fotosInput.addEventListener('change', async (e) => {
-        const files = Array.from(e.target.files);
-        const btnSubmit = document.getElementById('btnSubmit');
-
-        if (files.length === 0) return;
-
-        btnSubmit.disabled = true;
-        uploadStatus.innerHTML = '⏳ Enviando fotos... Aguarde';
-        uploadStatus.style.color = '#f57f17';
-
-        for (const file of files) {
-            try {
-                const url = await fazerUploadFoto(file);
-                fotosUrls.push(url);
-                atualizarPreview();
-                uploadStatus.innerHTML = `✅ ${fotosUrls.length} foto(s) enviada(s)`;
-                uploadStatus.style.color = '#2e7d32';
-            } catch (error) {
-                uploadStatus.innerHTML = `❌ Erro: ${error.message}`;
-                uploadStatus.style.color = '#c62828';
+    // ==================== CORES ====================
+    document.querySelectorAll('.cor-opcao').forEach(cor => {
+        cor.addEventListener('click', () => {
+            const corValue = cor.getAttribute('data-cor');
+            if (coresSelecionadas.includes(corValue)) {
+                coresSelecionadas = coresSelecionadas.filter(c => c !== corValue);
+                cor.classList.remove('selected');
+            } else {
+                coresSelecionadas.push(corValue);
+                cor.classList.add('selected');
             }
-        }
+            document.getElementById('coresSelecionadas').innerHTML = coresSelecionadas.length ? 
+                `<i class="fas fa-check-circle" style="color:#00C853;"></i> Cores selecionadas: ${coresSelecionadas.length}` : '';
+        });
+    });
 
-        btnSubmit.disabled = false;
-        if (fotosUrls.length === 0) {
-            uploadStatus.innerHTML = '❌ Nenhuma foto foi enviada. Tente novamente.';
+    document.getElementById('btnAddCor').addEventListener('click', () => {
+        const novaCor = document.getElementById('corPersonalizada').value;
+        if (!coresSelecionadas.includes(novaCor)) {
+            coresSelecionadas.push(novaCor);
+            // Adiciona visualmente
+            const container = document.getElementById('coresContainer');
+            const novaDiv = document.createElement('div');
+            novaDiv.className = 'cor-opcao selected';
+            novaDiv.style.backgroundColor = novaCor;
+            novaDiv.setAttribute('data-cor', novaCor);
+            novaDiv.addEventListener('click', () => {
+                coresSelecionadas = coresSelecionadas.filter(c => c !== novaCor);
+                novaDiv.remove();
+                document.getElementById('coresSelecionadas').innerHTML = coresSelecionadas.length ? 
+                    `<i class="fas fa-check-circle" style="color:#00C853;"></i> Cores selecionadas: ${coresSelecionadas.length}` : '';
+            });
+            container.appendChild(novaDiv);
+            document.getElementById('coresSelecionadas').innerHTML = `<i class="fas fa-check-circle" style="color:#00C853;"></i> Cores selecionadas: ${coresSelecionadas.length}`;
         }
     });
 
-    function atualizarPreview() {
-        previewFotos.innerHTML = '';
-        fotosUrls.forEach(url => {
-            const img = document.createElement('img');
-            img.src = url;
-            img.className = 'preview-img';
-            previewFotos.appendChild(img);
+    // ==================== TAMANHOS ====================
+    document.querySelectorAll('.tamanho-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tamanho = btn.getAttribute('data-tamanho');
+            if (tamanhosSelecionados.includes(tamanho)) {
+                tamanhosSelecionados = tamanhosSelecionados.filter(t => t !== tamanho);
+                btn.classList.remove('selected');
+            } else {
+                tamanhosSelecionados.push(tamanho);
+                btn.classList.add('selected');
+            }
+            document.getElementById('tamanhosSelecionados').innerHTML = tamanhosSelecionados.length ? 
+                `Tamanhos: ${tamanhosSelecionados.join(', ')}` : '';
         });
+    });
+
+    // ==================== NÚMEROS ====================
+    document.querySelectorAll('.numero-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const numero = btn.getAttribute('data-numero');
+            if (numerosSelecionados.includes(numero)) {
+                numerosSelecionados = numerosSelecionados.filter(n => n !== numero);
+                btn.classList.remove('selected');
+            } else {
+                numerosSelecionados.push(numero);
+                btn.classList.add('selected');
+            }
+            document.getElementById('numerosSelecionados').innerHTML = numerosSelecionados.length ? 
+                `Números: ${numerosSelecionados.join(', ')}` : '';
+        });
+    });
+
+    // Mostrar/esconder tamanhos/números baseado na categoria
+    document.getElementById('categoria').addEventListener('change', (e) => {
+        const cat = e.target.value;
+        if (cat === 'Moda') {
+            document.getElementById('grupoTamanhos').style.display = 'block';
+            document.getElementById('grupoNumeros').style.display = 'none';
+        } else if (cat === 'Esporte' || cat === 'Calçados') {
+            document.getElementById('grupoTamanhos').style.display = 'none';
+            document.getElementById('grupoNumeros').style.display = 'block';
+        } else {
+            document.getElementById('grupoTamanhos').style.display = 'none';
+            document.getElementById('grupoNumeros').style.display = 'none';
+        }
+    });
+
+    // ==================== UPLOAD DE FOTOS ====================
+    const uploadArea = document.getElementById('uploadArea');
+    const fotosInput = document.getElementById('fotosInput');
+    const fotosPreview = document.getElementById('fotosPreview');
+
+    uploadArea.addEventListener('click', () => fotosInput.click());
+    uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.style.borderColor = '#00C853'; });
+    uploadArea.addEventListener('dragleave', () => uploadArea.style.borderColor = '#ddd');
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const files = Array.from(e.dataTransfer.files);
+        files.forEach(file => uploadFoto(file));
+    });
+
+    fotosInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        files.forEach(file => uploadFoto(file));
+    });
+
+    async function uploadFoto(file) {
+        if (!file.type.startsWith('image/')) {
+            alert('Envie apenas imagens!');
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            alert('Arquivo muito grande (máx 10MB)');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('arquivo', file);
+
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'foto-preview';
+        loadingDiv.innerHTML = '<i class="fas fa-spinner fa-pulse"></i>';
+        fotosPreview.appendChild(loadingDiv);
+
+        try {
+            const response = await fetch(`${API_URL}/upload-foto`, { method: 'POST', body: formData });
+            const data = await response.json();
+            if (response.ok) {
+                fotosUrls.push(data.url);
+                const img = document.createElement('img');
+                img.src = data.url;
+                img.className = 'foto-preview';
+                const removeBtn = document.createElement('button');
+                removeBtn.innerHTML = '✕';
+                removeBtn.style.position = 'absolute';
+                removeBtn.style.background = '#c62828';
+                removeBtn.style.color = 'white';
+                removeBtn.style.border = 'none';
+                removeBtn.style.borderRadius = '50%';
+                removeBtn.style.width = '20px';
+                removeBtn.style.height = '20px';
+                removeBtn.style.cursor = 'pointer';
+                removeBtn.style.marginLeft = '-20px';
+                removeBtn.onclick = () => {
+                    fotosUrls = fotosUrls.filter(u => u !== data.url);
+                    img.remove();
+                    removeBtn.remove();
+                };
+                loadingDiv.replaceWith(img);
+                img.style.position = 'relative';
+                img.parentElement.style.position = 'relative';
+                img.parentElement.appendChild(removeBtn);
+            } else {
+                loadingDiv.remove();
+                alert('Erro ao enviar foto: ' + (data.detail || 'Tente novamente'));
+            }
+        } catch (error) {
+            loadingDiv.remove();
+            alert('Erro de conexão ao enviar foto');
+        }
     }
 
-    // ==================================================
-    // ENVIO DO FORMULÁRIO
-    // ==================================================
-    document.getElementById('anunciarForm').addEventListener('submit', async (e) => {
+    // ==================== ENVIAR ANÚNCIO ====================
+    document.getElementById('formAnuncio').addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const nome = document.getElementById('nome').value;
         const descricao = document.getElementById('descricao').value;
         const categoria = document.getElementById('categoria').value;
-        const valorPretendido = parseFloat(document.getElementById('valorPretendido').value);
-        const video = document.getElementById('video').value;
+        const valor_pretendido = parseFloat(document.getElementById('valor_pretendido').value);
+        const condicao = document.getElementById('condicao').value;
+        const quantidade = parseInt(document.getElementById('quantidade').value);
+        const peso = parseFloat(document.getElementById('peso').value);
+        const altura = parseFloat(document.getElementById('altura').value);
+        const largura = parseFloat(document.getElementById('largura').value);
+        const comprimento = parseFloat(document.getElementById('comprimento').value);
 
-        if (!nome || !descricao || !categoria || !valorPretendido) {
-            alert('Preencha todos os campos obrigatórios!');
+        if (!nome || !descricao || !categoria || !valor_pretendido) {
+            mostrarMensagem('Preencha todos os campos obrigatórios!', 'erro');
             return;
         }
 
         if (fotosUrls.length === 0) {
-            alert('Adicione pelo menos uma foto do produto!');
+            mostrarMensagem('Envie pelo menos uma foto do produto!', 'erro');
             return;
         }
 
-        const msgDiv = document.getElementById('mensagem');
-        const btnSubmit = document.getElementById('btnSubmit');
-
-        const dados = {
-            nome, descricao, categoria,
-            valor_pretendido: valorPretendido,
+        const produto = {
+            nome,
+            descricao,
+            categoria,
+            valor_pretendido,
             fotos: fotosUrls,
-            video: video || null
+            cores: coresSelecionadas,
+            tamanhos: tamanhosSelecionados,
+            numeros: numerosSelecionados,
+            condicao,
+            quantidade,
+            peso,
+            altura,
+            largura,
+            comprimento
         };
 
-        btnSubmit.disabled = true;
-        btnSubmit.innerHTML = 'Enviando...';
+        const btn = document.getElementById('btnEnviar');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Enviando...';
 
         try {
-            const response = await fetch(`${API_URL}/produtos?vendedor_id=${usuarioId}`, {
+            const response = await fetch(`${API_URL}/produtos?vendedor_id=${VENDEDOR_ID}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dados)
+                body: JSON.stringify(produto)
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                msgDiv.className = 'mensagem sucesso';
-                msgDiv.innerHTML = '✅ Produto cadastrado! Aguardando vistoria.';
-                setTimeout(() => window.location.href = 'vendedor.html', 2000);
+                mostrarMensagem('✅ Produto enviado para vistoria! Você será notificado em breve.', 'sucesso');
+                setTimeout(() => { window.location.href = 'vendedor.html'; }, 3000);
             } else {
-                msgDiv.className = 'mensagem erro';
-                msgDiv.innerHTML = `❌ ${data.detail || 'Erro ao anunciar'}`;
-                btnSubmit.disabled = false;
-                btnSubmit.innerHTML = 'Anunciar Grátis';
+                mostrarMensagem('Erro: ' + (data.detail || 'Tente novamente'), 'erro');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-gavel"></i> Enviar para vistoria';
             }
         } catch (error) {
-            console.error('Erro:', error);
-            msgDiv.className = 'mensagem erro';
-            msgDiv.innerHTML = '❌ Erro de conexão';
-            btnSubmit.disabled = false;
-            btnSubmit.innerHTML = 'Anunciar Grátis';
+            mostrarMensagem('Erro de conexão: ' + error.message, 'erro');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-gavel"></i> Enviar para vistoria';
         }
     });
+
+    function mostrarMensagem(msg, tipo) {
+        const msgDiv = document.getElementById('mensagem');
+        msgDiv.textContent = msg;
+        msgDiv.className = `mensagem ${tipo}`;
+        setTimeout(() => {
+            msgDiv.className = 'mensagem';
+        }, 5000);
+    }
 </script>
 </body>
 </html>
