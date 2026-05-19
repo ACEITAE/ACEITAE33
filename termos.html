@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Termos de Uso - ACEITAÊ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 12px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-img {
+            height: 36px;
+            width: auto;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1A237E;
+        }
+
+        .logo-text span {
+            color: #00C853;
+            display: inline-block;
+            animation: balanco 0.8s ease-in-out infinite;
+            transform-origin: center center;
+        }
+
+        @keyframes balanco {
+            0%, 100% { transform: rotate(0deg); }
+            20% { transform: rotate(-10deg); }
+            40% { transform: rotate(10deg); }
+            60% { transform: rotate(-5deg); }
+            80% { transform: rotate(5deg); }
+        }
+
+        .btn-voltar {
+            background: #1A237E;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-voltar:hover {
+            background: #00C853;
+            transform: scale(1.02);
+        }
+
+        /* Container */
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            color: #1A237E;
+            margin-bottom: 30px;
+            font-size: 28px;
+            border-bottom: 3px solid #00C853;
+            display: inline-block;
+            padding-bottom: 8px;
+        }
+
+        h2 {
+            color: #1A237E;
+            margin: 35px 0 15px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 i {
+            color: #00C853;
+            font-size: 22px;
+        }
+
+        p {
+            line-height: 1.7;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .clausula-destaque {
+            background: linear-gradient(135deg, #f0f7f0 0%, #e8f5e9 100%);
+            padding: 24px;
+            border-left: 4px solid #00C853;
+            margin: 25px 0;
+            border-radius: 12px;
+        }
+
+        .clausula-destaque strong {
+            color: #1A237E;
+            font-size: 16px;
+        }
+
+        .clausula-destaque p {
+            margin-bottom: 8px;
+        }
+
+        .lista-item {
+            margin: 15px 0 15px 25px;
+        }
+
+        .lista-item li {
+            margin-bottom: 10px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .badge-legal {
+            background: #00C853;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        hr {
+            margin: 30px 0;
+            border: none;
+            border-top: 1px solid #eee;
+        }
+
+        .footer-termos {
+            margin-top: 40px;
+            padding-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            border-top: 1px solid #eee;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                margin: 20px;
+                padding: 24px;
+            }
+            h1 {
+                font-size: 22px;
+            }
+            h2 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="logo-area">
+            <img src="logo.jpeg" alt="ACEITAÊ" class="logo-img" onerror="this.style.display='none'">
+            <div class="logo-text">ACEIT<span>AÊ</span></div>
+        </div>
+        <a href="index.html" class="btn-voltar"><i class="fas fa-arrow-left"></i> Voltar para loja</a>
+    </div>
+
+    <!-- Conteúdo principal -->
+    <div class="container">
+        <h1><i class="fas fa-gavel"></i> Termos de Uso</h1>
+        <p style="color: #666; margin-bottom: 30px;">Última atualização: maio de 2026</p>
+
+        <!-- CLAUSULA PRINCIPAL - DESTAQUE -->
+        <div class="clausula-destaque">
+            <strong><i class="fas fa-balance-scale"></i> ⚖️ ACEITAÊ NÃO É UM LEILÃO</strong>
+            <p style="margin-top: 12px;">O ACEITAÊ é uma <strong>plataforma de consignação mercantil</strong> que conecta vendedores e compradores, <strong>não se configurando, sob qualquer aspecto, como uma casa de leilões, hasta pública ou atividade de leiloeiro</strong>, nos termos do Decreto-Lei nº 21.981/32 e demais legislações aplicáveis.</p>
+            <p>Trabalhamos com <strong>contrato de consignação mercantil</strong>. O vendedor decide se ACEITA ou recusa cada oferta.</p>
+        </div>
+
+        <!-- 1. Natureza Jurídica -->
+        <h2><i class="fas fa-gavel"></i> 1. Natureza Jurídica da Plataforma</h2>
+        <p>1.1. O ACEITAÊ é uma plataforma digital que opera sob o regime de <strong>consignação mercantil</strong>, nos termos dos artigos 1.232 a 1.246 do Código Civil Brasileiro.</p>
+        <p>1.2. A ACEITAÊ <strong>NÃO realiza leilões</strong>, não promove hastas públicas, não bate martelo e não exige a figura do leiloeiro oficial, prevista no Decreto-Lei nº 21.981/32.</p>
+        <p>1.3. A ACEITAÊ não possui leiloeiros em seu quadro societário ou funcional e não atua como leiloeira perante clientes, fornecedores ou autoridades.</p>
+
+        <!-- 2. Sistema de Ofertas Condicionais -->
+        <h2><i class="fas fa-handshake"></i> 2. Sistema de Ofertas Condicionais</h2>
+        <p>2.1. O sistema de ofertas do ACEITAÊ funciona exclusivamente sob o regime de contrato de consignação mercantil, com as seguintes características:</p>
+        <ul class="lista-item">
+            <li><strong>a)</strong> O VENDEDOR define livremente o <strong>VALOR PRETENDIDO</strong> (valor mínimo que deseja receber pelo bem);</li>
+            <li><strong>b)</strong> O COMPRADOR faz uma <strong>OFERTA</strong> (não é "lance de leilão") pelo bem anunciado;</li>
+            <li><strong>c)</strong> Se a oferta for <strong>IGUAL OU SUPERIOR</strong> ao Valor Pretendido, a venda é aceita automaticamente;</li>
+            <li><strong>d)</strong> Se a oferta for <strong>INFERIOR</strong> ao Valor Pretendido, a oferta fica <strong>CONDICIONADA</strong> à aceitação expressa do VENDEDOR, que terá o prazo de <strong>48 (quarenta e oito) horas</strong> para ACEITAR ou recusar;</li>
+            <li><strong>e)</strong> O VENDEDOR <strong>NUNCA é obrigado</strong> a aceitar uma oferta inferior ao seu Valor Pretendido.</li>
+        </ul>
+        <p>2.2. Em nenhuma hipótese a ACEITAÊ realiza venda automática para o "maior ofertante" ou qualquer mecanismo típico de leilão. A palavra final sobre a venda é <strong>SEMPRE do VENDEDOR</strong>.</p>
+
+        <!-- 3. Termos Proibidos -->
+        <h2><i class="fas fa-ban"></i> 3. Termos Proibidos na Plataforma</h2>
+        <p>3.1. Fica expressamente proibida a utilização, na plataforma, de quaisquer termos ou expressões típicas de leilão, tais como:</p>
+        <ul class="lista-item">
+            <li>"Lance" (em referência a leilão)</li>
+            <li>"Arremate" / "Arrematante"</li>
+            <li>"Martelo batido"</li>
+            <li>"Hasta pública"</li>
+            <li>"Pregão"</li>
+            <li>"Leiloeiro"</li>
+        </ul>
+        <p>3.2. Os usuários que utilizarem tais termos estarão sujeitos à advertência, suspensão ou banimento da plataforma, a critério exclusivo da ACEITAÊ.</p>
+
+        <!-- 4. Comissão -->
+        <h2><i class="fas fa-percent"></i> 4. Comissão e Repasses</h2>
+        <p>4.1. O ACEITAÊ cobra uma comissão de <strong>10% (dez por cento)</strong> sobre o valor total de cada venda realizada através da plataforma.</p>
+        <p>4.2. A comissão é descontada automaticamente no momento do repasse ao vendedor.</p>
+
+        <!-- 5. Responsabilidades -->
+        <h2><i class="fas fa-shield-alt"></i> 5. Responsabilidades</h2>
+        <p>5.1. O ACEITAÊ atua exclusivamente como <strong>intermediador</strong> entre vendedores e compradores, prestando serviços de:</p>
+        <ul class="lista-item">
+            <li>Publicidade e divulgação dos bens;</li>
+            <li>Vistoria remota dos produtos (por fotos e vídeos);</li>
+            <li>Intermediação de ofertas;</li>
+            <li>Logística (quando contratada);</li>
+            <li>Repasse financeiro (mediante comissão de 10%).</li>
+        </ul>
+        <p>5.2. A ACEITAÊ <strong>NÃO se responsabiliza</strong> pela qualidade, procedência ou estado de conservação dos bens anunciados, cuja responsabilidade é <strong>EXCLUSIVA DO VENDEDOR</strong>.</p>
+        <p>5.3. A ACEITAÊ <strong>NÃO realiza guarda, custódia ou depósito</strong> dos bens anunciados, salvo mediante contrato específico e remunerado à parte.</p>
+
+        <!-- 6. Contrato de Consignação -->
+        <h2><i class="fas fa-file-signature"></i> 6. Contrato de Consignação</h2>
+        <p>6.1. Ao anunciar um bem na plataforma, o VENDEDOR automaticamente celebra com a ACEITAÊ um <strong>CONTRATO DE CONSIGNAÇÃO MERCANTIL</strong>.</p>
+        <p>6.2. O contrato de consignação prevê:</p>
+        <ul class="lista-item">
+            <li>Prazo mínimo de permanência do anúncio: 30 (trinta) dias;</li>
+            <li>Comissão da ACEITAÊ: 10% (dez por cento) sobre o valor efetivo da venda;</li>
+            <li>Autorização para a ACEITAÊ divulgar o bem por valor sugerido (Valor de Exposição), que pode ser até 15% superior ao Valor Pretendido.</li>
+        </ul>
+
+        <!-- 7. Vistoria -->
+        <h2><i class="fas fa-clipboard-list"></i> 7. Vistoria e Aprovação</h2>
+        <p>7.1. Todos os produtos passam por um processo de <strong>vistoria remota</strong> antes de serem aprovados e exibidos na plataforma.</p>
+        <p>7.2. A ACEITAÊ se reserva o direito de recusar produtos que não atendam aos critérios mínimos de qualidade ou que violem qualquer legislação aplicável.</p>
+
+        <!-- 8. LGPD -->
+        <h2><i class="fas fa-lock"></i> 8. Privacidade e Proteção de Dados (LGPD)</h2>
+        <p>8.1. O ACEITAÊ coleta e trata dados pessoais apenas para a execução dos serviços da plataforma, em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).</p>
+        <p>8.2. Os usuários podem solicitar a exclusão de seus dados a qualquer momento, entrando em contato pelo e-mail <strong>contato@aceitae.com</strong>.</p>
+
+        <hr>
+
+        <!-- Contato -->
+        <div style="text-align: center; margin-top: 30px;">
+            <p style="color: #666;">Dúvidas? Entre em contato conosco:</p>
+            <p style="font-weight: bold; color: #1A237E;">contato@aceitae.com</p>
+        </div>
+
+        <div class="footer-termos">
+            <p>© 2026 ACEITAÊ - Todos os direitos reservados</p>
+            <p>Plataforma de venda consignada com ofertas condicionais</p>
+        </div>
+    </div>
+
+</body>
+</html>
