@@ -19,6 +19,7 @@
             min-height: 100vh;
         }
 
+        /* Header com botão centralizado */
         .header {
             background: white;
             padding: 10px 24px;
@@ -37,6 +38,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            flex: 1;
         }
 
         .logo-img {
@@ -65,11 +67,19 @@
             80% { transform: rotate(5deg); }
         }
 
+        .header-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
         .header-actions {
             display: flex;
             align-items: center;
             gap: 16px;
             flex-wrap: wrap;
+            justify-content: flex-end;
+            flex: 1;
         }
 
         .user-info {
@@ -116,11 +126,10 @@
             transform: scale(1.02);
         }
 
-        /* Botão Novo Anúncio no header */
         .btn-novo-anuncio-header {
             background: #00C853;
             color: white;
-            padding: 8px 20px;
+            padding: 8px 24px;
             border-radius: 40px;
             text-decoration: none;
             font-weight: bold;
@@ -144,7 +153,6 @@
             padding: 20px;
         }
 
-        /* Hero ultrafino - uma linha */
         .hero-vendedor {
             background: linear-gradient(135deg, #1A237E 0%, #00C853 100%);
             border-radius: 12px;
@@ -647,7 +655,9 @@
             .hero-vendedor h1 { font-size: 13px; }
             .hero-vendedor p { display: block; margin-left: 0; margin-top: 4px; }
             .header { flex-direction: column; text-align: center; }
-            .btn-novo-anuncio-header { width: 100%; justify-content: center; }
+            .logo-area { justify-content: center; }
+            .header-center { width: 100%; }
+            .header-actions { justify-content: center; }
         }
     </style>
 </head>
@@ -657,14 +667,19 @@
     <div class="logo-area">
         <img src="logo.jpeg" alt="ACEITAÊ" class="logo-img" onerror="this.style.display='none'">
         <div class="logo-text">ACEIT<span>AÊ</span></div>
-        <!-- Botão Novo Anúncio no header - ao lado do logo -->
-        <a href="anunciar.html" class="btn-novo-anuncio-header"><i class="fas fa-plus-circle"></i> Novo Anúncio</a>
     </div>
+    
+    <!-- Botão Novo Anúncio CENTRALIZADO -->
+    <div class="header-center">
+        <a href="anunciar.html" class="btn-novo-anuncio-header">
+            <i class="fas fa-plus-circle"></i> Novo Anúncio
+        </a>
+    </div>
+    
     <div class="header-actions" id="headerActions"></div>
 </div>
 
 <div class="container">
-    <!-- Hero ultrafino - uma linha -->
     <div class="hero-vendedor">
         <h1><i class="fas fa-store"></i> Meu Painel</h1>
         <p>Gerencie seus produtos e ofertas. Você decide se ACEITAÊ ou recusa.</p>
@@ -879,8 +894,7 @@
         if (!confirm('⚠️ Tem certeza que deseja EXCLUIR este produto? Esta ação não pode ser desfeita.')) return;
         
         try {
-            // Tenta DELETE na rota correta
-            const response = await fetch(`${API_URL}/admin/produtos/${produtoId}/excluir`, {
+            const response = await fetch(`${API_URL}/produtos/${produtoId}`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -891,21 +905,8 @@
                 carregarMeusProdutos();
                 carregarOfertas();
             } else {
-                // Se falhar, tenta outra rota
-                const response2 = await fetch(`${API_URL}/produtos/${produtoId}`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                
-                if (response2.ok) {
-                    criarConfetes();
-                    alert('✅ Produto excluído com sucesso!');
-                    carregarMeusProdutos();
-                    carregarOfertas();
-                } else {
-                    const error = await response2.json();
-                    alert('Erro ao excluir: ' + (error.detail || 'Tente novamente mais tarde'));
-                }
+                const error = await response.json();
+                alert('Erro ao excluir: ' + (error.detail || 'Tente novamente mais tarde'));
             }
         } catch (error) {
             console.error('Erro na exclusão:', error);
@@ -981,7 +982,7 @@
     window.removerFotoEdicao = function(idx) {
         editFotosAtuais.splice(idx, 1);
         const previewDiv = document.getElementById('edit_fotos_preview');
-        previewDiv.removeChild(previewDiv.children[idx]);
+        if (previewDiv.children[idx]) previewDiv.removeChild(previewDiv.children[idx]);
     };
 
     document.getElementById('btnUploadNovasFotos').onclick = async () => {
