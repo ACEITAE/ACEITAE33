@@ -121,23 +121,24 @@
             padding: 24px;
         }
 
+        /* Hero reduzido */
         .hero-vendedor {
             background: linear-gradient(135deg, #1A237E 0%, #00C853 100%);
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: 16px;
+            padding: 20px 24px;
             color: white;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
             text-align: center;
         }
 
         .hero-vendedor h1 {
-            font-size: 28px;
-            margin-bottom: 8px;
+            font-size: 22px;
+            margin-bottom: 4px;
         }
 
         .hero-vendedor p {
             opacity: 0.9;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .stats {
@@ -149,10 +150,10 @@
 
         .stat-card {
             background: white;
-            padding: 24px;
+            padding: 20px;
             border-radius: 20px;
             flex: 1;
-            min-width: 180px;
+            min-width: 150px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
@@ -162,19 +163,18 @@
         .stat-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-            border-color: #00C853;
         }
 
         .stat-number {
-            font-size: 42px;
+            font-size: 36px;
             font-weight: bold;
             color: #00C853;
         }
 
         .stat-label {
-            font-size: 13px;
+            font-size: 12px;
             color: #666;
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         .section-title {
@@ -192,9 +192,31 @@
             gap: 8px;
         }
 
+        /* Botão Novo Anúncio mais visível */
+        .btn-novo-anuncio {
+            background: #00C853;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,200,83,0.3);
+        }
+
+        .btn-novo-anuncio:hover {
+            background: #00A844;
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0,200,83,0.4);
+        }
+
         .produtos-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
         }
 
@@ -213,24 +235,47 @@
         }
 
         .produto-img {
-            height: 160px;
+            position: relative;
             background: #f9f9f9;
+            padding: 12px;
+        }
+
+        .produto-img-principal {
+            width: 100%;
+            height: 180px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
         }
 
-        .produto-img img {
-            width: 100%;
-            height: 100%;
+        .produto-img-principal img {
+            max-width: 100%;
+            max-height: 100%;
             object-fit: contain;
-            padding: 8px;
         }
 
-        .produto-img i {
-            font-size: 40px;
-            color: #ccc;
+        /* Miniaturas */
+        .produto-thumbnails {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .produto-thumbnail {
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .produto-thumbnail.active {
+            border-color: #00C853;
         }
 
         .produto-info-card {
@@ -254,7 +299,7 @@
             margin-bottom: 6px;
         }
 
-        .status-aprovado { background: #e8f5e9; color: #2e7d32; }
+        .status-vendendo { background: #e8f5e9; color: #2e7d32; }
         .status-aguardando { background: #fff8e1; color: #f57f17; }
         .status-vendido { background: #e3f2fd; color: #1565c0; }
 
@@ -312,15 +357,6 @@
 
         .btn-delete:hover {
             background: #b71c1c;
-        }
-
-        .btn-add-photo {
-            background: #00C853;
-            color: white;
-        }
-
-        .btn-add-photo:hover {
-            background: #00A844;
         }
 
         .ofertas-grid {
@@ -468,7 +504,6 @@
             color: #999;
         }
 
-        /* Modal de edição */
         .modal-editar {
             display: none;
             position: fixed;
@@ -617,7 +652,8 @@
             .produtos-grid { grid-template-columns: 1fr; gap: 12px; }
             .ofertas-grid { grid-template-columns: 1fr; }
             .stats { flex-direction: column; }
-            .hero-vendedor h1 { font-size: 22px; }
+            .hero-vendedor h1 { font-size: 18px; }
+            .hero-vendedor p { font-size: 10px; }
             .card-actions { flex-wrap: wrap; }
             .btn-card { flex: auto; }
         }
@@ -634,9 +670,10 @@
 </div>
 
 <div class="container">
+    <!-- Hero reduzido -->
     <div class="hero-vendedor">
-        <h1><i class="fas fa-store"></i> Meu Painel ACEITAÊ</h1>
-        <p>Gerencie seus produtos, ofertas e vendas. Você decide se ACEITAÊ ou recusa.</p>
+        <h1><i class="fas fa-store"></i> Meu Painel</h1>
+        <p>Gerencie seus produtos e ofertas. Você decide se ACEITAÊ ou recusa.</p>
     </div>
 
     <div class="stats" id="stats">
@@ -656,9 +693,7 @@
 
     <div class="section-title" id="produtos-section">
         <h2><i class="fas fa-box"></i> Meus Produtos</h2>
-        <button class="btn-voltar" onclick="location.href='anunciar.html'" style="background:#00C853; color:white;">
-            <i class="fas fa-plus-circle"></i> Novo Anúncio
-        </button>
+        <a href="anunciar.html" class="btn-novo-anuncio"><i class="fas fa-plus-circle"></i> Novo Anúncio</a>
     </div>
     <div id="meus-produtos" class="loading">Carregando produtos...</div>
 
@@ -678,7 +713,7 @@
     <i class="fas fa-gavel"></i>
 </div>
 
-<!-- Modal de edição de produto -->
+<!-- Modal de edição -->
 <div id="modalEditar" class="modal-editar">
     <div class="modal-editar-content">
         <div class="modal-editar-header">
@@ -745,7 +780,6 @@
         document.getElementById('headerActions').innerHTML = `
             <div class="user-info"><i class="fas fa-user-circle"></i> <strong>${VENDEDOR_NOME || 'Vendedor'}</strong></div>
             <a href="index.html" class="btn-voltar"><i class="fas fa-store"></i> Loja</a>
-            <a href="anunciar.html" class="btn-voltar"><i class="fas fa-plus-circle"></i> Anunciar</a>
             <button class="btn-sair" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
         `;
     }
@@ -788,22 +822,33 @@
             
             for (const produto of meusProdutos) {
                 let statusClass = '', statusText = '';
-                if (produto.status === 'aprovado') { statusClass = 'status-aprovado'; statusText = '✅ Aprovado'; }
+                if (produto.status === 'aprovado') { statusClass = 'status-vendendo'; statusText = '💰 Vendendo'; }
                 else if (produto.status === 'aguardando_vistoria') { statusClass = 'status-aguardando'; statusText = '⏳ Aguardando vistoria'; }
-                else if (produto.status === 'vendido') { statusClass = 'status-vendido'; statusText = '💰 Vendido'; }
+                else if (produto.status === 'vendido') { statusClass = 'status-vendido'; statusText = '✅ Vendido'; }
                 else { statusClass = 'status-aguardando'; statusText = produto.status; }
                 
-                let imagemHtml = '';
-                if (produto.fotos && produto.fotos.length > 0 && produto.fotos[0]) {
-                    imagemHtml = `<img src="${produto.fotos[0]}" alt="${produto.nome}">`;
-                } else {
-                    imagemHtml = `<i class="fas fa-box"></i>`;
+                const fotos = produto.fotos || [];
+                const fotoPrincipal = fotos.length > 0 ? fotos[0] : null;
+                
+                // Miniaturas HTML
+                let thumbnailsHtml = '';
+                if (fotos.length > 1) {
+                    thumbnailsHtml = `<div class="produto-thumbnails" id="thumbnails-${produto.id}">`;
+                    fotos.forEach((foto, idx) => {
+                        thumbnailsHtml += `<img src="${foto}" class="produto-thumbnail" data-idx="${idx}" data-foto="${foto}">`;
+                    });
+                    thumbnailsHtml += `</div>`;
                 }
                 
                 const card = document.createElement('div');
                 card.className = 'produto-card';
                 card.innerHTML = `
-                    <div class="produto-img">${imagemHtml}</div>
+                    <div class="produto-img">
+                        <div class="produto-img-principal" id="principal-${produto.id}">
+                            ${fotoPrincipal ? `<img src="${fotoPrincipal}" alt="${produto.nome}">` : '<i class="fas fa-box"></i>'}
+                        </div>
+                        ${thumbnailsHtml}
+                    </div>
                     <div class="produto-info-card">
                         <h4>${escapeHtml(produto.nome)}</h4>
                         <div class="produto-status ${statusClass}">${statusText}</div>
@@ -816,6 +861,22 @@
                     </div>
                 `;
                 grid.appendChild(card);
+                
+                // Adicionar evento de clique nas miniaturas
+                if (fotos.length > 1) {
+                    const thumbnails = document.querySelectorAll(`#thumbnails-${produto.id} .produto-thumbnail`);
+                    const principalDiv = document.getElementById(`principal-${produto.id}`);
+                    thumbnails.forEach(thumb => {
+                        thumb.addEventListener('click', () => {
+                            const fotoUrl = thumb.getAttribute('data-foto');
+                            principalDiv.innerHTML = `<img src="${fotoUrl}" alt="${produto.nome}">`;
+                            thumbnails.forEach(t => t.classList.remove('active'));
+                            thumb.classList.add('active');
+                        });
+                    });
+                    // Ativar primeira thumbnail
+                    if (thumbnails.length > 0) thumbnails[0].classList.add('active');
+                }
             }
         } catch (error) {
             console.error('Erro:', error);
@@ -826,16 +887,18 @@
     async function excluirProduto(produtoId) {
         if (confirm('⚠️ Tem certeza que deseja EXCLUIR este produto? Esta ação não pode ser desfeita.')) {
             try {
-                const response = await fetch(`${API_URL}/admin/produtos/${produtoId}/excluir`, { method: 'DELETE' });
+                const response = await fetch(`${API_URL}/produtos/${produtoId}`, { method: 'DELETE' });
                 if (response.ok) {
                     criarConfetes();
                     alert('✅ Produto excluído com sucesso!');
                     carregarMeusProdutos();
                 } else {
-                    alert('Erro ao excluir produto');
+                    const error = await response.json();
+                    alert('Erro ao excluir: ' + (error.detail || 'Tente novamente'));
                 }
             } catch (error) {
-                alert('Erro de conexão');
+                console.error('Erro:', error);
+                alert('Erro de conexão ao excluir produto');
             }
         }
     }
@@ -849,7 +912,7 @@
             descricao: original.descricao,
             categoria: original.categoria,
             valor_pretendido: original.valor_pretendido,
-            fotos: original.fotos,
+            fotos: original.fotos || [],
             condicao: original.condicao || 'usado',
             quantidade: original.quantidade || 1
         };
@@ -932,7 +995,7 @@
         };
         
         try {
-            const response = await fetch(`${API_URL}/produtos/${produtoId}/atualizar`, {
+            const response = await fetch(`${API_URL}/produtos/${produtoId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(produtoAtualizado)
