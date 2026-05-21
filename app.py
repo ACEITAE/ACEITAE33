@@ -292,33 +292,42 @@ def aprovar_produto(produto_id: int):
 # ==================================================
 
 @app.put("/produtos/{produto_id}")
-def atualizar_produto(produto_id: int, produto_atualizado: dict):
+def atualizar_produto(produto_id: int, request: Request):
     """Atualiza os dados de um produto existente"""
     try:
+        dados = request.json()
+        
         # Verifica se o produto existe
         produto_existente = supabase.table("produtos").select("*").eq("id", produto_id).execute()
         if not produto_existente.data:
             raise HTTPException(404, "Produto não encontrado")
         
-        # Prepara os dados para atualização
-        dados_atualizados = {
-            "nome": produto_atualizado.get("nome"),
-            "descricao": produto_atualizado.get("descricao"),
-            "valor_pretendido": produto_atualizado.get("valor_pretendido"),
-            "condicao": produto_atualizado.get("condicao"),
-            "quantidade": produto_atualizado.get("quantidade"),
-            "fotos": produto_atualizado.get("fotos"),
-            "valor_exposicao": produto_atualizado.get("valor_pretendido", 0) * 1.10
-        }
+        # Prepara os dados para atualização (apenas campos enviados)
+        dados_atualizados = {}
         
-        # Remove campos None
-        dados_atualizados = {k: v for k, v in dados_atualizados.items() if v is not None}
+        if "nome" in dados:
+            dados_atualizados["nome"] = dados["nome"]
+        if "descricao" in dados:
+            dados_atualizados["descricao"] = dados["descricao"]
+        if "valor_pretendido" in dados:
+            dados_atualizados["valor_pretendido"] = dados["valor_pretendido"]
+            dados_atualizados["valor_exposicao"] = dados["valor_pretendido"] * 1.10
+        if "condicao" in dados:
+            dados_atualizados["condicao"] = dados["condicao"]
+        if "quantidade" in dados:
+            dados_atualizados["quantidade"] = dados["quantidade"]
+        if "fotos" in dados:
+            dados_atualizados["fotos"] = dados["fotos"]
+        
+        if not dados_atualizados:
+            return {"mensagem": "Nenhum dado para atualizar"}
         
         # Atualiza no banco
         result = supabase.table("produtos").update(dados_atualizados).eq("id", produto_id).execute()
         
         return {"mensagem": "Produto atualizado com sucesso!", "produto": result.data[0]}
     except Exception as e:
+        print(f"Erro ao atualizar produto: {str(e)}")
         raise HTTPException(500, str(e))
 
 
@@ -331,16 +340,16 @@ def excluir_produto(produto_id: int):
         if not produto_existente.data:
             raise HTTPException(404, "Produto não encontrado")
         
+        # Remove as ofertas relacionadas primeiro (evita erro de chave estrangeira)
+        supabase.table("ofertas").delete().eq("produto_id", produto_id).execute()
+        
         # Remove o produto
         supabase.table("produtos").delete().eq("id", produto_id).execute()
         
-        # Remove ofertas relacionadas (opcional)
-        supabase.table("ofertas").delete().eq("produto_id", produto_id).execute()
-        
         return {"mensagem": "Produto excluído com sucesso!"}
     except Exception as e:
+        print(f"Erro ao excluir produto: {str(e)}")
         raise HTTPException(500, str(e))
-
 # ==================================================
 # ROTAS DE OFERTA (COM NOTIFICAÇÃO WHATSAPP)
 # ==================================================
