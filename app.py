@@ -288,6 +288,60 @@ def aprovar_produto(produto_id: int):
 
 
 # ==================================================
+# ROTAS PARA EDITAR E EXCLUIR PRODUTOS
+# ==================================================
+
+@app.put("/produtos/{produto_id}")
+def atualizar_produto(produto_id: int, produto_atualizado: dict):
+    """Atualiza os dados de um produto existente"""
+    try:
+        # Verifica se o produto existe
+        produto_existente = supabase.table("produtos").select("*").eq("id", produto_id).execute()
+        if not produto_existente.data:
+            raise HTTPException(404, "Produto não encontrado")
+        
+        # Prepara os dados para atualização
+        dados_atualizados = {
+            "nome": produto_atualizado.get("nome"),
+            "descricao": produto_atualizado.get("descricao"),
+            "valor_pretendido": produto_atualizado.get("valor_pretendido"),
+            "condicao": produto_atualizado.get("condicao"),
+            "quantidade": produto_atualizado.get("quantidade"),
+            "fotos": produto_atualizado.get("fotos"),
+            "valor_exposicao": produto_atualizado.get("valor_pretendido", 0) * 1.10
+        }
+        
+        # Remove campos None
+        dados_atualizados = {k: v for k, v in dados_atualizados.items() if v is not None}
+        
+        # Atualiza no banco
+        result = supabase.table("produtos").update(dados_atualizados).eq("id", produto_id).execute()
+        
+        return {"mensagem": "Produto atualizado com sucesso!", "produto": result.data[0]}
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+@app.delete("/produtos/{produto_id}")
+def excluir_produto(produto_id: int):
+    """Remove um produto do sistema"""
+    try:
+        # Verifica se o produto existe
+        produto_existente = supabase.table("produtos").select("*").eq("id", produto_id).execute()
+        if not produto_existente.data:
+            raise HTTPException(404, "Produto não encontrado")
+        
+        # Remove o produto
+        supabase.table("produtos").delete().eq("id", produto_id).execute()
+        
+        # Remove ofertas relacionadas (opcional)
+        supabase.table("ofertas").delete().eq("produto_id", produto_id).execute()
+        
+        return {"mensagem": "Produto excluído com sucesso!"}
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+# ==================================================
 # ROTAS DE OFERTA (COM NOTIFICAÇÃO WHATSAPP)
 # ==================================================
 
