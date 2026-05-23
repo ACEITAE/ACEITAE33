@@ -120,6 +120,31 @@ https://aceitae.com.br/vendedor.html
 
 
 # ==================================================
+# VERIFICAR SE USUÁRIO É ADMIN
+# ==================================================
+
+@app.get("/usuarios/{usuario_id}/is-admin")
+def verificar_admin(usuario_id: int):
+    """Verifica se o usuário é administrador"""
+    try:
+        result = supabase.table("usuarios").select("is_admin, tipo, email, nome").eq("id", usuario_id).execute()
+        if not result.data:
+            return {"is_admin": False, "erro": "Usuário não encontrado"}
+        
+        user = result.data[0]
+        # Verifica se is_admin é True OU tipo é 'admin'
+        is_admin = user.get("is_admin", False) or user.get("tipo") == "admin"
+        
+        return {
+            "is_admin": is_admin,
+            "email": user.get("email"),
+            "nome": user.get("nome")
+        }
+    except Exception as e:
+        print(f"Erro ao verificar admin: {str(e)}")
+        return {"is_admin": False, "erro": str(e)}
+
+# ==================================================
 # ROTAS DE USUÁRIO (CORRIGIDAS)
 # ==================================================
 
