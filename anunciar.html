@@ -66,6 +66,25 @@
             80% { transform: rotate(5deg); }
         }
 
+        .btn-admin-top {
+            background: #FFC107;
+            color: #1A237E;
+            padding: 8px 18px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+
+        .btn-admin-top:hover {
+            background: #ffb300;
+            transform: scale(1.02);
+        }
+
         .btn-voltar {
             background: #f0f0f0;
             padding: 8px 20px;
@@ -81,6 +100,22 @@
 
         .btn-voltar:hover {
             background: #e0e0e0;
+            transform: scale(1.02);
+        }
+
+        .btn-sair {
+            background: #c62828;
+            padding: 8px 18px;
+            border-radius: 30px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .btn-sair:hover {
+            background: #b71c1c;
             transform: scale(1.02);
         }
 
@@ -320,6 +355,9 @@
             .form-card { padding: 20px; }
             .row-2 { grid-template-columns: 1fr; gap: 12px; }
             .foto-preview { width: 60px; height: 60px; }
+            .header { flex-direction: column; text-align: center; }
+            .logo-area { justify-content: center; }
+            .header-actions { justify-content: center; flex-wrap: wrap; }
         }
     </style>
 </head>
@@ -330,7 +368,7 @@
         <img src="logo.jpeg" alt="ACEITAÊ" class="logo-img" onerror="this.style.display='none'">
         <div class="logo-text">ACEIT<span>AÊ</span></div>
     </div>
-    <a href="vendedor.html" class="btn-voltar"><i class="fas fa-arrow-left"></i> Voltar ao painel</a>
+    <div class="header-actions" id="headerActions"></div>
 </div>
 
 <div class="container">
@@ -492,9 +530,49 @@
     const VENDEDOR_ID = localStorage.getItem('usuario_id');
     const VENDEDOR_NOME = localStorage.getItem('usuario_nome');
 
+    // ==================== VERIFICAR ADMIN ====================
+    async function verificarAdmin() {
+        const usuarioId = localStorage.getItem('usuario_id');
+        if (!usuarioId) return false;
+        
+        try {
+            const response = await fetch(`${API_URL}/usuarios/${usuarioId}/is-admin`);
+            const data = await response.json();
+            return data.is_admin === true;
+        } catch (error) {
+            console.error('Erro ao verificar admin:', error);
+            return false;
+        }
+    }
+
+    async function mostrarBotaoAdmin() {
+        const isAdmin = await verificarAdmin();
+        const headerActions = document.getElementById('headerActions');
+        
+        if (headerActions) {
+            if (isAdmin) {
+                headerActions.innerHTML = `
+                    <a href="admin.html" class="btn-admin-top"><i class="fas fa-shield-alt"></i> Admin</a>
+                    <a href="vendedor.html" class="btn-voltar"><i class="fas fa-arrow-left"></i> Meu Painel</a>
+                    <button class="btn-sair" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+                `;
+            } else {
+                headerActions.innerHTML = `
+                    <a href="vendedor.html" class="btn-voltar"><i class="fas fa-arrow-left"></i> Meu Painel</a>
+                    <button class="btn-sair" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+                `;
+            }
+        }
+    }
+
     // Verifica login
     if (!VENDEDOR_ID) {
         window.location.href = 'login.html';
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = 'index.html';
     }
 
     // Variáveis
@@ -524,7 +602,6 @@
         const novaCor = document.getElementById('corPersonalizada').value;
         if (!coresSelecionadas.includes(novaCor)) {
             coresSelecionadas.push(novaCor);
-            // Adiciona visualmente
             const container = document.getElementById('coresContainer');
             const novaDiv = document.createElement('div');
             novaDiv.className = 'cor-opcao selected';
@@ -741,6 +818,9 @@
             msgDiv.className = 'mensagem';
         }, 5000);
     }
+
+    // Inicializar
+    mostrarBotaoAdmin();
 </script>
 </body>
 </html>
