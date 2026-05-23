@@ -41,6 +41,7 @@
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .top-bar a {
@@ -54,6 +55,26 @@
 
         .separator {
             color: rgba(255,255,255,0.3);
+        }
+
+        /* Botão Admin */
+        .btn-admin-top {
+            background: #FFC107;
+            color: #1A237E;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.3s;
+        }
+
+        .btn-admin-top:hover {
+            background: #ffb300;
+            transform: scale(1.02);
         }
 
         /* Selos de confiança */
@@ -995,7 +1016,8 @@
             <span class="separator">|</span>
             <a href="#"><i class="fas fa-download"></i> Baixe o App</a>
         </div>
-        <div class="top-bar-right">
+        <div class="top-bar-right" id="topBarRight">
+            <a href="#" id="adminTopBtn" class="btn-admin-top" style="display: none;"><i class="fas fa-shield-alt"></i> Admin</a>
             <a href="#"><i class="fab fa-instagram"></i> Siga-nos</a>
             <span class="separator">|</span>
             <a href="cadastro.html"><i class="fas fa-user-plus"></i> Cadastrar</a>
@@ -1158,8 +1180,9 @@
 </div>    
     <script>
         const API_URL = 'https://aceitae33-api.onrender.com';
-        const usuarioId = localStorage.getItem('usuario_id');
-        const usuarioNome = localStorage.getItem('usuario_nome');
+        let usuarioId = localStorage.getItem('usuario_id');
+        let usuarioNome = localStorage.getItem('usuario_nome');
+        let usuarioEmail = localStorage.getItem('usuario_email');
 
         let produtosOriginais = [];
         let categoriaAtual = 'todos';
@@ -1170,25 +1193,74 @@
         let indiceFotoAtual = 0;
         let produtoAtualLightbox = null;
 
+        // ==================== VERIFICAR ADMIN ====================
+        async function verificarAdmin() {
+            const id = localStorage.getItem('usuario_id');
+            if (!id) return false;
+            
+            try {
+                const response = await fetch(`${API_URL}/usuarios/${id}/is-admin`);
+                const data = await response.json();
+                return data.is_admin === true;
+            } catch (error) {
+                console.error('Erro ao verificar admin:', error);
+                return false;
+            }
+        }
+
+        async function mostrarBotaoAdmin() {
+            const isAdmin = await verificarAdmin();
+            const adminBtn = document.getElementById('adminTopBtn');
+            if (adminBtn) {
+                adminBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+                if (isAdmin) {
+                    adminBtn.href = 'admin.html';
+                }
+            }
+        }
+
+        // Atualizar top bar com usuário logado e admin
+        function atualizarTopBar() {
+            const topBarRight = document.getElementById('topBarRight');
+            const loginBtn = topBarRight.querySelector('a[href="login.html"]');
+            const cadastroBtn = topBarRight.querySelector('a[href="cadastro.html"]');
+            
+            if (usuarioNome) {
+                if (loginBtn) loginBtn.style.display = 'none';
+                if (cadastroBtn) cadastroBtn.style.display = 'none';
+                
+                // Remove admin button if exists duplicate
+                const existingUserSpan = topBarRight.querySelector('.user-span-top');
+                const existingLogoutBtn = topBarRight.querySelector('.logout-btn-top');
+                if (existingUserSpan) existingUserSpan.remove();
+                if (existingLogoutBtn) existingLogoutBtn.remove();
+                
+                const userSpan = document.createElement('span');
+                userSpan.className = 'user-span-top';
+                userSpan.innerHTML = `<i class="fas fa-user-circle"></i> Olá, ${usuarioNome}`;
+                userSpan.style.cssText = 'display: flex; align-items: center; gap: 5px;';
+                
+                const logoutBtn = document.createElement('button');
+                logoutBtn.className = 'logout-btn-top';
+                logoutBtn.innerHTML = 'Sair';
+                logoutBtn.style.cssText = 'background: #c62828; border: none; padding: 4px 12px; border-radius: 20px; color: white; cursor: pointer;';
+                logoutBtn.onclick = () => { localStorage.clear(); window.location.href = 'index.html'; };
+                
+                // Inserir antes do Instagram link
+                const instaLink = topBarRight.querySelector('a[href="#"]');
+                if (instaLink) {
+                    topBarRight.insertBefore(userSpan, instaLink);
+                    topBarRight.insertBefore(logoutBtn, instaLink);
+                } else {
+                    topBarRight.appendChild(userSpan);
+                    topBarRight.appendChild(logoutBtn);
+                }
+            }
+        }
+
         if (usuarioNome) {
-            const topBar = document.querySelector('.top-bar-right');
-            const loginBtn = topBar.querySelector('a[href="login.html"]');
-            const cadastroBtn = topBar.querySelector('a[href="cadastro.html"]');
-            if (loginBtn) loginBtn.style.display = 'none';
-            if (cadastroBtn) cadastroBtn.style.display = 'none';
-            
-            const userSpan = document.createElement('span');
-            userSpan.innerHTML = `<i class="fas fa-user-circle"></i> Olá, ${usuarioNome}`;
-            const logoutBtn = document.createElement('a');
-            logoutBtn.innerHTML = 'Sair';
-            logoutBtn.href = '#';
-            logoutBtn.style.border = '1px solid white';
-            logoutBtn.style.padding = '4px 12px';
-            logoutBtn.style.borderRadius = '20px';
-            logoutBtn.onclick = () => { localStorage.clear(); window.location.href = 'index.html'; };
-            
-            topBar.appendChild(userSpan);
-            topBar.appendChild(logoutBtn);
+            atualizarTopBar();
+            mostrarBotaoAdmin();
         }
 
         function scrollToFirstProduct() {
@@ -1257,8 +1329,6 @@
             
             const quantidadeDisp = produto.quantidade || 1;
             const valorReal = produto.valor_exposicao;
-            
-            // Calcula barra de progresso (estimativa)
             const progressPercent = Math.min(100, Math.floor((valorReal - (valorReal * 0.2)) / valorReal * 100));
             
             infoDiv.innerHTML = `
@@ -1298,13 +1368,6 @@
                 </div>
             `;
             modal.style.display = 'flex';
-        }
-
-        function scrollToFirstProduct() {
-            const firstProduct = document.querySelector('.produto-card');
-            if (firstProduct) {
-                firstProduct.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
         }
 
         function atualizarTotalModal() {
@@ -1466,7 +1529,6 @@
                     condicaoBadge = '<span class="badge-usado">🔄 USADO</span>';
                 }
                 
-                // Badge "Aceito rápido" aleatório para dar dinamismo
                 const aceitoRapido = Math.random() > 0.7 ? '<span class="badge-rapido">⚡ Aceito rápido</span>' : '';
                 
                 let coresPreviewHtml = '';
@@ -1481,9 +1543,7 @@
                     coresPreviewHtml += `</div>`;
                 }
                 
-                // Contador de visualizações (random para simular movimento)
                 const visualizacoes = Math.floor(Math.random() * 100) + 10;
-                
                 const parcelas = Math.min(10, Math.max(1, Math.floor(produto.valor_exposicao / 50)));
                 const valorParcela = produto.valor_exposicao / parcelas;
                 const quantidadeDisp = produto.quantidade || 1;
