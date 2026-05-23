@@ -19,7 +19,6 @@
             min-height: 100vh;
         }
 
-        /* Header com botão centralizado */
         .header {
             background: white;
             padding: 10px 24px;
@@ -38,7 +37,6 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            flex: 1;
         }
 
         .logo-img {
@@ -145,6 +143,26 @@
             background: #00A844;
             transform: scale(1.02);
             box-shadow: 0 4px 10px rgba(0,200,83,0.4);
+        }
+
+        /* Botão Admin */
+        .btn-admin-top {
+            background: #FFC107;
+            color: #1A237E;
+            padding: 6px 14px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+
+        .btn-admin-top:hover {
+            background: #ffb300;
+            transform: scale(1.02);
         }
 
         .container {
@@ -456,6 +474,10 @@
             gap: 6px;
         }
 
+        .btn-aceitar:hover {
+            background: #00A844;
+        }
+
         .btn-recusar {
             flex: 1;
             background: #f5f5f5;
@@ -668,15 +690,18 @@
         <img src="logo.jpeg" alt="ACEITAÊ" class="logo-img" onerror="this.style.display='none'">
         <div class="logo-text">ACEIT<span>AÊ</span></div>
     </div>
-    
-    <!-- Botão Novo Anúncio CENTRALIZADO -->
     <div class="header-center">
         <a href="anunciar.html" class="btn-novo-anuncio-header">
             <i class="fas fa-plus-circle"></i> Novo Anúncio
         </a>
     </div>
-    
-    <div class="header-actions" id="headerActions"></div>
+    <div class="header-actions" id="headerActions">
+        <a href="admin.html" id="adminTopBtn" class="btn-admin-top" style="display: none;">
+            <i class="fas fa-shield-alt"></i> Admin
+        </a>
+        <a href="index.html" class="btn-voltar"><i class="fas fa-store"></i> Loja</a>
+        <button class="btn-sair" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+    </div>
 </div>
 
 <div class="container">
@@ -778,7 +803,37 @@
     let editProdutoAtual = null;
     let editFotosAtuais = [];
 
-    if (!VENDEDOR_ID) window.location.href = 'login.html';
+    // ==================== VERIFICAR ADMIN ====================
+    async function verificarAdmin() {
+        const usuarioId = localStorage.getItem('usuario_id');
+        if (!usuarioId) return false;
+        
+        try {
+            const response = await fetch(`${API_URL}/usuarios/${usuarioId}/is-admin`);
+            const data = await response.json();
+            return data.is_admin === true;
+        } catch (error) {
+            console.error('Erro ao verificar admin:', error);
+            return false;
+        }
+    }
+
+    async function mostrarBotaoAdmin() {
+        const isAdmin = await verificarAdmin();
+        const adminBtn = document.getElementById('adminTopBtn');
+        if (adminBtn) {
+            adminBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+            if (isAdmin) {
+                adminBtn.href = 'admin.html';
+            }
+        }
+    }
+
+    // ==================== VERIFICAÇÃO DE LOGIN ====================
+    if (!VENDEDOR_ID) {
+        window.location.href = 'login.html';
+    }
+
     if (USUARIO_TIPO !== 'vendedor' && USUARIO_TIPO !== 'ambos') {
         alert('Esta área é exclusiva para vendedores!');
         window.location.href = 'index.html';
@@ -786,10 +841,14 @@
 
     function atualizarHeader() {
         document.getElementById('headerActions').innerHTML = `
+            <a href="admin.html" id="adminTopBtn" class="btn-admin-top" style="display: none;">
+                <i class="fas fa-shield-alt"></i> Admin
+            </a>
             <div class="user-info"><i class="fas fa-user-circle"></i> <strong>${VENDEDOR_NOME || 'Vendedor'}</strong></div>
             <a href="index.html" class="btn-voltar"><i class="fas fa-store"></i> Loja</a>
             <button class="btn-sair" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
         `;
+        mostrarBotaoAdmin();
     }
 
     function logout() { localStorage.clear(); window.location.href = 'login.html'; }
@@ -890,132 +949,155 @@
         }
     }
 
-// ==================== EXCLUIR PRODUTO (CORRIGIDO) ====================
-async function excluirProduto(produtoId) {
-    if (!confirm('⚠️ Tem certeza que deseja EXCLUIR este produto?\n\nEsta ação NÃO pode ser desfeita!')) return;
-    
-    try {
-        // Mostra loading
-        const btn = event?.target?.closest('.btn-delete');
-        if (btn) {
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i>';
-        }
+    async function excluirProduto(produtoId) {
+        if (!confirm('⚠️ Tem certeza que deseja EXCLUIR este produto? Esta ação não pode ser desfeita.')) return;
         
-        const response = await fetch(`${API_URL}/produtos/${produtoId}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' }
+        try {
+            const response = await fetch(`${API_URL}/produtos/${produtoId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+            if (response.ok) {
+                criarConfetes();
+                alert('✅ Produto excluído com sucesso!');
+                carregarMeusProdutos();
+                carregarOfertas();
+            } else {
+                const error = await response.json();
+                alert('Erro ao excluir: ' + (error.detail || 'Tente novamente mais tarde'));
+            }
+        } catch (error) {
+            console.error('Erro na exclusão:', error);
+            alert('Erro de conexão. Tente novamente.');
+        }
+    }
+
+    async function duplicarProduto(produtoId) {
+        const original = meusProdutos.find(p => p.id === produtoId);
+        if (!original) return;
+        
+        const novoProduto = {
+            nome: `${original.nome} (cópia)`,
+            descricao: original.descricao,
+            categoria: original.categoria,
+            valor_pretendido: original.valor_pretendido,
+            fotos: original.fotos || [],
+            condicao: original.condicao || 'usado',
+            quantidade: original.quantidade || 1,
+            cores: original.cores || [],
+            tamanhos: original.tamanhos || [],
+            numeros: original.numeros || []
+        };
+        
+        try {
+            const response = await fetch(`${API_URL}/produtos?vendedor_id=${VENDEDOR_ID}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(novoProduto)
+            });
+            if (response.ok) {
+                criarConfetes();
+                alert('✅ Produto duplicado com sucesso!');
+                carregarMeusProdutos();
+            } else {
+                const error = await response.json();
+                alert('Erro ao duplicar: ' + (error.detail || 'Tente novamente'));
+            }
+        } catch (error) {
+            alert('Erro de conexão');
+        }
+    }
+
+    async function abrirEditarProduto(produtoId) {
+        const produto = meusProdutos.find(p => p.id === produtoId);
+        if (!produto) return;
+        
+        editProdutoAtual = produto;
+        editFotosAtuais = [...(produto.fotos || [])];
+        
+        document.getElementById('edit_produto_id').value = produto.id;
+        document.getElementById('edit_nome').value = produto.nome;
+        document.getElementById('edit_descricao').value = produto.descricao || '';
+        document.getElementById('edit_valor').value = produto.valor_pretendido;
+        document.getElementById('edit_condicao').value = produto.condicao || 'usado';
+        document.getElementById('edit_quantidade').value = produto.quantidade || 1;
+        
+        const previewDiv = document.getElementById('edit_fotos_preview');
+        previewDiv.innerHTML = '';
+        editFotosAtuais.forEach((foto, idx) => {
+            const div = document.createElement('div');
+            div.className = 'foto-edit-item';
+            div.innerHTML = `
+                <img src="${foto}">
+                <div class="remove-foto" onclick="removerFotoEdicao(${idx})">✕</div>
+            `;
+            previewDiv.appendChild(div);
         });
         
-        if (response.ok) {
-            criarConfetes();
-            alert('✅ Produto excluído com sucesso!');
-            carregarMeusProdutos(); // Recarrega a lista
-            carregarOfertas(); // Recarrega ofertas se necessário
-        } else {
-            const error = await response.json();
-            alert('❌ Erro ao excluir: ' + (error.detail || 'Tente novamente'));
-        }
-    } catch (error) {
-        console.error('Erro na exclusão:', error);
-        alert('❌ Erro de conexão. Verifique sua internet e tente novamente.');
-    } finally {
-        if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-trash"></i> Excluir';
-        }
+        document.getElementById('modalEditar').style.display = 'flex';
     }
-}
 
-// ==================== EDITAR PRODUTO (CORRIGIDO) ====================
-async function abrirEditarProduto(produtoId) {
-    const produto = meusProdutos.find(p => p.id === produtoId);
-    if (!produto) {
-        alert('Produto não encontrado');
-        return;
-    }
-    
-    editProdutoAtual = produto;
-    editFotosAtuais = [...(produto.fotos || [])];
-    
-    document.getElementById('edit_produto_id').value = produto.id;
-    document.getElementById('edit_nome').value = produto.nome || '';
-    document.getElementById('edit_descricao').value = produto.descricao || '';
-    document.getElementById('edit_valor').value = produto.valor_pretendido || 0;
-    document.getElementById('edit_condicao').value = produto.condicao || 'usado';
-    document.getElementById('edit_quantidade').value = produto.quantidade || 1;
-    
-    // Preview das fotos
-    const previewDiv = document.getElementById('edit_fotos_preview');
-    previewDiv.innerHTML = '';
-    editFotosAtuais.forEach((foto, idx) => {
-        const div = document.createElement('div');
-        div.className = 'foto-edit-item';
-        div.innerHTML = `
-            <img src="${foto}">
-            <div class="remove-foto" onclick="removerFotoEdicao(${idx})">✕</div>
-        `;
-        previewDiv.appendChild(div);
-    });
-    
-    document.getElementById('modalEditar').style.display = 'flex';
-}
-
-// Salvar edição
-document.getElementById('formEditar').onsubmit = async (e) => {
-    e.preventDefault();
-    
-    const produtoId = document.getElementById('edit_produto_id').value;
-    const nome = document.getElementById('edit_nome').value;
-    const descricao = document.getElementById('edit_descricao').value;
-    const valor = parseFloat(document.getElementById('edit_valor').value);
-    const condicao = document.getElementById('edit_condicao').value;
-    const quantidade = parseInt(document.getElementById('edit_quantidade').value);
-    
-    if (!nome || !valor) {
-        alert('Preencha nome e valor do produto');
-        return;
-    }
-    
-    const produtoAtualizado = {
-        nome: nome,
-        descricao: descricao,
-        valor_pretendido: valor,
-        condicao: condicao,
-        quantidade: quantidade,
-        fotos: editFotosAtuais
+    window.removerFotoEdicao = function(idx) {
+        editFotosAtuais.splice(idx, 1);
+        const previewDiv = document.getElementById('edit_fotos_preview');
+        if (previewDiv.children[idx]) previewDiv.removeChild(previewDiv.children[idx]);
     };
-    
-    const btn = document.querySelector('#formEditar button[type="submit"]');
-    const btnOriginalText = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Salvando...';
-    
-    try {
-        const response = await fetch(`${API_URL}/produtos/${produtoId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(produtoAtualizado)
-        });
-        
-        if (response.ok) {
-            criarConfetes();
-            alert('✅ Produto atualizado com sucesso!');
-            document.getElementById('modalEditar').style.display = 'none';
-            carregarMeusProdutos(); // Recarrega a lista
-        } else {
-            const error = await response.json();
-            alert('❌ Erro ao atualizar: ' + (error.detail || 'Tente novamente'));
+
+    document.getElementById('btnUploadNovasFotos').onclick = async () => {
+        const files = document.getElementById('edit_novas_fotos').files;
+        for (const file of files) {
+            const formData = new FormData();
+            formData.append('arquivo', file);
+            try {
+                const response = await fetch(`${API_URL}/upload-foto`, { method: 'POST', body: formData });
+                const data = await response.json();
+                if (response.ok) {
+                    editFotosAtuais.push(data.url);
+                    const previewDiv = document.getElementById('edit_fotos_preview');
+                    const div = document.createElement('div');
+                    div.className = 'foto-edit-item';
+                    div.innerHTML = `<img src="${data.url}"><div class="remove-foto" onclick="this.parentElement.remove(); editFotosAtuais.splice(editFotosAtuais.indexOf('${data.url}'), 1);">✕</div>`;
+                    previewDiv.appendChild(div);
+                }
+            } catch (error) {
+                alert('Erro ao enviar foto');
+            }
         }
-    } catch (error) {
-        console.error('Erro na atualização:', error);
-        alert('❌ Erro de conexão. Tente novamente.');
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = btnOriginalText;
-    }
-};
-    
+        document.getElementById('edit_novas_fotos').value = '';
+    };
+
+    document.getElementById('formEditar').onsubmit = async (e) => {
+        e.preventDefault();
+        const produtoId = document.getElementById('edit_produto_id').value;
+        const produtoAtualizado = {
+            nome: document.getElementById('edit_nome').value,
+            descricao: document.getElementById('edit_descricao').value,
+            valor_pretendido: parseFloat(document.getElementById('edit_valor').value),
+            condicao: document.getElementById('edit_condicao').value,
+            quantidade: parseInt(document.getElementById('edit_quantidade').value),
+            fotos: editFotosAtuais
+        };
+        
+        try {
+            const response = await fetch(`${API_URL}/produtos/${produtoId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(produtoAtualizado)
+            });
+            if (response.ok) {
+                criarConfetes();
+                alert('✅ Produto atualizado com sucesso!');
+                document.getElementById('modalEditar').style.display = 'none';
+                carregarMeusProdutos();
+            } else {
+                alert('Erro ao atualizar produto');
+            }
+        } catch (error) {
+            alert('Erro de conexão');
+        }
+    };
+
     document.querySelector('.fechar-modal').onclick = () => {
         document.getElementById('modalEditar').style.display = 'none';
     };
@@ -1123,6 +1205,7 @@ document.getElementById('formEditar').onsubmit = async (e) => {
     atualizarHeader();
     carregarMeusProdutos();
     carregarOfertas();
+    mostrarBotaoAdmin();
 </script>
 </body>
 </html>
