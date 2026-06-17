@@ -1173,11 +1173,72 @@
         return map[status] || '';
     }
 
+    // ==================================================
+    // FUNÇÃO CONFIRMAR ACEITAR COM PAGAMENTO (PIX + CARTÃO)
+    // ==================================================
+
     function confirmarAceitar(ofertaId, valor) {
         const comissao = valor * 0.10;
         const liquido = valor - comissao;
+        
         if (confirm(`⚠️ CONFIRMAR ACEITAÇÃO\n\nValor oferta: R$ ${valor.toFixed(2)}\nComissão (10%): R$ ${comissao.toFixed(2)}\nVocê receberá: R$ ${liquido.toFixed(2)}\n\nEsta ação NÃO pode ser desfeita!`)) {
-            responderOferta(ofertaId, 'ACEITAÊ');
+            
+            // Escolha do método de pagamento
+            const metodo = confirm(`💳 COMO O COMPRADOR VAI PAGAR?\n\nClique em OK para PIX (mais rápido)\nClique em Cancelar para CARTÃO DE CRÉDITO (com parcelas)`)
+                ? "pix" : "cartao";
+            
+            let parcelas = 1;
+            if (metodo === "cartao") {
+                const parcelasInput = prompt(`📊 PARCELAMENTO\n\nQuantas parcelas? (1 a 12)\nValor da parcela: R$ ${(valor / 1).toFixed(2)}`, "1");
+                parcelas = Math.min(12, Math.max(1, parseInt(parcelasInput) || 1));
+            }
+            
+            // Gera pagamento
+            fetch(`${API_URL}/ofertas/${ofertaId}/gerar-pagamento?metodo=${metodo}&parcelas=${parcelas}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.erro) {
+                    if (data.erro === 'comprador_sem_cpf') {
+                        alert('⚠️ O comprador precisa cadastrar CPF antes de finalizar a compra.');
+                    } else {
+                        alert('❌ ' + (data.mensagem || 'Erro ao gerar pagamento'));
+                    }
+                    return;
+                }
+                
+                if (data.sucesso && data.metodo === 'pix') {
+                    const pixMsg = 
+                        `✅ PIX GERADO!\n\n` +
+                        `💰 Valor: R$ ${data.valor.toFixed(2)}\n` +
+                        `📅 Vence em: ${data.vencimento}\n\n` +
+                        `📱 COPIE O CÓDIGO PIX:\n${data.pix_payload}\n\n` +
+                        `🖼️ QR Code aberto em nova aba.`;
+                    
+                    alert(pixMsg);
+                    if (data.pix_qr_code) window.open(data.pix_qr_code, '_blank');
+                    
+                } else if (data.sucesso && data.metodo === 'cartao') {
+                    const cartaoMsg = 
+                        `💳 CARTÃO DE CRÉDITO\n\n` +
+                        `💰 Valor: R$ ${data.valor.toFixed(2)}\n` +
+                        `📅 Parcelas: ${data.parcelas}x de R$ ${(data.valor / data.parcelas).toFixed(2)}\n` +
+                        `📅 Vence em: ${data.vencimento}\n\n` +
+                        `🔗 Link de pagamento:\n${data.checkout_url}\n\n` +
+                        `📋 Copie e envie para o comprador.`;
+                    
+                    alert(cartaoMsg);
+                    if (data.checkout_url) window.open(data.checkout_url, '_blank');
+                }
+                
+                carregarOfertas();
+                carregarMeusProdutos();
+            })
+            .catch(error => {
+                alert('❌ Erro ao processar: ' + error.message);
+            });
         }
     }
 
