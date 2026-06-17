@@ -781,14 +781,260 @@ async def webhook_asaas(request: Request):
 # ==================================================
 # Pagamentos cartão
 # ==================================================
+# ==================================================
+# INTEGRAÇÃO ASAAS - PAGAMENTOS (PIX + CARTÃO)
+# ==================================================
 
-@app.get("/")
-def root():
-    return {"mensagem": "ACEITAÊ está no ar!"}
+import os
+import requests
+from datetime import datetime, timedelta
 
-@app.get("/health")
-def health():
-    return {"status": "online"}
+# Configuração Asaas (lê variáveis do Render)
+ASAAS_ENV = os.getenv("ASAAS_ENV", "sandbox")
+ASAAS_API_KEY_SANDBOX = os.getenv("ASAAS_API_KEY_sandbox")
+ASAAS_API_KEY_PROD = os.getenv("ASAAS_API_KEY_prod")
+
+if ASAAS_ENV == "production":
+    ASAAS_API_KEY = ASAAS_API_KEY_PROD
+    ASAAS_URL = "https://www.asaas.com/api/v3"
+else:
+    ASAAS_API_KEY = ASAAS_API_KEY_SANDBOX
+    ASAAS_URL = "https://sandbox.asaas.com/api/v3"
+
+ASAAS_HEADERS = {
+    "access_token": ASAAS_API_KEY,
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+}
+
+print(f"🔐 Ambiente ASAAS: {ASAAS_ENV}")
+print(f"🔑 Chave ASAAS: {ASAAS_API_KEY[:10]}..." if ASAAS_API_KEY else "❌ Chave não encontrada!")
+
+
+def criar_cliente_asaas(nome, email, cpf_cnpj, telefone=None):
+    """Cria um cliente no Asaas"""
+    url = f"{ASAAS_URL}/customers"
+    payload = {
+        "name": nome,
+        "email": email,
+        "cpfCnpj": re.sub(r'\D', '', cpf_cnpj),
+        "phone": telefone or "",
+        "notificationDisabled": False
+    }
+    try:
+        response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
+        return response.json()
+    except Exception as e:
+        print(f"❌ Erro ao criar cliente Asaas: {e}")
+        return None
+
+
+def criar_cobranca_pix_asaas(customer_id, valor, descricao, data_vencimento):
+    """Cria uma cobrança PIX no Asaas"""
+    url = f"{ASAAS_URL}/payments"
+    payload = {
+        "customer": customer_id,
+        "billingType": "PIX",
+        "value": valor,
+        "dueDate": data_vencimento,
+        "description": descricao
+    }
+    try:
+        response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
+        return response.json()
+    except Exception as e:
+        print(f"❌ Erro ao criar cobrança PIX Asaas: {e}")
+        return None
+
+
+def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_vencimento=None):
+    """Cria uma cobrança com cartão de crédito no Asaas (1 a 12 parcelas)"""
+    url = f"{ASAAS_URL}/payments"
+    payload = {
+        "customer": customer_id,
+        "billingType": "CREDIT_CARD",
+        "value": valor,
+        "description": descricao,
+        "installmentCount": parcelas,
+        "installmentValue": round(valor / parcelas, 2) if parcelas > 1 else valor,
+    }
+    if data_vencimento:
+        payload["dueDate"] = data_vencimento
+    
+    try:
+        response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
+        return response.json()
+    except Exception as e:
+        print(f"❌ Erro ao criar cobrança cartão Asaas: {e}")
+        return None
+
+
+# ==================================================
+# ROTA: GERAR PAGAMENTO (PIX ou CARTÃO)
+# ==================================================
+
+@app.post("/ofertas/{oferta_id}/gerar-pagamento")
+def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 1):
+    """
+    Gera pagamento PIX ou Cartão de Crédito para o comprador
+    metodo: "pix" ou "cartao"
+    parcelas: 1 a 12 (para cartão)
+    """
+    try:
+        # Busca a oferta
+        oferta = supabase.table("ofertas").select("*").eq("id", oferta_id).execute()
+        if not oferta.data:
+            raise HTTPException(404, "Oferta não encontrada")
+        oferta = oferta.data[0]
+        
+        if oferta["status"] != "pendente":
+            raise HTTPException(400, "Esta oferta já foi respondida")
+        
+        # Busca o comprador
+        comprador = supabase.table("usuarios").select("*").eq("id", oferta["comprador_id"]).execute()
+        if not comprador.data:
+            raise HTTPException(404, "Comprador não encontrado")
+        comprador = comprador.data[0]
+        
+        # Busca o produto
+        produto = supabase.table("produtos").select("*").eq("id", oferta["produto_id"]).execute()
+        if not produto.data:
+            raise HTTPException(404, "Produto não encontrado")
+        produto = produto.data[0]
+        
+        # Verifica CPF
+        if not comprador.get("cpf"):
+            return {
+                "erro": "comprador_sem_cpf",
+                "mensagem": "O comprador precisa ter CPF cadastrado para gerar o pagamento."
+            }
+        
+        # Cria ou busca cliente do comprador no Asaas
+        if comprador.get("asaas_customer_id"):
+            customer_id = comprador["asaas_customer_id"]
+        else:
+            cliente = criar_cliente_asaas(
+                comprador["nome"],
+                comprador["email"],
+                comprador["cpf"],
+                comprador.get("telefone")
+            )
+            if cliente and cliente.get("id"):
+                customer_id = cliente["id"]
+                supabase.table("usuarios").update({
+                    "asaas_customer_id": customer_id
+                }).eq("id", comprador["id"]).execute()
+            else:
+                return {"erro": "erro_asaas", "mensagem": "Erro ao criar cliente no Asaas"}
+        
+        valor = oferta["valor"]
+        descricao = f"ACEITAÊ - {produto['nome']}"
+        data_vencimento = (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
+        
+        # ============================================
+        # ESCOLHE O MÉTODO DE PAGAMENTO
+        # ============================================
+        
+        if metodo.lower() == "pix":
+            cobranca = criar_cobranca_pix_asaas(customer_id, valor, descricao, data_vencimento)
+            
+            if not cobranca or not cobranca.get("id"):
+                return {"erro": "erro_cobranca", "mensagem": "Erro ao criar cobrança PIX no Asaas"}
+            
+            # Salva os dados do PIX
+            supabase.table("ofertas").update({
+                "asaas_payment_id": cobranca.get("id"),
+                "asaas_pix_qr_code": cobranca.get("pixQrCode"),
+                "asaas_pix_payload": cobranca.get("pixPayload"),
+                "asaas_tipo_pagamento": "pix",
+                "status": "aguardando_pagamento"
+            }).eq("id", oferta_id).execute()
+            
+            return {
+                "sucesso": True,
+                "metodo": "pix",
+                "mensagem": "Pagamento PIX gerado com sucesso!",
+                "pix_qr_code": cobranca.get("pixQrCode"),
+                "pix_payload": cobranca.get("pixPayload"),
+                "valor": valor,
+                "vencimento": data_vencimento
+            }
+            
+        elif metodo.lower() == "cartao":
+            # Valida parcelas
+            if parcelas < 1 or parcelas > 12:
+                parcelas = 1
+            
+            cobranca = criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas, data_vencimento)
+            
+            if not cobranca or not cobranca.get("id"):
+                return {"erro": "erro_cobranca", "mensagem": "Erro ao criar cobrança com cartão no Asaas"}
+            
+            # Salva os dados do cartão
+            supabase.table("ofertas").update({
+                "asaas_payment_id": cobranca.get("id"),
+                "asaas_tipo_pagamento": "cartao",
+                "asaas_parcelas": parcelas,
+                "status": "aguardando_pagamento"
+            }).eq("id", oferta_id).execute()
+            
+            return {
+                "sucesso": True,
+                "metodo": "cartao",
+                "mensagem": f"Pagamento com cartão gerado com sucesso! Parcelas: {parcelas}x",
+                "checkout_url": cobranca.get("checkoutUrl") or cobranca.get("url"),
+                "valor": valor,
+                "parcelas": parcelas,
+                "vencimento": data_vencimento
+            }
+        else:
+            return {"erro": "metodo_invalido", "mensagem": "Método inválido. Use 'pix' ou 'cartao'"}
+        
+    except Exception as e:
+        print(f"❌ Erro: {e}")
+        raise HTTPException(500, str(e))
+
+
+# ==================================================
+# WEBHOOK ASAAS (CONFIRMA PAGAMENTO)
+# ==================================================
+
+@app.post("/webhook-asaas")
+async def webhook_asaas(request: Request):
+    """Recebe notificações do Asaas quando um pagamento é confirmado"""
+    try:
+        data = await request.json()
+        evento = data.get("event")
+        payment_id = data.get("payment", {}).get("id")
+        
+        print(f"📩 Webhook recebido: {evento} - Payment ID: {payment_id}")
+        
+        if evento == "PAYMENT_CONFIRMED":
+            # Busca a oferta com este payment_id
+            oferta = supabase.table("ofertas").select("*").eq("asaas_payment_id", payment_id).execute()
+            if oferta.data:
+                # Marca como pago
+                supabase.table("ofertas").update({
+                    "status": "pago",
+                    "pago_em": datetime.now().isoformat()
+                }).eq("id", oferta.data[0]["id"]).execute()
+                
+                # Busca vendedor para notificar
+                produto = supabase.table("produtos").select("*").eq("id", oferta.data[0]["produto_id"]).execute()
+                if produto.data:
+                    vendedor = supabase.table("usuarios").select("whatsapp").eq("id", produto.data[0]["vendedor_id"]).execute()
+                    if vendedor.data and vendedor.data[0].get("whatsapp"):
+                        msg = f"✅ Pagamento confirmado! Envie o produto: {produto.data[0]['nome']}"
+                        link = gerar_link_whatsapp(vendedor.data[0]["whatsapp"], msg)
+                        print(f"🔗 Notificar vendedor: {link}")
+                
+                print(f"✅ Pagamento confirmado para oferta {oferta.data[0]['id']}")
+                return {"status": "ok", "message": "Pagamento confirmado"}
+        
+        return {"status": "ok"}
+    except Exception as e:
+        print(f"❌ Erro no webhook: {e}")
+        return {"error": str(e)}
 
 # ==================================================
 # ROTAS BÁSICAS
