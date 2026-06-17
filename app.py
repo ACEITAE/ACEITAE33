@@ -777,6 +777,19 @@ async def webhook_asaas(request: Request):
         print(f"❌ Erro no webhook: {e}")
         return {"error": str(e)}
 
+
+# ==================================================
+# Pagamentos cartão
+# ==================================================
+
+@app.get("/")
+def root():
+    return {"mensagem": "ACEITAÊ está no ar!"}
+
+@app.get("/health")
+def health():
+    return {"status": "online"}
+
 # ==================================================
 # ROTAS BÁSICAS
 # ==================================================
