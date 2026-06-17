@@ -595,6 +595,187 @@ def admin_reprovar_produto(produto_id: int):
         raise HTTPException(404, "Produto não encontrado")
     return {"mensagem": "Produto reprovado!"}
 
+# ==================================================
+# INTEGRAÇÃO ASAAS - PAGAMENTOS
+# ==================================================
+
+import os
+import requests
+from datetime import datetime, timedelta
+
+# Configuração Asaas (já deve ter as variáveis no Render)
+ASAAS_ENV = os.getenv("ASAAS_ENV", "sandbox")
+ASAAS_API_KEY_SANDBOX = os.getenv("ASAAS_API_KEY_sandbox")
+ASAAS_API_KEY_PROD = os.getenv("ASAAS_API_KEY_prod")
+
+if ASAAS_ENV == "production":
+    ASAAS_API_KEY = ASAAS_API_KEY_PROD
+    ASAAS_URL = "https://www.asaas.com/api/v3"
+else:
+    ASAAS_API_KEY = ASAAS_API_KEY_SANDBOX
+    ASAAS_URL = "https://sandbox.asaas.com/api/v3"
+
+ASAAS_HEADERS = {
+    "access_token": ASAAS_API_KEY,
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+}
+
+print(f"🔐 Ambiente ASAAS: {ASAAS_ENV}")
+print(f"🔑 Chave ASAAS: {ASAAS_API_KEY[:10]}..." if ASAAS_API_KEY else "❌ Chave não encontrada!")
+
+
+def criar_cliente_asaas(nome, email, cpf_cnpj, telefone=None):
+    """Cria um cliente no Asaas"""
+    url = f"{ASAAS_URL}/customers"
+    payload = {
+        "name": nome,
+        "email": email,
+        "cpfCnpj": re.sub(r'\D', '', cpf_cnpj),
+        "phone": telefone or "",
+        "notificationDisabled": False
+    }
+    try:
+        response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
+        return response.json()
+    except Exception as e:
+        print(f"❌ Erro ao criar cliente Asaas: {e}")
+        return None
+
+
+def criar_cobranca_pix_asaas(customer_id, valor, descricao, data_vencimento):
+    """Cria uma cobrança PIX no Asaas"""
+    url = f"{ASAAS_URL}/payments"
+    payload = {
+        "customer": customer_id,
+        "billingType": "PIX",
+        "value": valor,
+        "dueDate": data_vencimento,
+        "description": descricao
+    }
+    try:
+        response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
+        return response.json()
+    except Exception as e:
+        print(f"❌ Erro ao criar cobrança Asaas: {e}")
+        return None
+
+
+@app.post("/ofertas/{oferta_id}/gerar-pagamento")
+def gerar_pagamento_oferta(oferta_id: int):
+    """
+    Gera um link de pagamento PIX para o comprador
+    Esta rota é chamada quando o vendedor ACEITA a oferta
+    """
+    try:
+        # Busca a oferta
+        oferta = supabase.table("ofertas").select("*").eq("id", oferta_id).execute()
+        if not oferta.data:
+            raise HTTPException(404, "Oferta não encontrada")
+        oferta = oferta.data[0]
+        
+        if oferta["status"] != "pendente":
+            raise HTTPException(400, "Esta oferta já foi respondida")
+        
+        # Busca o comprador
+        comprador = supabase.table("usuarios").select("*").eq("id", oferta["comprador_id"]).execute()
+        if not comprador.data:
+            raise HTTPException(404, "Comprador não encontrado")
+        comprador = comprador.data[0]
+        
+        # Busca o produto
+        produto = supabase.table("produtos").select("*").eq("id", oferta["produto_id"]).execute()
+        if not produto.data:
+            raise HTTPException(404, "Produto não encontrado")
+        produto = produto.data[0]
+        
+        # Verifica se o comprador tem CPF
+        if not comprador.get("cpf"):
+            return {
+                "erro": "comprador_sem_cpf",
+                "mensagem": "O comprador precisa ter CPF cadastrado para gerar o pagamento."
+            }
+        
+        # Cria ou busca cliente do comprador no Asaas
+        if comprador.get("asaas_customer_id"):
+            customer_id = comprador["asaas_customer_id"]
+        else:
+            cliente = criar_cliente_asaas(
+                comprador["nome"],
+                comprador["email"],
+                comprador["cpf"],
+                comprador.get("telefone")
+            )
+            if cliente and cliente.get("id"):
+                customer_id = cliente["id"]
+                supabase.table("usuarios").update({
+                    "asaas_customer_id": customer_id
+                }).eq("id", comprador["id"]).execute()
+            else:
+                return {"erro": "erro_asaas", "mensagem": "Erro ao criar cliente no Asaas"}
+        
+        # Cria cobrança PIX
+        valor = oferta["valor"]
+        data_vencimento = (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
+        descricao = f"ACEITAÊ - {produto['nome']}"
+        
+        cobranca = criar_cobranca_pix_asaas(customer_id, valor, descricao, data_vencimento)
+        
+        if not cobranca or not cobranca.get("id"):
+            return {"erro": "erro_cobranca", "mensagem": "Erro ao criar cobrança no Asaas"}
+        
+        # Atualiza a oferta com os dados da cobrança
+        supabase.table("ofertas").update({
+            "asaas_payment_id": cobranca.get("id"),
+            "asaas_pix_qr_code": cobranca.get("pixQrCode"),
+            "asaas_pix_payload": cobranca.get("pixPayload"),
+            "status": "aguardando_pagamento"
+        }).eq("id", oferta_id).execute()
+        
+        # Retorna os dados do PIX
+        return {
+            "sucesso": True,
+            "mensagem": "Pagamento PIX gerado com sucesso!",
+            "pix_qr_code": cobranca.get("pixQrCode"),
+            "pix_payload": cobranca.get("pixPayload"),
+            "valor": valor,
+            "vencimento": data_vencimento
+        }
+        
+    except Exception as e:
+        print(f"❌ Erro: {e}")
+        raise HTTPException(500, str(e))
+
+
+@app.post("/webhook-asaas")
+async def webhook_asaas(request: Request):
+    """Recebe notificações do Asaas quando um pagamento é confirmado"""
+    try:
+        data = await request.json()
+        evento = data.get("event")
+        payment_id = data.get("payment", {}).get("id")
+        
+        print(f"📩 Webhook recebido: {evento} - Payment ID: {payment_id}")
+        
+        if evento == "PAYMENT_CONFIRMED":
+            # Busca a oferta com este payment_id
+            oferta = supabase.table("ofertas").select("*").eq("asaas_payment_id", payment_id).execute()
+            if oferta.data:
+                # Marca como pago
+                supabase.table("ofertas").update({
+                    "status": "pago",
+                    "pago_em": datetime.now().isoformat()
+                }).eq("id", oferta.data[0]["id"]).execute()
+                
+                # Notifica o vendedor (você pode enviar WhatsApp aqui)
+                print(f"✅ Pagamento confirmado para oferta {oferta.data[0]['id']}")
+                
+                return {"status": "ok", "message": "Pagamento confirmado"}
+        
+        return {"status": "ok"}
+    except Exception as e:
+        print(f"❌ Erro no webhook: {e}")
+        return {"error": str(e)}
 
 # ==================================================
 # ROTAS BÁSICAS
