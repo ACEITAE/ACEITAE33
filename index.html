@@ -6,1008 +6,143 @@
     <title>ACEITAÊ - Faça a oferta. Torça pelo ACEITAÊ!</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
-            color: #333;
-            min-height: 100vh;
-        }
-
-        /* Top bar */
-        .top-bar {
-            background: #1A237E;
-            color: white;
-            padding: 8px 16px;
-            font-size: 11px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .top-bar-left {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .top-bar-right {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .top-bar a {
-            color: white;
-            text-decoration: none;
-        }
-
-        .top-bar a:hover {
-            opacity: 0.8;
-        }
-
-        .separator {
-            color: rgba(255,255,255,0.3);
-        }
-
-        /* Botão Admin */
-        .btn-admin-top {
-            background: #FFC107;
-            color: #1A237E;
-            padding: 4px 12px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 11px;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            transition: all 0.3s;
-        }
-
-        .btn-admin-top:hover {
-            background: #ffb300;
-            transform: scale(1.02);
-        }
-
-        /* Selos de confiança */
-        .trust-badges {
-            background: #00C853;
-            padding: 6px 16px;
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            flex-wrap: wrap;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .trust-badges span {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: white;
-        }
-
-        .trust-badges i {
-            font-size: 12px;
-        }
-
-        /* Main header */
-        .main-header {
-            background: white;
-            padding: 12px 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-container {
-            max-width: 1280px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .logo-img {
-            height: 36px;
-            width: auto;
-        }
-
-        .logo-text {
-            font-size: 20px;
-            font-weight: bold;
-            color: #1A237E;
-        }
-
-        .logo-text span {
-            color: #00C853;
-            display: inline-block;
-            animation: balanco 0.8s ease-in-out infinite;
-            transform-origin: center center;
-        }
-
-        @keyframes balanco {
-            0%, 100% { transform: rotate(0deg); }
-            20% { transform: rotate(-10deg); }
-            40% { transform: rotate(10deg); }
-            60% { transform: rotate(-5deg); }
-            80% { transform: rotate(5deg); }
-        }
-
-        .slogan-header {
-            font-size: 14px;
-            font-weight: 600;
-            margin-left: 15px;
-            padding-left: 15px;
-            border-left: 2px solid #00C853;
-            background: linear-gradient(135deg, #1A237E 0%, #00C853 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            white-space: nowrap;
-        }
-
-        .slogan-header i {
-            color: #00C853;
-            margin-right: 6px;
-            background: none;
-            -webkit-background-clip: unset;
-            background-clip: unset;
-        }
-
-        .search-box {
-            flex: 1;
-            max-width: 350px;
-            display: flex;
-            background: #f0f0f0;
-            border-radius: 20px;
-            overflow: hidden;
-        }
-
-        .search-box input {
-            flex: 1;
-            padding: 8px 16px;
-            border: none;
-            background: transparent;
-            font-size: 13px;
-            outline: none;
-        }
-
-        .search-box button {
-            background: #00C853;
-            border: none;
-            padding: 0 16px;
-            color: white;
-            cursor: pointer;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .btn-icon {
-            background: transparent;
-            border: none;
-            font-size: 18px;
-            color: #666;
-            cursor: pointer;
-            position: relative;
-            transition: color 0.3s;
-        }
-
-        .btn-icon:hover {
-            color: #00C853;
-        }
-
-        .btn-icon .badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #ff4757;
-            color: white;
-            font-size: 9px;
-            font-weight: bold;
-            padding: 2px 5px;
-            border-radius: 10px;
-            min-width: 16px;
-            text-align: center;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid #00C853;
-            color: #00C853;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-outline i {
-            font-size: 12px;
-        }
-
-        .btn-primary {
-            background: #00C853;
-            border: none;
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-primary i {
-            font-size: 12px;
-        }
-
-        /* Categorias */
-        .categories {
-            background: white;
-            padding: 10px 16px;
-            border-bottom: 1px solid #e0e0e0;
-            position: relative;
-        }
-
-        .categories-container {
-            max-width: 1280px;
-            margin: 0 auto;
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            scroll-behavior: smooth;
-            padding-bottom: 8px;
-        }
-
-        .categories-container::-webkit-scrollbar {
-            height: 4px;
-        }
-
-        .categories-container::-webkit-scrollbar-track {
-            background: #e0e0e0;
-            border-radius: 4px;
-        }
-
-        .categories-container::-webkit-scrollbar-thumb {
-            background: #00C853;
-            border-radius: 4px;
-        }
-
-        .category-item {
-            display: inline-flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: #666;
-            font-size: 12px;
-            gap: 6px;
-            transition: all 0.3s ease;
-            padding: 8px 12px;
-            border-radius: 12px;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .category-item i {
-            font-size: 22px;
-            transition: transform 0.2s ease;
-        }
-
-        .category-item:hover {
-            color: #00C853;
-            background: rgba(0, 200, 83, 0.08);
-            transform: translateY(-2px);
-        }
-
-        .category-item:hover i {
-            transform: scale(1.1);
-        }
-
-        .category-item.active {
-            color: #00C853;
-            background: rgba(0, 200, 83, 0.12);
-            font-weight: 600;
-        }
-
-        /* Banner */
-        .banner {
-            background: linear-gradient(135deg, #1A237E 0%, #00C853 100%);
-            margin: 16px;
-            border-radius: 16px;
-            padding: 20px;
-            color: white;
-            text-align: center;
-        }
-
-        .banner h2 {
-            font-size: 18px;
-            margin-bottom: 4px;
-        }
-
-        .banner p {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-
-        /* Container */
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 16px;
-        }
-
-        .section-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 20px 0 12px;
-        }
-
-        .section-title h2 {
-            font-size: 16px;
-            color: #333;
-        }
-
-        /* Grid de produtos */
-        .produtos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 12px;
-        }
-
-        @media (min-width: 480px) {
-            .produtos-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            }
-        }
-
-        @media (min-width: 768px) {
-            .produtos-grid {
-                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-                gap: 16px;
-            }
-        }
-
-        /* Card do produto */
-.produto-card {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: box-shadow 0.2s;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    cursor: pointer;
-    position: relative;
-}
-
-.produto-card:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-}
-
-.card-favorite {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(255,255,255,0.9);
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 2;
-}
-
-.card-favorite i {
-    color: #ff4757;
-    font-size: 14px;
-}
-
-.produto-imagem {
-    width: 100%;
-    height: 160px;
-    background: #f9f9f9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-}
-
-.produto-imagem img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    transition: transform 0.3s;
-    background: #f9f9f9;
-    padding: 8px;
-}
-
-.produto-imagem:hover img {
-    transform: scale(1.05);
-}
-
-.produto-imagem i {
-    font-size: 40px;
-    color: #ccc;
-}
-        .badge-container {
-            position: absolute;
-            top: 6px;
-            left: 6px;
-            display: flex;
-            gap: 4px;
-            z-index: 2;
-            flex-wrap: wrap;
-        }
-
-        .badge-novo {
-            background: #00C853;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 9px;
-            font-weight: bold;
-        }
-
-        .badge-usado {
-            background: #FF9800;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 9px;
-            font-weight: bold;
-        }
-
-        .badge-rapido {
-            background: #FFC107;
-            color: #1A237E;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 9px;
-            font-weight: bold;
-        }
-
-        .popular-badge {
-            background: #FFC107;
-            color: #1A237E;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 9px;
-            font-weight: bold;
-        }
-
-        .view-counter-card {
-            font-size: 9px;
-            color: #666;
-            margin: 4px 0;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .produto-info {
-            padding: 10px;
-        }
-
-        .produto-info h3 {
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .preco {
-            font-size: 16px;
-            font-weight: bold;
-            color: #1A237E;
-            margin: 6px 0 2px;
-        }
-
-        .parcelamento {
-            font-size: 10px;
-            color: #00C853;
-            margin-bottom: 6px;
-        }
-
-        .cores-preview {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 8px;
-        }
-
-        .cor-preview {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            border: 1px solid #ddd;
-        }
-
-        .condicao-produto {
-            font-size: 9px;
-            color: #666;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .quantidade-info {
-            font-size: 9px;
-            color: #666;
-            margin-bottom: 6px;
-        }
-
-        .oferta-area {
-            display: flex;
-            gap: 6px;
-        }
-
-        .oferta-area input {
-            flex: 1;
-            padding: 6px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 10px;
-            outline: none;
-        }
-
-        .btn-ofertar-card {
-            background: #00C853;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            white-space: nowrap;
-        }
-
-        .btn-ofertar-card i {
-            font-size: 10px;
-        }
-
-        .btn-ofertar-card:hover {
-            background: #00A844;
-        }
-
-        .mensagem {
-            margin-top: 6px;
-            padding: 4px;
-            border-radius: 4px;
-            font-size: 9px;
-            display: none;
-        }
-
-        /* Botão flutuante */
-        .float-offer-btn {
-            position: fixed;
-            bottom: 30px;
-            left: 30px;
-            background: #00C853;
-            color: white;
-            padding: 14px 24px;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 1000;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s;
-            animation: pulse 2s infinite;
-        }
-
-        .float-offer-btn:hover {
-            transform: scale(1.05);
-            background: #1A237E;
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(0,200,83,0.4); }
-            70% { box-shadow: 0 0 0 15px rgba(0,200,83,0); }
-            100% { box-shadow: 0 0 0 0 rgba(0,200,83,0); }
-        }
-
-        /* Lightbox lado a lado */
-        .modal-lightbox {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.95);
-            justify-content: center;
-            align-items: center;
-        }
-
-        .lightbox-container {
-            display: flex;
-            flex-wrap: wrap;
-            max-width: 1100px;
-            width: 90%;
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .lightbox-left {
-            flex: 1.2;
-            min-width: 280px;
-            background: #f5f5f5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .modal-lightbox-content {
-            max-width: 100%;
-            max-height: 400px;
-            object-fit: contain;
-            border-radius: 8px;
-        }
-
-        .lightbox-thumbnails {
-            display: flex;
-            gap: 8px;
-            margin-top: 16px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .lightbox-thumb {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
-            cursor: pointer;
-            border: 2px solid transparent;
-            object-fit: cover;
-        }
-
-        .lightbox-thumb.active {
-            border-color: #00C853;
-        }
-
-        .lightbox-right {
-            flex: 0.8;
-            min-width: 280px;
-            background: white;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .modal-lightbox-info {
-            flex: 1;
-        }
-
-        .modal-lightbox-info h3 {
-            font-size: 20px;
-            margin-bottom: 12px;
-            color: #1A237E;
-        }
-
-        .modal-lightbox-info .preco-modal {
-            font-size: 28px;
-            font-weight: bold;
-            color: #00C853;
-            margin: 12px 0;
-        }
-
-        .modal-lightbox-info .descricao-modal {
-            color: #666;
-            margin-bottom: 16px;
-            line-height: 1.5;
-        }
-
-        .modal-lightbox-info .detalhe-item {
-            margin-bottom: 10px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .detalhe-item i {
-            width: 20px;
-            color: #00C853;
-        }
-
-        .progress-container {
-            margin: 16px 0;
-        }
-
-        .progress-bar-bg {
-            background: #e0e0e0;
-            border-radius: 10px;
-            height: 8px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            background: #00C853;
-            height: 100%;
-            border-radius: 10px;
-            transition: width 0.5s;
-        }
-
-        .progress-text {
-            font-size: 11px;
-            color: #666;
-            margin-top: 6px;
-            display: block;
-        }
-
-        .botoes-acao-modal {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .btn-pagar-agora {
-            flex: 1;
-            background: #1A237E;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-ofertar-modal {
-            flex: 1;
-            background: #00C853;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .quantidade-modal {
-            margin: 16px 0;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .quantidade-modal input {
-            width: 60px;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .frete-modal {
-            margin: 12px 0;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 8px;
-            font-size: 12px;
-        }
-
-        .prev-lightbox, .next-lightbox {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0,0,0,0.5);
-            color: white;
-            padding: 12px 18px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 20px;
-            z-index: 10;
-        }
-
-        .prev-lightbox { left: 10px; }
-        .next-lightbox { right: 10px; }
-
-        .fechar-lightbox {
-            position: absolute;
-            top: 15px;
-            right: 25px;
-            color: white;
-            font-size: 35px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 11;
-            background: rgba(0,0,0,0.5);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-
-        /* Footer */
-        .footer {
-            background: #1A237E;
-            color: white;
-            margin-top: 40px;
-            padding: 32px 16px 20px;
-        }
-
-        .footer-content {
-            max-width: 1280px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 24px;
-        }
-
-        .footer-section h4 {
-            margin-bottom: 10px;
-            font-size: 13px;
-        }
-
-        .footer-section p {
-            font-size: 11px;
-            opacity: 0.8;
-            margin-bottom: 4px;
-        }
-
-        .copyright {
-            text-align: center;
-            padding-top: 20px;
-            margin-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            font-size: 10px;
-            opacity: 0.6;
-        }
-
-        @keyframes confete {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
-        }
-
-        .confete {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            background: #00C853;
-            position: absolute;
-            animation: confete 1s ease-out forwards;
-            pointer-events: none;
-            z-index: 10000;
-        }
-
-        @media (max-width: 768px) {
-            .lightbox-container {
-                flex-direction: column;
-                max-height: 90vh;
-                overflow-y: auto;
-            }
-            .prev-lightbox, .next-lightbox {
-                top: 30%;
-            }
-            .slogan-header {
-                white-space: normal;
-                text-align: center;
-            }
-            .float-offer-btn {
-                bottom: 20px;
-                left: 20px;
-                padding: 10px 18px;
-                font-size: 12px;
-            }
-            .trust-badges {
-                gap: 12px;
-                font-size: 9px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .top-bar {
-                flex-direction: column;
-                align-items: center;
-            }
-            .header-container {
-                flex-direction: column;
-            }
-            .slogan-header {
-                margin-left: 0;
-                padding-left: 0;
-                border-left: none;
-                text-align: center;
-                white-space: normal;
-            }
-            .search-box {
-                max-width: 100%;
-                width: 100%;
-            }
-            .action-buttons {
-                justify-content: center;
-            }
-            .categories-container {
-                gap: 8px;
-            }
-            .banner {
-                margin: 12px;
-                padding: 16px;
-            }
-            .produtos-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            }
-            .botoes-acao-modal {
-                flex-direction: column;
-            }
-            .trust-badges {
-                flex-direction: column;
-                align-items: center;
-                gap: 6px;
-            }
-        /* Responsivo para celular */
-@media (max-width: 640px) {
-    .produto-imagem {
-        height: 130px;
-    }
-    .produto-imagem img {
-        padding: 4px;
-    }
-}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#f5f7fa 0%,#e9ecef 100%);color:#333;min-height:100vh}
+        .top-bar{background:#1A237E;color:#fff;padding:8px 16px;font-size:11px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+        .top-bar-left,.top-bar-right{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+        .top-bar a{color:#fff;text-decoration:none}
+        .top-bar a:hover{opacity:.8}
+        .separator{color:rgba(255,255,255,0.3)}
+        .btn-admin-top{background:#FFC107;color:#1A237E;padding:4px 12px;border-radius:20px;text-decoration:none;font-weight:bold;font-size:11px;display:inline-flex;align-items:center;gap:4px;transition:all .3s}
+        .btn-admin-top:hover{background:#ffb300;transform:scale(1.02)}
+        .trust-badges{background:#00C853;padding:6px 16px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap;font-size:11px;font-weight:600}
+        .trust-badges span{display:flex;align-items:center;gap:6px;color:#fff}
+        .trust-badges i{font-size:12px}
+        .main-header{background:#fff;padding:12px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.05);position:sticky;top:0;z-index:100}
+        .header-container{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+        .logo-area{display:flex;align-items:center;gap:8px}
+        .logo-img{height:36px;width:auto}
+        .logo-text{font-size:20px;font-weight:bold;color:#1A237E}
+        .logo-text span{color:#00C853;display:inline-block;animation:balanco .8s ease-in-out infinite;transform-origin:center center}
+        @keyframes balanco{0%,100%{transform:rotate(0deg)}20%{transform:rotate(-10deg)}40%{transform:rotate(10deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(5deg)}}
+        .slogan-header{font-size:14px;font-weight:600;margin-left:15px;padding-left:15px;border-left:2px solid #00C853;background:linear-gradient(135deg,#1A237E 0%,#00C853 100%);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+        .slogan-header i{color:#00C853;margin-right:6px;background:none;-webkit-background-clip:unset;background-clip:unset}
+        .search-box{flex:1;max-width:350px;display:flex;background:#f0f0f0;border-radius:20px;overflow:hidden}
+        .search-box input{flex:1;padding:8px 16px;border:none;background:transparent;font-size:13px;outline:none}
+        .search-box button{background:#00C853;border:none;padding:0 16px;color:#fff;cursor:pointer}
+        .action-buttons{display:flex;gap:12px;align-items:center}
+        .btn-icon{background:transparent;border:none;font-size:18px;color:#666;cursor:pointer;position:relative;transition:color .3s}
+        .btn-icon:hover{color:#00C853}
+        .btn-icon .badge{position:absolute;top:-8px;right:-8px;background:#ff4757;color:#fff;font-size:9px;font-weight:bold;padding:2px 5px;border-radius:10px;min-width:16px;text-align:center}
+        .btn-outline{background:transparent;border:1px solid #00C853;color:#00C853;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:bold;cursor:pointer;display:flex;align-items:center;gap:6px}
+        .btn-outline i{font-size:12px}
+        .btn-primary{background:#00C853;border:none;color:#fff;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:bold;cursor:pointer;display:flex;align-items:center;gap:6px}
+        .btn-primary i{font-size:12px}
+        .categories{background:#fff;padding:10px 16px;border-bottom:1px solid #e0e0e0;position:relative}
+        .categories-container{max-width:1280px;margin:0 auto;display:flex;gap:8px;overflow-x:auto;scroll-behavior:smooth;padding-bottom:8px}
+        .categories-container::-webkit-scrollbar{height:4px}
+        .categories-container::-webkit-scrollbar-track{background:#e0e0e0;border-radius:4px}
+        .categories-container::-webkit-scrollbar-thumb{background:#00C853;border-radius:4px}
+        .category-item{display:inline-flex;flex-direction:column;align-items:center;text-decoration:none;color:#666;font-size:12px;gap:6px;transition:all .3s ease;padding:8px 12px;border-radius:12px;cursor:pointer;white-space:nowrap}
+        .category-item i{font-size:22px;transition:transform .2s ease}
+        .category-item:hover{color:#00C853;background:rgba(0,200,83,0.08);transform:translateY(-2px)}
+        .category-item:hover i{transform:scale(1.1)}
+        .category-item.active{color:#00C853;background:rgba(0,200,83,0.12);font-weight:600}
+        .banner{background:linear-gradient(135deg,#1A237E 0%,#00C853 100%);margin:16px;border-radius:16px;padding:20px;color:#fff;text-align:center}
+        .banner h2{font-size:18px;margin-bottom:4px}
+        .banner p{font-size:12px;opacity:.9}
+        .container{max-width:1280px;margin:0 auto;padding:0 16px}
+        .section-title{display:flex;justify-content:space-between;align-items:center;margin:20px 0 12px}
+        .section-title h2{font-size:16px;color:#333}
+        .produtos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+        @media (min-width:480px){.produtos-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}}
+        @media (min-width:768px){.produtos-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}}
+        .produto-card{background:#fff;border-radius:12px;overflow:hidden;transition:box-shadow .2s;box-shadow:0 2px 8px rgba(0,0,0,0.08);cursor:pointer;position:relative}
+        .produto-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.12)}
+        .card-favorite{position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.9);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
+        .card-favorite i{color:#ff4757;font-size:14px}
+        .produto-imagem{width:100%;height:160px;background:#f9f9f9;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;cursor:pointer}
+        .produto-imagem img{width:100%;height:100%;object-fit:contain;transition:transform .3s;background:#f9f9f9;padding:8px}
+        .produto-imagem:hover img{transform:scale(1.05)}
+        .produto-imagem i{font-size:40px;color:#ccc}
+        .badge-container{position:absolute;top:6px;left:6px;display:flex;gap:4px;z-index:2;flex-wrap:wrap}
+        .badge-novo{background:#00C853;color:#fff;padding:2px 8px;border-radius:12px;font-size:9px;font-weight:bold}
+        .badge-usado{background:#FF9800;color:#fff;padding:2px 8px;border-radius:12px;font-size:9px;font-weight:bold}
+        .badge-rapido{background:#FFC107;color:#1A237E;padding:2px 8px;border-radius:12px;font-size:9px;font-weight:bold}
+        .popular-badge{background:#FFC107;color:#1A237E;padding:2px 8px;border-radius:12px;font-size:9px;font-weight:bold}
+        .view-counter-card{font-size:9px;color:#666;margin:4px 0;display:flex;align-items:center;gap:4px}
+        .produto-info{padding:10px}
+        .produto-info h3{font-size:13px;font-weight:600;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .preco{font-size:16px;font-weight:bold;color:#1A237E;margin:6px 0 2px}
+        .parcelamento{font-size:10px;color:#00C853;margin-bottom:6px}
+        .cores-preview{display:flex;gap:4px;margin-bottom:8px}
+        .cor-preview{width:16px;height:16px;border-radius:50%;border:1px solid #ddd}
+        .condicao-produto{font-size:9px;color:#666;margin-bottom:6px;display:flex;align-items:center;gap:4px}
+        .quantidade-info{font-size:9px;color:#666;margin-bottom:6px}
+        .oferta-area{display:flex;gap:6px}
+        .oferta-area input{flex:1;padding:6px;border:1px solid #ddd;border-radius:6px;font-size:10px;outline:none}
+        .btn-ofertar-card{background:#00C853;color:#fff;border:none;padding:6px 10px;border-radius:6px;font-size:10px;font-weight:bold;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap}
+        .btn-ofertar-card:hover{background:#00A844}
+        .mensagem{margin-top:6px;padding:4px;border-radius:4px;font-size:9px;display:none}
+        .float-offer-btn{position:fixed;bottom:30px;left:30px;background:#00C853;color:#fff;padding:14px 24px;border-radius:50px;font-weight:bold;cursor:pointer;z-index:1000;box-shadow:0 4px 15px rgba(0,0,0,0.2);display:flex;align-items:center;gap:10px;transition:all .3s;animation:pulse 2s infinite}
+        .float-offer-btn:hover{transform:scale(1.05);background:#1A237E}
+        @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,200,83,0.4)}70%{box-shadow:0 0 0 15px rgba(0,200,83,0)}100%{box-shadow:0 0 0 0 rgba(0,200,83,0)}}
+        .modal-lightbox{display:none;position:fixed;z-index:2000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.95);justify-content:center;align-items:center}
+        .lightbox-container{display:flex;flex-wrap:wrap;max-width:1100px;width:90%;background:#fff;border-radius:16px;overflow:hidden;position:relative}
+        .lightbox-left{flex:1.2;min-width:280px;background:#f5f5f5;display:flex;flex-direction:column;align-items:center;padding:20px}
+        .modal-lightbox-content{max-width:100%;max-height:400px;object-fit:contain;border-radius:8px}
+        .lightbox-thumbnails{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;justify-content:center}
+        .lightbox-thumb{width:60px;height:60px;border-radius:8px;cursor:pointer;border:2px solid transparent;object-fit:cover}
+        .lightbox-thumb.active{border-color:#00C853}
+        .lightbox-right{flex:0.8;min-width:280px;background:#fff;padding:20px;display:flex;flex-direction:column}
+        .modal-lightbox-info{flex:1}
+        .modal-lightbox-info h3{font-size:20px;margin-bottom:12px;color:#1A237E}
+        .modal-lightbox-info .preco-modal{font-size:28px;font-weight:bold;color:#00C853;margin:12px 0}
+        .modal-lightbox-info .descricao-modal{color:#666;margin-bottom:16px;line-height:1.5}
+        .modal-lightbox-info .detalhe-item{margin-bottom:10px;font-size:14px;display:flex;align-items:center;gap:8px}
+        .detalhe-item i{width:20px;color:#00C853}
+        .progress-container{margin:16px 0}
+        .progress-bar-bg{background:#e0e0e0;border-radius:10px;height:8px;overflow:hidden}
+        .progress-fill{background:#00C853;height:100%;border-radius:10px;transition:width .5s}
+        .progress-text{font-size:11px;color:#666;margin-top:6px;display:block}
+        .botoes-acao-modal{display:flex;gap:12px;margin-top:20px}
+        .btn-pagar-agora{flex:1;background:#1A237E;color:#fff;border:none;padding:12px;border-radius:30px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+        .btn-ofertar-modal{flex:1;background:#00C853;color:#fff;border:none;padding:12px;border-radius:30px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+        .quantidade-modal{margin:16px 0;display:flex;align-items:center;gap:12px}
+        .quantidade-modal input{width:60px;padding:8px;border:1px solid #ddd;border-radius:8px;text-align:center}
+        .frete-modal{margin:12px 0;padding:10px;background:#f5f5f5;border-radius:8px;font-size:12px}
+        .prev-lightbox,.next-lightbox{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:#fff;padding:12px 18px;border-radius:50%;cursor:pointer;font-size:20px;z-index:10}
+        .prev-lightbox{left:10px}
+        .next-lightbox{right:10px}
+        .fechar-lightbox{position:absolute;top:15px;right:25px;color:#fff;font-size:35px;font-weight:bold;cursor:pointer;z-index:11;background:rgba(0,0,0,0.5);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+        .loading{text-align:center;padding:40px;color:#999}
+        .footer{background:#1A237E;color:#fff;margin-top:40px;padding:32px 16px 20px}
+        .footer-content{max-width:1280px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px}
+        .footer-section h4{margin-bottom:10px;font-size:13px}
+        .footer-section p{font-size:11px;opacity:.8;margin-bottom:4px}
+        .copyright{text-align:center;padding-top:20px;margin-top:20px;border-top:1px solid rgba(255,255,255,0.1);font-size:10px;opacity:.6}
+        .confete{position:fixed;width:10px;height:10px;background:#00C853;position:absolute;animation:confete 1s ease-out forwards;pointer-events:none;z-index:10000}
+        @keyframes confete{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(-100px) rotate(360deg);opacity:0}}
+        @media (max-width:768px){.lightbox-container{flex-direction:column;max-height:90vh;overflow-y:auto}
+        .prev-lightbox,.next-lightbox{top:30%}
+        .slogan-header{white-space:normal;text-align:center}
+        .float-offer-btn{bottom:20px;left:20px;padding:10px 18px;font-size:12px}
+        .trust-badges{gap:12px;font-size:9px}}
+        @media (max-width:480px){.top-bar{flex-direction:column;align-items:center}
+        .header-container{flex-direction:column}
+        .slogan-header{margin-left:0;padding-left:0;border-left:none;text-align:center;white-space:normal}
+        .search-box{max-width:100%;width:100%}
+        .action-buttons{justify-content:center}
+        .categories-container{gap:8px}
+        .banner{margin:12px;padding:16px}
+        .produtos-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+        .botoes-acao-modal{flex-direction:column}
+        .trust-badges{flex-direction:column;align-items:center;gap:6px}}
+        @media (max-width:640px){.produto-imagem{height:130px}
+        .produto-imagem img{padding:4px}}
     </style>
 </head>
 <body>
-    <!-- Top bar com selos de confiança -->
     <div class="top-bar">
         <div class="top-bar-left">
             <a href="vendedor.html"><i class="fas fa-store"></i> Central do Vendedor</a>
@@ -1017,15 +152,14 @@
             <a href="#"><i class="fas fa-download"></i> Baixe o App</a>
         </div>
         <div class="top-bar-right" id="topBarRight">
-            <a href="#" id="adminTopBtn" class="btn-admin-top" style="display: none;"><i class="fas fa-shield-alt"></i> Admin</a>
+            <a href="#" id="adminTopBtn" class="btn-admin-top" style="display:none;"><i class="fas fa-shield-alt"></i> Admin</a>
             <a href="#"><i class="fab fa-instagram"></i> Siga-nos</a>
             <span class="separator">|</span>
             <a href="cadastro.html"><i class="fas fa-user-plus"></i> Cadastrar</a>
-            <a href="login.html" style="border:1px solid white; padding:4px 12px; border-radius:20px;">Entrar</a>
+            <a href="login.html" style="border:1px solid #fff;padding:4px 12px;border-radius:20px;">Entrar</a>
         </div>
     </div>
 
-    <!-- Selos de confiança - VISÃO VISIONÁRIA -->
     <div class="trust-badges">
         <span><i class="fas fa-check-circle"></i> +500 vendas realizadas</span>
         <span><i class="fas fa-shield-alt"></i> Compra 100% segura</span>
@@ -1033,7 +167,6 @@
         <span><i class="fas fa-gavel"></i> 1.234 ofertas ativas</span>
     </div>
 
-    <!-- Main header -->
     <div class="main-header">
         <div class="header-container">
             <div class="logo-area">
@@ -1053,7 +186,7 @@
                 </button>
                 <button class="btn-icon" onclick="alert('🛒 Carrinho de compras em breve!')">
                     <i class="fas fa-shopping-cart"></i>
-                    <span class="badge" id="cartBadge" style="display: none;">0</span>
+                    <span class="badge" id="cartBadge" style="display:none;">0</span>
                 </button>
                 <button class="btn-outline" id="btnOfertarHeader" onclick="scrollToFirstProduct()">
                     <i class="fas fa-gavel"></i> Ofertar
@@ -1065,7 +198,6 @@
         </div>
     </div>
 
-    <!-- Categorias -->
     <div class="categories">
         <div class="categories-container">
             <a href="#" class="category-item active" data-cat="todos" onclick="filtrarPorCategoria('todos'); return false;">
@@ -1115,7 +247,6 @@
         </div>
     </div>
 
-    <!-- Banner -->
     <div class="banner">
         <h2>🔥 OFERTAS RELÂMPAGO</h2>
         <p>Ofertas que você decide! Faça sua oferta e torça pelo ACEITAÊ!</p>
@@ -1126,17 +257,14 @@
             <h2>📦 Produtos em destaque</h2>
             <a href="#">Ver tudo →</a>
         </div>
-
         <div id="produtos" class="loading">Carregando produtos...</div>
     </div>
 
-    <!-- Botão flutuante "Ofertar" - VISÃO VISIONÁRIA -->
     <div class="float-offer-btn" id="floatOfferBtn" onclick="scrollToFirstProduct()">
         <i class="fas fa-gavel"></i> Fazer oferta
         <i class="fas fa-arrow-up"></i>
     </div>
 
-    <!-- Modal Lightbox - Lado a lado -->
     <div id="lightboxModal" class="modal-lightbox">
         <span class="fechar-lightbox">&times;</span>
         <div class="lightbox-container">
@@ -1152,101 +280,80 @@
         <a class="next-lightbox">&#10095;</a>
     </div>
 
-    <!-- Footer -->
-<!-- Footer -->
-<div class="footer">
-    <div class="footer-content">
-        <div class="footer-section">
-            <h4>ACEITAÊ</h4>
-            <p>Plataforma de venda consignada</p>
-            <p>com ofertas condicionais</p>
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>ACEITAÊ</h4>
+                <p>Plataforma de venda consignada</p>
+                <p>com ofertas condicionais</p>
+            </div>
+            <div class="footer-section">
+                <h4>Links úteis</h4>
+                <p>Como comprar</p>
+                <p>Como vender</p>
+                <p>Segurança</p>
+                <p><a href="termos.html" style="color:#aaa;text-decoration:none;">Termos de Uso</a></p>
+            </div>
+            <div class="footer-section">
+                <h4>Contato</h4>
+                <p>contato@aceitae.com</p>
+                <p>© 2026 ACEITAÊ</p>
+            </div>
         </div>
-        <div class="footer-section">
-            <h4>Links úteis</h4>
-            <p>Como comprar</p>
-            <p>Como vender</p>
-            <p>Segurança</p>
-            <p><a href="termos.html" style="color: #aaa; text-decoration: none;">Termos de Uso</a></p>
-        </div>
-        <div class="footer-section">
-            <h4>Contato</h4>
-            <p>contato@aceitae.com</p>
-            <p>© 2026 ACEITAÊ</p>
-        </div>
+        <div class="copyright">ACEITAÊ - Faça a oferta. Torça pelo ACEITAÊ!</div>
     </div>
-    <div class="copyright">
-        ACEITAÊ - Faça a oferta. Torça pelo ACEITAÊ!
-    </div>
-</div>    
+
     <script>
-        const API_URL = 'https://aceitae33-api.onrender.com';
-        let usuarioId = localStorage.getItem('usuario_id');
-        let usuarioNome = localStorage.getItem('usuario_nome');
-        let usuarioEmail = localStorage.getItem('usuario_email');
+        var API_URL = 'https://aceitae33-api.onrender.com';
+        var usuarioId = localStorage.getItem('usuario_id');
+        var usuarioNome = localStorage.getItem('usuario_nome');
 
-        let produtosOriginais = [];
-        let categoriaAtual = 'todos';
-        let termoBusca = '';
+        var produtosOriginais = [];
+        var categoriaAtual = 'todos';
+        var termoBusca = '';
 
-        // Variáveis do lightbox
-        let fotosAtuais = [];
-        let indiceFotoAtual = 0;
-        let produtoAtualLightbox = null;
+        var fotosAtuais = [];
+        var indiceFotoAtual = 0;
+        var produtoAtualLightbox = null;
 
         // ==================== VERIFICAR ADMIN ====================
         async function verificarAdmin() {
-            const id = localStorage.getItem('usuario_id');
+            var id = localStorage.getItem('usuario_id');
             if (!id) return false;
-            
             try {
-                const response = await fetch(API_URL + '/usuarios/' + id + '/is-admin');
-                const data = await response.json();
+                var response = await fetch(API_URL + '/usuarios/' + id + '/is-admin');
+                var data = await response.json();
                 return data.is_admin === true;
-            } catch (error) {
-                console.error('Erro ao verificar admin:', error);
-                return false;
-            }
+            } catch (e) { return false; }
         }
 
         async function mostrarBotaoAdmin() {
-            const isAdmin = await verificarAdmin();
-            const adminBtn = document.getElementById('adminTopBtn');
+            var isAdmin = await verificarAdmin();
+            var adminBtn = document.getElementById('adminTopBtn');
             if (adminBtn) {
                 adminBtn.style.display = isAdmin ? 'inline-flex' : 'none';
-                if (isAdmin) {
-                    adminBtn.href = 'admin.html';
-                }
+                if (isAdmin) adminBtn.href = 'admin.html';
             }
         }
 
         function atualizarTopBar() {
-            const topBarRight = document.getElementById('topBarRight');
+            var topBarRight = document.getElementById('topBarRight');
             if (!topBarRight) return;
-            
-            const loginBtn = topBarRight.querySelector('a[href="login.html"]');
-            const cadastroBtn = topBarRight.querySelector('a[href="cadastro.html"]');
-            
+            var loginBtn = topBarRight.querySelector('a[href="login.html"]');
+            var cadastroBtn = topBarRight.querySelector('a[href="cadastro.html"]');
             if (usuarioNome) {
                 if (loginBtn) loginBtn.style.display = 'none';
                 if (cadastroBtn) cadastroBtn.style.display = 'none';
-                
-                const existingUserSpan = topBarRight.querySelector('.user-span-top');
-                const existingLogoutBtn = topBarRight.querySelector('.logout-btn-top');
-                if (existingUserSpan) existingUserSpan.remove();
-                if (existingLogoutBtn) existingLogoutBtn.remove();
-                
-                const userSpan = document.createElement('span');
+                var userSpan = document.createElement('span');
                 userSpan.className = 'user-span-top';
                 userSpan.innerHTML = '<i class="fas fa-user-circle"></i> Olá, ' + usuarioNome;
                 userSpan.style.cssText = 'display: flex; align-items: center; gap: 5px;';
-                
-                const logoutBtn = document.createElement('button');
+                var logoutBtn = document.createElement('button');
                 logoutBtn.className = 'logout-btn-top';
                 logoutBtn.innerHTML = 'Sair';
                 logoutBtn.style.cssText = 'background: #c62828; border: none; padding: 4px 12px; border-radius: 20px; color: white; cursor: pointer;';
                 logoutBtn.onclick = function() { localStorage.clear(); window.location.href = 'index.html'; };
-                
-                const instaLink = topBarRight.querySelector('a[href="#"]');
+                var instaLink = topBarRight.querySelector('a[href="#"]');
                 if (instaLink) {
                     topBarRight.insertBefore(userSpan, instaLink);
                     topBarRight.insertBefore(logoutBtn, instaLink);
@@ -1256,21 +363,15 @@
                 }
             }
         }
-
-        if (usuarioNome) {
-            atualizarTopBar();
-            mostrarBotaoAdmin();
-        }
+        if (usuarioNome) { atualizarTopBar(); mostrarBotaoAdmin(); }
 
         function scrollToFirstProduct() {
-            const firstProduct = document.querySelector('.produto-card');
-            if (firstProduct) {
-                firstProduct.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+            var firstProduct = document.querySelector('.produto-card');
+            if (firstProduct) firstProduct.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         function criarConfetes() {
-            for (var i = 0; i < 50; i++) {
+            for (var i = 0; i < 30; i++) {
                 var confete = document.createElement('div');
                 confete.className = 'confete';
                 confete.style.left = Math.random() * window.innerWidth + 'px';
@@ -1286,7 +387,7 @@
             }
         }
 
-        // ==================== LIGHTBOX ====================
+        // ==================== ABRIR LIGHTBOX ====================
         function abrirLightbox(produto) {
             produtoAtualLightbox = produto;
             fotosAtuais = produto.fotos && produto.fotos.length ? produto.fotos : [];
@@ -1295,13 +396,13 @@
             var imgModal = document.getElementById('lightboxImg');
             var infoDiv = document.getElementById('lightboxInfo');
             var thumbnailsDiv = document.getElementById('lightboxThumbnails');
-            
+
             if (fotosAtuais.length === 0) {
                 imgModal.src = 'https://via.placeholder.com/400?text=Sem+imagem';
             } else {
                 imgModal.src = fotosAtuais[0];
             }
-            
+
             thumbnailsDiv.innerHTML = '';
             for (var i = 0; i < fotosAtuais.length; i++) {
                 var thumb = document.createElement('img');
@@ -1321,7 +422,7 @@
                 })(i, thumb);
                 thumbnailsDiv.appendChild(thumb);
             }
-            
+
             var coresHtml = '';
             if (produto.cores && produto.cores.length > 0) {
                 coresHtml = '<div class="detalhe-item"><i class="fas fa-palette"></i> <strong>Cores:</strong> </div><div style="display:flex; gap:8px; margin-bottom:16px;">';
@@ -1330,11 +431,11 @@
                 }
                 coresHtml += '</div>';
             }
-            
+
             var quantidadeDisp = produto.quantidade || 1;
             var valorReal = produto.valor_exposicao;
             var progressPercent = Math.min(100, Math.floor((valorReal - (valorReal * 0.2)) / valorReal * 100));
-            
+
             infoDiv.innerHTML =
                 '<h3>' + escapeHtml(produto.nome) + '</h3>' +
                 '<div class="preco-modal">R$ ' + valorReal.toFixed(2) + '</div>' +
@@ -1344,28 +445,18 @@
                 '<div class="detalhe-item"><i class="fas fa-store"></i> <strong>Vendedor:</strong> ' + escapeHtml(produto.vendedor_nome || 'ACEITAÊ') + '</div>' +
                 coresHtml +
                 '<div class="progress-container">' +
-                    '<div class="progress-bar-bg">' +
-                        '<div class="progress-fill" style="width: ' + progressPercent + '%"></div>' +
-                    '</div>' +
+                    '<div class="progress-bar-bg"><div class="progress-fill" style="width:' + progressPercent + '%;"></div></div>' +
                     '<span class="progress-text">📊 Mais R$ ' + (valorReal * 0.2).toFixed(2) + ' e sua oferta tem 95% de chance de ser ACEITA!</span>' +
                 '</div>' +
                 '<div class="quantidade-modal">' +
-                    '<i class="fas fa-sort-amount-up"></i>' +
-                    '<strong>Quantidade:</strong>' +
+                    '<i class="fas fa-sort-amount-up"></i><strong>Quantidade:</strong>' +
                     '<input type="number" id="quantidadeModal" value="1" min="1" max="' + quantidadeDisp + '" onchange="atualizarTotalModal()">' +
                 '</div>' +
-                '<div class="frete-modal">' +
-                    '<i class="fas fa-truck"></i> <strong>Frete:</strong> Calcular frete no próximo passo' +
-                '</div>' +
+                '<div class="frete-modal"><i class="fas fa-truck"></i> <strong>Frete:</strong> Calcular frete no próximo passo</div>' +
                 '<div class="botoes-acao-modal">' +
-                    '<button class="btn-pagar-agora" onclick="comprarValorReal()">' +
-                        '<i class="fas fa-bolt"></i> Comprar agora' +
-                    '</button>' +
-                    '<button class="btn-ofertar-modal" onclick="fazerOfertaLightbox()">' +
-                        '<i class="fas fa-gavel"></i> Fazer oferta' +
-                    '</button>' +
+                    '<button class="btn-pagar-agora" onclick="comprarValorReal()"><i class="fas fa-bolt"></i> Comprar agora</button>' +
+                    '<button class="btn-ofertar-modal" onclick="fazerOfertaLightbox()"><i class="fas fa-gavel"></i> Fazer oferta</button>' +
                 '</div>';
-            
             modal.style.display = 'flex';
         }
 
@@ -1381,10 +472,8 @@
                 window.location.href = 'login.html';
                 return;
             }
-            
             var quantidade = document.getElementById('quantidadeModal')?.value || 1;
             var valorTotal = produtoAtualLightbox.valor_exposicao * quantidade;
-            
             if (confirm('🛒 COMPRAR AGORA!\n\nProduto: ' + produtoAtualLightbox.nome + '\nQuantidade: ' + quantidade + '\nValor total: R$ ' + valorTotal.toFixed(2) + '\n\nDeseja continuar?')) {
                 fazerOferta(produtoAtualLightbox.id, valorTotal);
                 document.getElementById('lightboxModal').style.display = 'none';
@@ -1399,19 +488,15 @@
                 window.location.href = 'login.html';
                 return;
             }
-            
             var quantidade = document.getElementById('quantidadeModal')?.value || 1;
             var valorOferta = prompt('Produto: ' + produtoAtualLightbox.nome + '\nPreço sugerido: R$ ' + produtoAtualLightbox.valor_exposicao.toFixed(2) + '\nQuantidade: ' + quantidade + '\n\nDigite o valor da SUA OFERTA (R$):');
-            
             if (!valorOferta) return;
             valorOferta = parseFloat(valorOferta.replace(',', '.'));
             if (isNaN(valorOferta) || valorOferta <= 0) {
                 alert('Valor inválido.');
                 return;
             }
-            
             var valorTotal = valorOferta * quantidade;
-            
             if (confirm('🔨 FAZER OFERTA!\n\nProduto: ' + produtoAtualLightbox.nome + '\nQuantidade: ' + quantidade + '\nSua oferta: R$ ' + valorOferta.toFixed(2) + '/unidade\nValor total: R$ ' + valorTotal.toFixed(2) + '\n\nO vendedor pode ACEITAR ou RECUSAR sua oferta.\n\nDeseja continuar?')) {
                 fazerOferta(produtoAtualLightbox.id, valorTotal);
                 document.getElementById('lightboxModal').style.display = 'none';
@@ -1424,25 +509,18 @@
                 window.location.href = 'login.html';
                 return;
             }
-            
             try {
                 var response = await fetch(API_URL + '/ofertas?comprador_id=' + usuarioId + '&comprador_nome=' + encodeURIComponent(usuarioNome || 'Usuario'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ produto_id: produtoId, valor: valor })
                 });
-                
                 var data = await response.json();
-                
                 if (response.ok) {
                     criarConfetes();
                     alert('✅ Oferta enviada! Aguarde o vendedor ACEITAR ou recusar.');
-                    
                     var input = document.getElementById('valor-' + produtoId);
-                    if (input) {
-                        input.value = '';
-                    }
-                    
+                    if (input) input.value = '';
                     if (data.status === 'venda_automatica') {
                         alert('✅ VENDA AUTOMÁTICA! O vendedor já aceitou.');
                     }
@@ -1470,14 +548,10 @@
 
         function configurarLightboxEventos() {
             var modal = document.getElementById('lightboxModal');
-            document.querySelector('.fechar-lightbox').onclick = function() {
-                modal.style.display = 'none';
-            };
+            document.querySelector('.fechar-lightbox').onclick = function() { modal.style.display = 'none'; };
             document.querySelector('.prev-lightbox').onclick = function() { navegarLightbox(-1); };
             document.querySelector('.next-lightbox').onclick = function() { navegarLightbox(1); };
-            window.onclick = function(e) {
-                if (e.target === modal) modal.style.display = 'none';
-            };
+            window.onclick = function(e) { if (e.target === modal) modal.style.display = 'none'; };
         }
 
         // ==================== PRODUTOS ====================
@@ -1485,16 +559,13 @@
             try {
                 var response = await fetch(API_URL + '/produtos?status=aprovado');
                 var data = await response.json();
-                
                 if (!data.produtos || data.produtos.length === 0) {
                     document.getElementById('produtos').innerHTML = '<div class="loading">😢 Nenhum produto disponível no momento.</div>';
                     return;
                 }
-
                 produtosOriginais = data.produtos;
                 aplicarFiltros();
-            } catch (error) {
-                console.error('Erro:', error);
+            } catch (e) {
                 document.getElementById('produtos').innerHTML = '<div class="loading">❌ Erro ao carregar produtos</div>';
             }
         }
@@ -1515,36 +586,30 @@
 
         function renderizarProdutos(produtos) {
             var container = document.getElementById('produtos');
-            
             if (produtos.length === 0) {
                 container.innerHTML = '<div class="loading">🔍 Nenhum produto encontrado.</div>';
                 return;
             }
-
             container.innerHTML = '<div class="produtos-grid"></div>';
             var grid = container.querySelector('.produtos-grid');
-
             for (var i = 0; i < produtos.length; i++) {
                 var produto = produtos[i];
                 var card = document.createElement('div');
                 card.className = 'produto-card';
-                
+
                 var imagemHtml = '';
                 if (produto.fotos && produto.fotos.length > 0 && produto.fotos[0]) {
                     imagemHtml = '<img src="' + produto.fotos[0] + '" alt="' + produto.nome + '" onerror="this.parentElement.innerHTML=\'<i class=\\\'fas fa-box\\\'></i>\'">';
                 } else {
                     imagemHtml = '<i class="fas fa-box"></i>';
                 }
-                
+
                 var condicaoBadge = '';
-                if (produto.condicao === 'novo') {
-                    condicaoBadge = '<span class="badge-novo">🆕 NOVO</span>';
-                } else if (produto.condicao === 'usado') {
-                    condicaoBadge = '<span class="badge-usado">🔄 USADO</span>';
-                }
-                
+                if (produto.condicao === 'novo') condicaoBadge = '<span class="badge-novo">🆕 NOVO</span>';
+                else if (produto.condicao === 'usado') condicaoBadge = '<span class="badge-usado">🔄 USADO</span>';
+
                 var aceitoRapido = Math.random() > 0.7 ? '<span class="badge-rapido">⚡ Aceito rápido</span>' : '';
-                
+
                 var coresPreviewHtml = '';
                 if (produto.cores && produto.cores.length > 0) {
                     coresPreviewHtml = '<div class="cores-preview">';
@@ -1556,44 +621,31 @@
                     }
                     coresPreviewHtml += '</div>';
                 }
-                
+
                 var visualizacoes = Math.floor(Math.random() * 100) + 10;
                 var parcelas = Math.min(10, Math.max(1, Math.floor(produto.valor_exposicao / 50)));
                 var valorParcela = produto.valor_exposicao / parcelas;
                 var quantidadeDisp = produto.quantidade || 1;
-                
-                card.innerHTML = 
-                    '<div class="card-favorite" onclick="event.stopPropagation(); alert(\'❤️ Produto salvo nos favoritos!\')">' +
-                        '<i class="fas fa-heart"></i>' +
-                    '</div>' +
-                    '<div class="produto-imagem" onclick="abrirLightbox(' + JSON.stringify(produto).replace(/"/g, '&quot;') + ')">' +
-                        '<div class="badge-container">' +
-                            condicaoBadge +
-                            aceitoRapido +
-                            '<span class="popular-badge">🔥 POPULAR</span>' +
-                        '</div>' +
+
+                var produtoData = encodeURIComponent(JSON.stringify(produto));
+
+                card.innerHTML =
+                    '<div class="card-favorite" onclick="event.stopPropagation(); alert(\'❤️ Produto salvo nos favoritos!\')"><i class="fas fa-heart"></i></div>' +
+                    '<div class="produto-imagem" onclick="abrirLightbox(JSON.parse(decodeURIComponent(\'' + produtoData + '\')))">' +
+                        '<div class="badge-container">' + condicaoBadge + aceitoRapido + '<span class="popular-badge">🔥 POPULAR</span></div>' +
                         imagemHtml +
                     '</div>' +
                     '<div class="produto-info">' +
                         '<h3>' + escapeHtml(produto.nome) + '</h3>' +
-                        '<div class="view-counter-card">' +
-                            '<i class="fas fa-eye"></i> ' + visualizacoes + ' pessoas viram este produto hoje' +
-                        '</div>' +
-                        '<div class="condicao-produto">' +
-                            '<i class="fas ' + (produto.condicao === 'novo' ? 'fa-sparkle' : 'fa-rotate-right') + '"></i>' +
-                            (produto.condicao === 'novo' ? 'Produto novo' : 'Produto usado - ver fotos') +
-                        '</div>' +
-                        '<div class="quantidade-info">' +
-                            '<i class="fas fa-boxes"></i> Estoque: ' + quantidadeDisp + ' unidade(s)' +
-                        '</div>' +
+                        '<div class="view-counter-card"><i class="fas fa-eye"></i> ' + visualizacoes + ' pessoas viram este produto hoje</div>' +
+                        '<div class="condicao-produto"><i class="fas ' + (produto.condicao === 'novo' ? 'fa-sparkle' : 'fa-rotate-right') + '"></i> ' + (produto.condicao === 'novo' ? 'Produto novo' : 'Produto usado - ver fotos') + '</div>' +
+                        '<div class="quantidade-info"><i class="fas fa-boxes"></i> Estoque: ' + quantidadeDisp + ' unidade(s)</div>' +
                         coresPreviewHtml +
-                        '<div class="preco">R$ ' + produto.valor_exposicao?.toFixed(2) + '</div>' +
+                        '<div class="preco">R$ ' + (produto.valor_exposicao ? produto.valor_exposicao.toFixed(2) : '0.00') + '</div>' +
                         '<div class="parcelamento">' + parcelas + 'x de R$ ' + valorParcela.toFixed(2) + '</div>' +
                         '<div class="oferta-area">' +
                             '<input type="number" id="valor-' + produto.id + '" placeholder="Sua oferta" step="0.01">' +
-                            '<button class="btn-ofertar-card" onclick="fazerOferta(' + produto.id + ')">' +
-                                '<i class="fas fa-gavel"></i> Ofertar' +
-                            '</button>' +
+                            '<button class="btn-ofertar-card" onclick="fazerOferta(' + produto.id + ')"><i class="fas fa-gavel"></i> Ofertar</button>' +
                         '</div>' +
                         '<div id="msg-' + produto.id + '" class="mensagem"></div>' +
                     '</div>';
@@ -1606,11 +658,8 @@
             var items = document.querySelectorAll('.category-item');
             for (var i = 0; i < items.length; i++) {
                 var itemCat = items[i].getAttribute('data-cat');
-                if (itemCat === categoria) {
-                    items[i].classList.add('active');
-                } else {
-                    items[i].classList.remove('active');
-                }
+                if (itemCat === categoria) items[i].classList.add('active');
+                else items[i].classList.remove('active');
             }
             aplicarFiltros();
         }
@@ -1638,9 +687,7 @@
             elemento.innerHTML = texto;
             elemento.className = 'mensagem ' + tipo;
             elemento.style.display = 'block';
-            setTimeout(function() {
-                elemento.style.display = 'none';
-            }, 4000);
+            setTimeout(function() { elemento.style.display = 'none'; }, 4000);
         }
 
         configurarLightboxEventos();
