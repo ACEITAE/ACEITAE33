@@ -1199,7 +1199,7 @@
             if (!id) return false;
             
             try {
-                const response = await fetch(`${API_URL}/usuarios/${id}/is-admin`);
+                const response = await fetch(API_URL + '/usuarios/' + id + '/is-admin');
                 const data = await response.json();
                 return data.is_admin === true;
             } catch (error) {
@@ -1219,9 +1219,10 @@
             }
         }
 
-        // Atualizar top bar com usuário logado e admin
         function atualizarTopBar() {
             const topBarRight = document.getElementById('topBarRight');
+            if (!topBarRight) return;
+            
             const loginBtn = topBarRight.querySelector('a[href="login.html"]');
             const cadastroBtn = topBarRight.querySelector('a[href="cadastro.html"]');
             
@@ -1229,7 +1230,6 @@
                 if (loginBtn) loginBtn.style.display = 'none';
                 if (cadastroBtn) cadastroBtn.style.display = 'none';
                 
-                // Remove admin button if exists duplicate
                 const existingUserSpan = topBarRight.querySelector('.user-span-top');
                 const existingLogoutBtn = topBarRight.querySelector('.logout-btn-top');
                 if (existingUserSpan) existingUserSpan.remove();
@@ -1237,16 +1237,15 @@
                 
                 const userSpan = document.createElement('span');
                 userSpan.className = 'user-span-top';
-                userSpan.innerHTML = `<i class="fas fa-user-circle"></i> Olá, ${usuarioNome}`;
+                userSpan.innerHTML = '<i class="fas fa-user-circle"></i> Olá, ' + usuarioNome;
                 userSpan.style.cssText = 'display: flex; align-items: center; gap: 5px;';
                 
                 const logoutBtn = document.createElement('button');
                 logoutBtn.className = 'logout-btn-top';
                 logoutBtn.innerHTML = 'Sair';
                 logoutBtn.style.cssText = 'background: #c62828; border: none; padding: 4px 12px; border-radius: 20px; color: white; cursor: pointer;';
-                logoutBtn.onclick = () => { localStorage.clear(); window.location.href = 'index.html'; };
+                logoutBtn.onclick = function() { localStorage.clear(); window.location.href = 'index.html'; };
                 
-                // Inserir antes do Instagram link
                 const instaLink = topBarRight.querySelector('a[href="#"]');
                 if (instaLink) {
                     topBarRight.insertBefore(userSpan, instaLink);
@@ -1270,18 +1269,20 @@
             }
         }
 
-        // Função para criar confetes
         function criarConfetes() {
-            for (let i = 0; i < 50; i++) {
-                const confete = document.createElement('div');
+            for (var i = 0; i < 50; i++) {
+                var confete = document.createElement('div');
                 confete.className = 'confete';
                 confete.style.left = Math.random() * window.innerWidth + 'px';
                 confete.style.top = window.innerHeight / 2 + 'px';
-                confete.style.background = ['#00C853', '#1A237E', '#FFC107', '#FF4757'][Math.floor(Math.random() * 4)];
+                var cores = ['#00C853', '#1A237E', '#FFC107', '#FF4757'];
+                confete.style.background = cores[Math.floor(Math.random() * cores.length)];
                 confete.style.width = Math.random() * 8 + 4 + 'px';
                 confete.style.height = Math.random() * 8 + 4 + 'px';
                 document.body.appendChild(confete);
-                setTimeout(() => confete.remove(), 1000);
+                (function(c) {
+                    setTimeout(function() { c.remove(); }, 1000);
+                })(confete);
             }
         }
 
@@ -1290,10 +1291,10 @@
             produtoAtualLightbox = produto;
             fotosAtuais = produto.fotos && produto.fotos.length ? produto.fotos : [];
             indiceFotoAtual = 0;
-            const modal = document.getElementById('lightboxModal');
-            const imgModal = document.getElementById('lightboxImg');
-            const infoDiv = document.getElementById('lightboxInfo');
-            const thumbnailsDiv = document.getElementById('lightboxThumbnails');
+            var modal = document.getElementById('lightboxModal');
+            var imgModal = document.getElementById('lightboxImg');
+            var infoDiv = document.getElementById('lightboxInfo');
+            var thumbnailsDiv = document.getElementById('lightboxThumbnails');
             
             if (fotosAtuais.length === 0) {
                 imgModal.src = 'https://via.placeholder.com/400?text=Sem+imagem';
@@ -1301,79 +1302,78 @@
                 imgModal.src = fotosAtuais[0];
             }
             
-            // Monta thumbnails
             thumbnailsDiv.innerHTML = '';
-            fotosAtuais.forEach((foto, idx) => {
-                const thumb = document.createElement('img');
-                thumb.src = foto;
+            for (var i = 0; i < fotosAtuais.length; i++) {
+                var thumb = document.createElement('img');
+                thumb.src = fotosAtuais[i];
                 thumb.className = 'lightbox-thumb';
-                if (idx === 0) thumb.classList.add('active');
-                thumb.onclick = () => {
-                    imgModal.src = foto;
-                    document.querySelectorAll('.lightbox-thumb').forEach(t => t.classList.remove('active'));
-                    thumb.classList.add('active');
-                    indiceFotoAtual = idx;
-                };
+                if (i === 0) thumb.classList.add('active');
+                (function(idx, t) {
+                    t.onclick = function() {
+                        imgModal.src = t.src;
+                        var allThumbs = document.querySelectorAll('.lightbox-thumb');
+                        for (var j = 0; j < allThumbs.length; j++) {
+                            allThumbs[j].classList.remove('active');
+                        }
+                        t.classList.add('active');
+                        indiceFotoAtual = idx;
+                    };
+                })(i, thumb);
                 thumbnailsDiv.appendChild(thumb);
-            });
-            
-            // Cores disponíveis
-            let coresHtml = '';
-            if (produto.cores && produto.cores.length > 0) {
-                coresHtml = `<div class="detalhe-item"><i class="fas fa-palette"></i> <strong>Cores:</strong> </div><div style="display:flex; gap:8px; margin-bottom:16px;">`;
-                produto.cores.forEach(cor => {
-                    coresHtml += `<div style="width:30px; height:30px; border-radius:50%; background:${cor}; border:1px solid #ddd;"></div>`;
-                });
-                coresHtml += `</div>`;
             }
             
-            const quantidadeDisp = produto.quantidade || 1;
-            const valorReal = produto.valor_exposicao;
-            const progressPercent = Math.min(100, Math.floor((valorReal - (valorReal * 0.2)) / valorReal * 100));
+            var coresHtml = '';
+            if (produto.cores && produto.cores.length > 0) {
+                coresHtml = '<div class="detalhe-item"><i class="fas fa-palette"></i> <strong>Cores:</strong> </div><div style="display:flex; gap:8px; margin-bottom:16px;">';
+                for (var k = 0; k < produto.cores.length; k++) {
+                    coresHtml += '<div style="width:30px; height:30px; border-radius:50%; background:' + produto.cores[k] + '; border:1px solid #ddd;"></div>';
+                }
+                coresHtml += '</div>';
+            }
             
-            infoDiv.innerHTML = `
-                <h3>${escapeHtml(produto.nome)}</h3>
-                <div class="preco-modal">R$ ${valorReal.toFixed(2)}</div>
-                <div class="descricao-modal">${escapeHtml(produto.descricao || 'Sem descrição')}</div>
-                
-                <div class="detalhe-item"><i class="fas fa-tag"></i> <strong>Condição:</strong> ${produto.condicao === 'novo' ? '🆕 Produto novo' : '🔄 Produto usado (veja as fotos)'}</div>
-                <div class="detalhe-item"><i class="fas fa-boxes"></i> <strong>Estoque:</strong> ${quantidadeDisp} unidade(s) disponíveis</div>
-                <div class="detalhe-item"><i class="fas fa-store"></i> <strong>Vendedor:</strong> ${escapeHtml(produto.vendedor_nome || 'ACEITAÊ')}</div>
-                ${coresHtml}
-                
-                <div class="progress-container">
-                    <div class="progress-bar-bg">
-                        <div class="progress-fill" style="width: ${progressPercent}%"></div>
-                    </div>
-                    <span class="progress-text">📊 Mais R$ ${(valorReal * 0.2).toFixed(2)} e sua oferta tem 95% de chance de ser ACEITA!</span>
-                </div>
-                
-                <div class="quantidade-modal">
-                    <i class="fas fa-sort-amount-up"></i>
-                    <strong>Quantidade:</strong>
-                    <input type="number" id="quantidadeModal" value="1" min="1" max="${quantidadeDisp}" onchange="atualizarTotalModal()">
-                </div>
-                
-                <div class="frete-modal">
-                    <i class="fas fa-truck"></i> <strong>Frete:</strong> Calcular frete no próximo passo
-                </div>
-                
-                <div class="botoes-acao-modal">
-                    <button class="btn-pagar-agora" onclick="comprarValorReal()">
-                        <i class="fas fa-bolt"></i> Comprar agora
-                    </button>
-                    <button class="btn-ofertar-modal" onclick="fazerOfertaLightbox()">
-                        <i class="fas fa-gavel"></i> Fazer oferta
-                    </button>
-                </div>
-            `;
+            var quantidadeDisp = produto.quantidade || 1;
+            var valorReal = produto.valor_exposicao;
+            var progressPercent = Math.min(100, Math.floor((valorReal - (valorReal * 0.2)) / valorReal * 100));
+            
+            infoDiv.innerHTML =
+                '<h3>' + escapeHtml(produto.nome) + '</h3>' +
+                '<div class="preco-modal">R$ ' + valorReal.toFixed(2) + '</div>' +
+                '<div class="descricao-modal">' + escapeHtml(produto.descricao || 'Sem descrição') + '</div>' +
+                '<div class="detalhe-item"><i class="fas fa-tag"></i> <strong>Condição:</strong> ' + (produto.condicao === 'novo' ? '🆕 Produto novo' : '🔄 Produto usado (veja as fotos)') + '</div>' +
+                '<div class="detalhe-item"><i class="fas fa-boxes"></i> <strong>Estoque:</strong> ' + quantidadeDisp + ' unidade(s) disponíveis</div>' +
+                '<div class="detalhe-item"><i class="fas fa-store"></i> <strong>Vendedor:</strong> ' + escapeHtml(produto.vendedor_nome || 'ACEITAÊ') + '</div>' +
+                coresHtml +
+                '<div class="progress-container">' +
+                    '<div class="progress-bar-bg">' +
+                        '<div class="progress-fill" style="width: ' + progressPercent + '%"></div>' +
+                    '</div>' +
+                    '<span class="progress-text">📊 Mais R$ ' + (valorReal * 0.2).toFixed(2) + ' e sua oferta tem 95% de chance de ser ACEITA!</span>' +
+                '</div>' +
+                '<div class="quantidade-modal">' +
+                    '<i class="fas fa-sort-amount-up"></i>' +
+                    '<strong>Quantidade:</strong>' +
+                    '<input type="number" id="quantidadeModal" value="1" min="1" max="' + quantidadeDisp + '" onchange="atualizarTotalModal()">' +
+                '</div>' +
+                '<div class="frete-modal">' +
+                    '<i class="fas fa-truck"></i> <strong>Frete:</strong> Calcular frete no próximo passo' +
+                '</div>' +
+                '<div class="botoes-acao-modal">' +
+                    '<button class="btn-pagar-agora" onclick="comprarValorReal()">' +
+                        '<i class="fas fa-bolt"></i> Comprar agora' +
+                    '</button>' +
+                    '<button class="btn-ofertar-modal" onclick="fazerOfertaLightbox()">' +
+                        '<i class="fas fa-gavel"></i> Fazer oferta' +
+                    '</button>' +
+                '</div>';
+            
             modal.style.display = 'flex';
         }
 
         function atualizarTotalModal() {
-            const qtd = document.getElementById('quantidadeModal')?.value || 1;
+            var qtd = document.getElementById('quantidadeModal')?.value || 1;
         }
 
+        // ==================== COMPRAR AGORA ====================
         function comprarValorReal() {
             if (!produtoAtualLightbox) return;
             if (!usuarioId) {
@@ -1382,14 +1382,16 @@
                 return;
             }
             
-            const quantidade = document.getElementById('quantidadeModal')?.value || 1;
-            const valorTotal = produtoAtualLightbox.valor_exposicao * quantidade;
+            var quantidade = document.getElementById('quantidadeModal')?.value || 1;
+            var valorTotal = produtoAtualLightbox.valor_exposicao * quantidade;
             
-            if (confirm(`🛒 COMPRAR AGORA!\n\nProduto: ${produtoAtualLightbox.nome}\nQuantidade: ${quantidade}\nValor total: R$ ${valorTotal.toFixed(2)}\n\nComissão ACEITAÊ (10%): R$ ${(valorTotal * 0.10).toFixed(2)}\nVocê pagará: R$ ${valorTotal.toFixed(2)}\n\nDeseja continuar?`)) {
-                fazerOfertaDireta(produtoAtualLightbox.id, valorTotal);
+            if (confirm('🛒 COMPRAR AGORA!\n\nProduto: ' + produtoAtualLightbox.nome + '\nQuantidade: ' + quantidade + '\nValor total: R$ ' + valorTotal.toFixed(2) + '\n\nDeseja continuar?')) {
+                fazerOferta(produtoAtualLightbox.id, valorTotal);
+                document.getElementById('lightboxModal').style.display = 'none';
             }
         }
 
+        // ==================== FAZER OFERTA ====================
         function fazerOfertaLightbox() {
             if (!produtoAtualLightbox) return;
             if (!usuarioId) {
@@ -1398,8 +1400,8 @@
                 return;
             }
             
-            const quantidade = document.getElementById('quantidadeModal')?.value || 1;
-            let valorOferta = prompt(`Produto: ${produtoAtualLightbox.nome}\nPreço sugerido: R$ ${produtoAtualLightbox.valor_exposicao.toFixed(2)}\nQuantidade: ${quantidade}\n\nDigite o valor da SUA OFERTA (R$):`);
+            var quantidade = document.getElementById('quantidadeModal')?.value || 1;
+            var valorOferta = prompt('Produto: ' + produtoAtualLightbox.nome + '\nPreço sugerido: R$ ' + produtoAtualLightbox.valor_exposicao.toFixed(2) + '\nQuantidade: ' + quantidade + '\n\nDigite o valor da SUA OFERTA (R$):');
             
             if (!valorOferta) return;
             valorOferta = parseFloat(valorOferta.replace(',', '.'));
@@ -1408,31 +1410,44 @@
                 return;
             }
             
-            const valorTotal = valorOferta * quantidade;
+            var valorTotal = valorOferta * quantidade;
             
-            if (confirm(`🔨 FAZER OFERTA!\n\nProduto: ${produtoAtualLightbox.nome}\nQuantidade: ${quantidade}\nSua oferta: R$ ${valorOferta.toFixed(2)}/unidade\nValor total: R$ ${valorTotal.toFixed(2)}\n\nComissão ACEITAÊ (10%): R$ ${(valorTotal * 0.10).toFixed(2)}\nVocê pagará: R$ ${valorTotal.toFixed(2)}\n\nO vendedor pode ACEITAR ou RECUSAR sua oferta.\n\nDeseja continuar?`)) {
+            if (confirm('🔨 FAZER OFERTA!\n\nProduto: ' + produtoAtualLightbox.nome + '\nQuantidade: ' + quantidade + '\nSua oferta: R$ ' + valorOferta.toFixed(2) + '/unidade\nValor total: R$ ' + valorTotal.toFixed(2) + '\n\nO vendedor pode ACEITAR ou RECUSAR sua oferta.\n\nDeseja continuar?')) {
                 fazerOferta(produtoAtualLightbox.id, valorTotal);
                 document.getElementById('lightboxModal').style.display = 'none';
             }
         }
 
-        async function fazerOfertaDireta(produtoId, valor) {
+        async function fazerOferta(produtoId, valor) {
+            if (!usuarioId) {
+                alert('Faça login para fazer uma oferta!');
+                window.location.href = 'login.html';
+                return;
+            }
+            
             try {
-                const response = await fetch(`${API_URL}/ofertas?comprador_id=${usuarioId}&comprador_nome=${usuarioNome || 'Usuario'}`, {
+                var response = await fetch(API_URL + '/ofertas?comprador_id=' + usuarioId + '&comprador_nome=' + encodeURIComponent(usuarioNome || 'Usuario'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ produto_id: produtoId, valor: valor })
                 });
-                const data = await response.json();
+                
+                var data = await response.json();
+                
                 if (response.ok) {
                     criarConfetes();
-                    alert(data.mensagem || '🎉 Compra realizada com sucesso!');
-                    document.getElementById('lightboxModal').style.display = 'none';
+                    alert('✅ Oferta enviada! Aguarde o vendedor ACEITAR ou recusar.');
+                    
+                    var input = document.getElementById('valor-' + produtoId);
+                    if (input) {
+                        input.value = '';
+                    }
+                    
                     if (data.status === 'venda_automatica') {
-                        setTimeout(() => carregarProdutos(), 2000);
+                        alert('✅ VENDA AUTOMÁTICA! O vendedor já aceitou.');
                     }
                 } else {
-                    alert('Erro: ' + (data.detail || 'Não foi possível finalizar'));
+                    alert('Erro: ' + (data.detail || 'Não foi possível enviar a oferta'));
                 }
             } catch (error) {
                 alert('Erro de conexão: ' + error.message);
@@ -1444,22 +1459,23 @@
             indiceFotoAtual += direcao;
             if (indiceFotoAtual < 0) indiceFotoAtual = fotosAtuais.length - 1;
             if (indiceFotoAtual >= fotosAtuais.length) indiceFotoAtual = 0;
-            const imgModal = document.getElementById('lightboxImg');
+            var imgModal = document.getElementById('lightboxImg');
             imgModal.src = fotosAtuais[indiceFotoAtual];
-            document.querySelectorAll('.lightbox-thumb').forEach((thumb, idx) => {
-                if (idx === indiceFotoAtual) thumb.classList.add('active');
-                else thumb.classList.remove('active');
-            });
+            var thumbs = document.querySelectorAll('.lightbox-thumb');
+            for (var i = 0; i < thumbs.length; i++) {
+                if (i === indiceFotoAtual) thumbs[i].classList.add('active');
+                else thumbs[i].classList.remove('active');
+            }
         }
 
         function configurarLightboxEventos() {
-            const modal = document.getElementById('lightboxModal');
-            document.querySelector('.fechar-lightbox').onclick = () => {
+            var modal = document.getElementById('lightboxModal');
+            document.querySelector('.fechar-lightbox').onclick = function() {
                 modal.style.display = 'none';
             };
-            document.querySelector('.prev-lightbox').onclick = () => navegarLightbox(-1);
-            document.querySelector('.next-lightbox').onclick = () => navegarLightbox(1);
-            window.onclick = (e) => {
+            document.querySelector('.prev-lightbox').onclick = function() { navegarLightbox(-1); };
+            document.querySelector('.next-lightbox').onclick = function() { navegarLightbox(1); };
+            window.onclick = function(e) {
                 if (e.target === modal) modal.style.display = 'none';
             };
         }
@@ -1467,8 +1483,8 @@
         // ==================== PRODUTOS ====================
         async function carregarProdutos() {
             try {
-                const response = await fetch(`${API_URL}/produtos?status=aprovado`);
-                const data = await response.json();
+                var response = await fetch(API_URL + '/produtos?status=aprovado');
+                var data = await response.json();
                 
                 if (!data.produtos || data.produtos.length === 0) {
                     document.getElementById('produtos').innerHTML = '<div class="loading">😢 Nenhum produto disponível no momento.</div>';
@@ -1484,24 +1500,21 @@
         }
 
         function aplicarFiltros() {
-            let produtosFiltrados = [...produtosOriginais];
-            
-            if (categoriaAtual !== 'todos') {
-                produtosFiltrados = produtosFiltrados.filter(p => p.categoria === categoriaAtual);
+            var produtosFiltrados = [];
+            for (var i = 0; i < produtosOriginais.length; i++) {
+                var p = produtosOriginais[i];
+                if (categoriaAtual !== 'todos' && p.categoria !== categoriaAtual) continue;
+                if (termoBusca) {
+                    var busca = termoBusca.toLowerCase();
+                    if (!p.nome.toLowerCase().includes(busca) && !(p.descricao && p.descricao.toLowerCase().includes(busca))) continue;
+                }
+                produtosFiltrados.push(p);
             }
-            
-            if (termoBusca) {
-                produtosFiltrados = produtosFiltrados.filter(p => 
-                    p.nome.toLowerCase().includes(termoBusca.toLowerCase()) ||
-                    (p.descricao && p.descricao.toLowerCase().includes(termoBusca.toLowerCase()))
-                );
-            }
-            
             renderizarProdutos(produtosFiltrados);
         }
 
         function renderizarProdutos(produtos) {
-            const container = document.getElementById('produtos');
+            var container = document.getElementById('produtos');
             
             if (produtos.length === 0) {
                 container.innerHTML = '<div class="loading">🔍 Nenhum produto encontrado.</div>';
@@ -1509,95 +1522,96 @@
             }
 
             container.innerHTML = '<div class="produtos-grid"></div>';
-            const grid = container.querySelector('.produtos-grid');
+            var grid = container.querySelector('.produtos-grid');
 
-            for (const produto of produtos) {
-                const card = document.createElement('div');
+            for (var i = 0; i < produtos.length; i++) {
+                var produto = produtos[i];
+                var card = document.createElement('div');
                 card.className = 'produto-card';
                 
-                let imagemHtml = '';
+                var imagemHtml = '';
                 if (produto.fotos && produto.fotos.length > 0 && produto.fotos[0]) {
-                    imagemHtml = `<img src="${produto.fotos[0]}" alt="${produto.nome}" onerror="this.parentElement.innerHTML='<i class=\'fas fa-box\'></i>'">`;
+                    imagemHtml = '<img src="' + produto.fotos[0] + '" alt="' + produto.nome + '" onerror="this.parentElement.innerHTML=\'<i class=\\\'fas fa-box\\\'></i>\'">';
                 } else {
-                    imagemHtml = `<i class="fas fa-box"></i>`;
+                    imagemHtml = '<i class="fas fa-box"></i>';
                 }
                 
-                let condicaoBadge = '';
+                var condicaoBadge = '';
                 if (produto.condicao === 'novo') {
                     condicaoBadge = '<span class="badge-novo">🆕 NOVO</span>';
                 } else if (produto.condicao === 'usado') {
                     condicaoBadge = '<span class="badge-usado">🔄 USADO</span>';
                 }
                 
-                const aceitoRapido = Math.random() > 0.7 ? '<span class="badge-rapido">⚡ Aceito rápido</span>' : '';
+                var aceitoRapido = Math.random() > 0.7 ? '<span class="badge-rapido">⚡ Aceito rápido</span>' : '';
                 
-                let coresPreviewHtml = '';
+                var coresPreviewHtml = '';
                 if (produto.cores && produto.cores.length > 0) {
-                    coresPreviewHtml = `<div class="cores-preview">`;
-                    produto.cores.slice(0, 3).forEach(cor => {
-                        coresPreviewHtml += `<div class="cor-preview" style="background:${cor};"></div>`;
-                    });
-                    if (produto.cores.length > 3) {
-                        coresPreviewHtml += `<span style="font-size:9px;">+${produto.cores.length-3}</span>`;
+                    coresPreviewHtml = '<div class="cores-preview">';
+                    for (var j = 0; j < Math.min(3, produto.cores.length); j++) {
+                        coresPreviewHtml += '<div class="cor-preview" style="background:' + produto.cores[j] + ';"></div>';
                     }
-                    coresPreviewHtml += `</div>`;
+                    if (produto.cores.length > 3) {
+                        coresPreviewHtml += '<span style="font-size:9px;">+' + (produto.cores.length - 3) + '</span>';
+                    }
+                    coresPreviewHtml += '</div>';
                 }
                 
-                const visualizacoes = Math.floor(Math.random() * 100) + 10;
-                const parcelas = Math.min(10, Math.max(1, Math.floor(produto.valor_exposicao / 50)));
-                const valorParcela = produto.valor_exposicao / parcelas;
-                const quantidadeDisp = produto.quantidade || 1;
+                var visualizacoes = Math.floor(Math.random() * 100) + 10;
+                var parcelas = Math.min(10, Math.max(1, Math.floor(produto.valor_exposicao / 50)));
+                var valorParcela = produto.valor_exposicao / parcelas;
+                var quantidadeDisp = produto.quantidade || 1;
                 
-                card.innerHTML = `
-                    <div class="card-favorite" onclick="event.stopPropagation(); alert('❤️ Produto salvo nos favoritos!')">
-                        <i class="fas fa-heart"></i>
-                    </div>
-                    <div class="produto-imagem" onclick="abrirLightbox(${JSON.stringify(produto).replace(/"/g, '&quot;')})">
-                        <div class="badge-container">
-                            ${condicaoBadge}
-                            ${aceitoRapido}
-                            <span class="popular-badge">🔥 POPULAR</span>
-                        </div>
-                        ${imagemHtml}
-                    </div>
-                    <div class="produto-info">
-                        <h3>${escapeHtml(produto.nome)}</h3>
-                        <div class="view-counter-card">
-                            <i class="fas fa-eye"></i> ${visualizacoes} pessoas viram este produto hoje
-                        </div>
-                        <div class="condicao-produto">
-                            <i class="fas ${produto.condicao === 'novo' ? 'fa-sparkle' : 'fa-rotate-right'}"></i>
-                            ${produto.condicao === 'novo' ? 'Produto novo' : 'Produto usado - ver fotos'}
-                        </div>
-                        <div class="quantidade-info">
-                            <i class="fas fa-boxes"></i> Estoque: ${quantidadeDisp} unidade(s)
-                        </div>
-                        ${coresPreviewHtml}
-                        <div class="preco">R$ ${produto.valor_exposicao?.toFixed(2)}</div>
-                        <div class="parcelamento">${parcelas}x de R$ ${valorParcela.toFixed(2)}</div>
-                        <div class="oferta-area">
-                            <input type="number" id="valor-${produto.id}" placeholder="Sua oferta" step="0.01">
-                            <button class="btn-ofertar-card" onclick="fazerOferta(${produto.id})">
-                                <i class="fas fa-gavel"></i> Ofertar
-                            </button>
-                        </div>
-                        <div id="msg-${produto.id}" class="mensagem"></div>
-                    </div>
-                `;
+                card.innerHTML = 
+                    '<div class="card-favorite" onclick="event.stopPropagation(); alert(\'❤️ Produto salvo nos favoritos!\')">' +
+                        '<i class="fas fa-heart"></i>' +
+                    '</div>' +
+                    '<div class="produto-imagem" onclick="abrirLightbox(' + JSON.stringify(produto).replace(/"/g, '&quot;') + ')">' +
+                        '<div class="badge-container">' +
+                            condicaoBadge +
+                            aceitoRapido +
+                            '<span class="popular-badge">🔥 POPULAR</span>' +
+                        '</div>' +
+                        imagemHtml +
+                    '</div>' +
+                    '<div class="produto-info">' +
+                        '<h3>' + escapeHtml(produto.nome) + '</h3>' +
+                        '<div class="view-counter-card">' +
+                            '<i class="fas fa-eye"></i> ' + visualizacoes + ' pessoas viram este produto hoje' +
+                        '</div>' +
+                        '<div class="condicao-produto">' +
+                            '<i class="fas ' + (produto.condicao === 'novo' ? 'fa-sparkle' : 'fa-rotate-right') + '"></i>' +
+                            (produto.condicao === 'novo' ? 'Produto novo' : 'Produto usado - ver fotos') +
+                        '</div>' +
+                        '<div class="quantidade-info">' +
+                            '<i class="fas fa-boxes"></i> Estoque: ' + quantidadeDisp + ' unidade(s)' +
+                        '</div>' +
+                        coresPreviewHtml +
+                        '<div class="preco">R$ ' + produto.valor_exposicao?.toFixed(2) + '</div>' +
+                        '<div class="parcelamento">' + parcelas + 'x de R$ ' + valorParcela.toFixed(2) + '</div>' +
+                        '<div class="oferta-area">' +
+                            '<input type="number" id="valor-' + produto.id + '" placeholder="Sua oferta" step="0.01">' +
+                            '<button class="btn-ofertar-card" onclick="fazerOferta(' + produto.id + ')">' +
+                                '<i class="fas fa-gavel"></i> Ofertar' +
+                            '</button>' +
+                        '</div>' +
+                        '<div id="msg-' + produto.id + '" class="mensagem"></div>' +
+                    '</div>';
                 grid.appendChild(card);
             }
         }
 
         function filtrarPorCategoria(categoria) {
             categoriaAtual = categoria;
-            document.querySelectorAll('.category-item').forEach(item => {
-                const itemCat = item.getAttribute('data-cat');
+            var items = document.querySelectorAll('.category-item');
+            for (var i = 0; i < items.length; i++) {
+                var itemCat = items[i].getAttribute('data-cat');
                 if (itemCat === categoria) {
-                    item.classList.add('active');
+                    items[i].classList.add('active');
                 } else {
-                    item.classList.remove('active');
+                    items[i].classList.remove('active');
                 }
-            });
+            }
             aplicarFiltros();
         }
 
@@ -1620,62 +1634,11 @@
             });
         }
 
-        async function fazerOferta(produtoId, valorPersonalizado = null) {
-            if (!usuarioId) {
-                alert('Faça login para fazer uma oferta!');
-                window.location.href = 'login.html';
-                return;
-            }
-            
-            let valor = valorPersonalizado;
-            if (!valor) {
-                const input = document.getElementById(`valor-${produtoId}`);
-                valor = parseFloat(input.value);
-                
-                if (!valor || valor <= 0) {
-                    const msgDiv = document.getElementById(`msg-${produtoId}`);
-                    mostrarMensagem(msgDiv, 'Digite um valor válido!', 'erro');
-                    return;
-                }
-            }
-            
-            try {
-                const response = await fetch(`${API_URL}/ofertas?comprador_id=${usuarioId}&comprador_nome=${usuarioNome || 'Usuario'}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ produto_id: produtoId, valor: valor })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    criarConfetes();
-                    const msgDiv = document.getElementById(`msg-${produtoId}`);
-                    if (msgDiv) mostrarMensagem(msgDiv, '🎉 ' + data.mensagem, 'sucesso');
-                    else alert(data.mensagem);
-                    
-                    if (document.getElementById(`valor-${produtoId}`)) {
-                        document.getElementById(`valor-${produtoId}`).value = '';
-                    }
-                    
-                    if (data.status === 'venda_automatica') {
-                        setTimeout(() => carregarProdutos(), 2000);
-                    }
-                } else {
-                    const msgDiv = document.getElementById(`msg-${produtoId}`);
-                    if (msgDiv) mostrarMensagem(msgDiv, data.detail || 'Erro ao fazer oferta', 'erro');
-                    else alert('Erro: ' + data.detail);
-                }
-            } catch (error) {
-                alert('Erro de conexão: ' + error.message);
-            }
-        }
-        
         function mostrarMensagem(elemento, texto, tipo) {
             elemento.innerHTML = texto;
-            elemento.className = `mensagem ${tipo}`;
+            elemento.className = 'mensagem ' + tipo;
             elemento.style.display = 'block';
-            setTimeout(() => {
+            setTimeout(function() {
                 elemento.style.display = 'none';
             }, 4000);
         }
