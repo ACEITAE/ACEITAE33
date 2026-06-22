@@ -3,3 +3,4 @@ uvicorn
 supabase
 pydantic
 python-multipart
+requests==2.31.0
