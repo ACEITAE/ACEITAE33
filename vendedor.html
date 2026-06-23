@@ -12,7 +12,7 @@
         .logo-area{display:flex;align-items:center;gap:12px}
         .logo-img{height:32px;width:auto}
         .logo-text{font-size:18px;font-weight:bold;color:#1A237E}
-        .logo-text span{color:#00C853;display:inline-block;animation:balanco .8s ease-in-out infinite;transform-origin:center center}
+        .logo-text span{color:#00C853;display:inline-block;animation:balanco .8s ease-in-out infinite}
         @keyframes balanco{0%,100%{transform:rotate(0deg)}20%{transform:rotate(-10deg)}40%{transform:rotate(10deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(5deg)}}
         .header-center{flex:1;display:flex;justify-content:center}
         .header-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:flex-end;flex:1}
@@ -428,15 +428,21 @@
             var response = await fetch(API_URL + '/vendedor/' + VENDEDOR_ID + '/ofertas');
             var data = await response.json();
             todasOfertas = data.ofertas || [];
+            
+            // Atualiza contadores
             document.getElementById('total-ofertas').textContent = todasOfertas.length;
-            document.getElementById('ofertas-pendentes').textContent = 0;
+            
             var pendentes = 0;
             for (var i = 0; i < todasOfertas.length; i++) {
-                if (todasOfertas[i].status === 'pendente') pendentes++;
+                if (todasOfertas[i].status === 'pendente') {
+                    pendentes++;
+                }
             }
             document.getElementById('ofertas-pendentes').textContent = pendentes;
+            
             renderizarOfertas();
         } catch (error) {
+            console.error('Erro:', error);
             document.getElementById('ofertas-container').innerHTML = '<div class="sem-itens">❌ Erro ao carregar ofertas</div>';
         }
     }
@@ -626,6 +632,7 @@
         });
     }
 
+    // ==================== INICIALIZAÇÃO ====================
     atualizarHeader();
     carregarMeusProdutos();
     carregarOfertas();
