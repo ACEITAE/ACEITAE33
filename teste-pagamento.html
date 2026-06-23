@@ -7,72 +7,55 @@
     <style>
         body{font-family:Arial;max-width:600px;margin:50px auto;padding:20px;background:#f5f5f5}
         .card{background:white;padding:30px;border-radius:16px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
-        input,button{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:1px solid #ddd;font-size:14px}
+        input,select,button{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:1px solid #ddd;font-size:14px}
         button{background:#00C853;color:white;border:none;cursor:pointer;font-weight:bold}
         button:hover{background:#00A844}
         .resultado{background:#f0f0f0;padding:16px;border-radius:8px;margin-top:16px;white-space:pre-wrap;word-break:break-all;font-size:12px;max-height:400px;overflow-y:auto}
-        .status{color:#666;font-size:13px}
-        .pix{background:#e8f5e9;border-left:4px solid #00C853;padding:12px;margin:8px 0}
-        .erro{background:#ffebee;border-left:4px solid #c62828;padding:12px;margin:8px 0}
     </style>
 </head>
 <body>
     <div class="card">
-        <h1>🧪 Teste Pagamento ACEITAÊ</h1>
-        <p>Use esta página para testar a geração de pagamento PIX e Cartão.</p>
-        
-        <label><strong>ID da Oferta:</strong></label>
-        <input type="number" id="ofertaId" placeholder="Ex: 1" value="1">
-        
-        <label><strong>Método:</strong></label>
+        <h1>🧪 Teste Pagamento</h1>
+        <p>ID da Oferta:</p>
+        <input type="number" id="ofertaId" placeholder="Digite o ID da oferta">
+        <p>Método:</p>
         <select id="metodo">
             <option value="pix">PIX</option>
             <option value="cartao">Cartão de Crédito</option>
         </select>
-        
-        <label><strong>Parcelas (cartão):</strong></label>
-        <input type="number" id="parcelas" placeholder="1 a 12" value="1" min="1" max="12">
-        
-        <button onclick="gerarPagamento()">💳 Gerar Pagamento</button>
-        
-        <div id="resultado" class="resultado">Aguardando ação...</div>
+        <p>Parcelas (cartão):</p>
+        <input type="number" id="parcelas" value="1" min="1" max="12">
+        <button onclick="gerarPagamento()">Gerar Pagamento</button>
+        <div id="resultado" class="resultado">Aguardando...</div>
     </div>
 
     <script>
         var API_URL = 'https://aceitae33-api.onrender.com';
 
-        async function gerarPagamento() {
+        function gerarPagamento() {
             var ofertaId = document.getElementById('ofertaId').value;
             var metodo = document.getElementById('metodo').value;
             var parcelas = document.getElementById('parcelas').value || 1;
-            
             var resultadoDiv = document.getElementById('resultado');
+            
+            if (!ofertaId) {
+                resultadoDiv.innerHTML = '❌ Digite o ID da oferta!';
+                return;
+            }
+            
             resultadoDiv.innerHTML = '⏳ Gerando pagamento...';
             
-            try {
-                var response = await fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=' + metodo + '&parcelas=' + parcelas, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                
-                var data = await response.json();
-                
-                if (response.ok) {
-                    resultadoDiv.innerHTML = '✅ Pagamento gerado com sucesso!\n\n' + JSON.stringify(data, null, 2);
-                    
-                    if (data.pix_qr_code) {
-                        resultadoDiv.innerHTML += '\n\n🖼️ QR Code: ' + data.pix_qr_code;
-                    }
-                    if (data.checkout_url) {
-                        resultadoDiv.innerHTML += '\n\n🔗 Link checkout: ' + data.checkout_url;
-                        window.open(data.checkout_url, '_blank');
-                    }
-                } else {
-                    resultadoDiv.innerHTML = '❌ Erro: ' + JSON.stringify(data, null, 2);
-                }
-            } catch (error) {
-                resultadoDiv.innerHTML = '❌ Erro de conexão: ' + error.message;
-            }
+            fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=' + metodo + '&parcelas=' + parcelas, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                resultadoDiv.innerHTML = '✅ Resposta da API:\n\n' + JSON.stringify(data, null, 2);
+            })
+            .catch(function(error) {
+                resultadoDiv.innerHTML = '❌ Erro: ' + error.message;
+            });
         }
     </script>
 </body>
