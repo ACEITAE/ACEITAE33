@@ -73,13 +73,15 @@
         .copyright{text-align:center;padding-top:20px;margin-top:20px;border-top:1px solid rgba(255,255,255,0.1);font-size:10px;opacity:.6}
         .confete{position:fixed;width:8px;height:8px;background:#00C853;animation:confete 1s ease-out forwards;pointer-events:none;z-index:10000}
         @keyframes confete{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(-100px) rotate(360deg);opacity:0}}
-        @media (max-width:640px){.header-container{flex-direction:column}.slogan-header{white-space:normal;text-align:center;margin-left:0;padding-left:0;border-left:none}.search-box{max-width:100%;width:100%}.produtos-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}.trust-badges{flex-direction:column;align-items:center;gap:6px}}
+        @media (max-width:640px){.header-container{flex-direction:column}.slogan-header{white-space:normal;text-align:center;margin-left:0;padding-left:0;border-left:none}.search-box{max-width:100%;width:100%}.produtos-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}.trust-badges{flex-direction:column;align-items:center;gap:6px}.top-bar-left,.top-bar-right{justify-content:center}}
     </style>
 </head>
 <body>
     <!-- TOP BAR -->
     <div class="top-bar">
         <div class="top-bar-left">
+            <a href="comprador.html"><i class="fas fa-shopping-bag"></i> Meus Pedidos</a>
+            <span class="separator">|</span>
             <a href="vendedor.html"><i class="fas fa-store"></i> Central do Vendedor</a>
             <span class="separator">|</span>
             <a href="anunciar.html"><i class="fas fa-plus-circle"></i> Vender na ACEITAÊ</a>
@@ -197,39 +199,42 @@
         var categoriaAtual = 'todos';
         var termoBusca = '';
 
-        // Mostrar admin se for admin
-        async function mostrarBotaoAdmin() {
+        // ==================== VERIFICAR ADMIN ====================
+        async function verificarAdmin() {
             var id = localStorage.getItem('usuario_id');
-            if (!id) return;
+            if (!id) return false;
             try {
                 var response = await fetch(API_URL + '/usuarios/' + id + '/is-admin');
                 var data = await response.json();
-                var adminBtn = document.getElementById('adminTopBtn');
-                if (adminBtn) {
-                    adminBtn.style.display = data.is_admin ? 'inline-flex' : 'none';
-                }
-            } catch(e) {}
+                return data.is_admin === true;
+            } catch (e) { return false; }
         }
 
-        // Atualizar top bar com usuário logado
+        async function mostrarBotaoAdmin() {
+            var isAdmin = await verificarAdmin();
+            var adminBtn = document.getElementById('adminTopBtn');
+            if (adminBtn) {
+                adminBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+                if (isAdmin) adminBtn.href = 'admin.html';
+            }
+        }
+
+        // ==================== ATUALIZAR TOP BAR ====================
         function atualizarTopBar() {
             var topBarRight = document.getElementById('topBarRight');
             if (!topBarRight) return;
+            var loginBtn = topBarRight.querySelector('a[href="login.html"]');
+            var cadastroBtn = topBarRight.querySelector('a[href="cadastro.html"]');
             if (usuarioNome) {
-                var loginBtn = topBarRight.querySelector('a[href="login.html"]');
-                var cadastroBtn = topBarRight.querySelector('a[href="cadastro.html"]');
                 if (loginBtn) loginBtn.style.display = 'none';
                 if (cadastroBtn) cadastroBtn.style.display = 'none';
-                
                 var userSpan = document.createElement('span');
                 userSpan.innerHTML = '<i class="fas fa-user-circle"></i> Olá, ' + usuarioNome;
-                userSpan.style.cssText = 'display:flex;align-items:center;gap:5px;';
-                
+                userSpan.style.cssText = 'display:flex;align-items:center;gap:5px;color:white;';
                 var logoutBtn = document.createElement('button');
                 logoutBtn.innerHTML = 'Sair';
                 logoutBtn.style.cssText = 'background:#c62828;border:none;padding:4px 12px;border-radius:20px;color:white;cursor:pointer;';
                 logoutBtn.onclick = function() { localStorage.clear(); window.location.href = 'index.html'; };
-                
                 var instaLink = topBarRight.querySelector('a[href="#"]');
                 if (instaLink) {
                     topBarRight.insertBefore(userSpan, instaLink);
@@ -258,9 +263,7 @@
                 confete.style.width = Math.random() * 8 + 4 + 'px';
                 confete.style.height = Math.random() * 8 + 4 + 'px';
                 document.body.appendChild(confete);
-                (function(c) {
-                    setTimeout(function() { c.remove(); }, 1000);
-                })(confete);
+                (function(c) { setTimeout(function() { c.remove(); }, 1000); })(confete);
             }
         }
 
@@ -305,7 +308,7 @@
                     if (inputEl) inputEl.value = '';
                     
                     if (data.status === 'venda_automatica') {
-                        alert('✅ VENDA AUTOMÁTICA!');
+                        alert('✅ VENDA AUTOMÁTICA! O pagamento será processado.');
                         carregarProdutos();
                     }
                 } else {
