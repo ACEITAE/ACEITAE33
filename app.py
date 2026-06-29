@@ -18,12 +18,19 @@ app = FastAPI(title="ACEITAÊ API", version="3.0.0")
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "*",  # Permite todas as origens (em produção, coloque os domínios específicos)
+        "https://www.aceitae.com",
+        "https://aceitae.com",
+        "http://localhost:3000",
+        "http://localhost:5500",
+        "http://127.0.0.1:5500"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
-
 # ==================================================
 # VARIÁVEIS DE AMBIENTE
 # ==================================================
