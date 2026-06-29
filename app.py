@@ -268,80 +268,51 @@ def verificar_admin(usuario_id: int):
 
 @app.post("/produtos")
 def criar_produto(produto: Produto, vendedor_id: int):
-    vendedor = supabase.table("usuarios").select("*").eq("id", vendedor_id).execute()
-    if not vendedor.data:
-        raise HTTPException(404, "Vendedor não encontrado")
-    
-    valor_exposicao = round(produto.valor_pretendido * 1.10, 2)
-    
-    novo_produto = {
-        "vendedor_id": vendedor_id,
-        "vendedor_nome": vendedor.data[0]["nome"],
-        "nome": produto.nome,
-        "descricao": produto.descricao,
-        "categoria": produto.categoria,
-        "valor_pretendido": produto.valor_pretendido,
-        "valor_exposicao": valor_exposicao,
-        "status": "aguardando_vistoria",
-        "fotos": produto.fotos or [],
-        "video": produto.video,
-        "cores": produto.cores or [],
-        "tamanhos": produto.tamanhos or [],
-        "numeros": produto.numeros or [],
-        "condicao": produto.condicao or "usado",
-        "quantidade": produto.quantidade or 1,
-        "peso": produto.peso or 0.5,
-        "altura": produto.altura or 10,
-        "largura": produto.largura or 15,
-        "comprimento": produto.comprimento or 20,
-        "criado_em": datetime.now().isoformat()
-    }
-    
-    result = supabase.table("produtos").insert(novo_produto).execute()
-    return {"produto_id": result.data[0]["id"], "mensagem": "Produto cadastrado! Aguardando vistoria."}
-
-@app.get("/produtos")
-def listar_produtos(status: Optional[str] = None, vendedor_id: Optional[int] = None):
-    query = supabase.table("produtos").select("*")
-    if status:
-        query = query.eq("status", status)
-    if vendedor_id:
-        query = query.eq("vendedor_id", vendedor_id)
-    result = query.execute()
-    return {"produtos": result.data}
-
-@app.put("/produtos/{produto_id}")
-def atualizar_produto(produto_id: int, produto_atualizado: dict):
-    produto_existente = supabase.table("produtos").select("*").eq("id", produto_id).execute()
-    if not produto_existente.data:
-        raise HTTPException(404, "Produto não encontrado")
-    
-    dados_atualizados = {
-        "nome": produto_atualizado.get("nome"),
-        "descricao": produto_atualizado.get("descricao"),
-        "valor_pretendido": produto_atualizado.get("valor_pretendido"),
-        "condicao": produto_atualizado.get("condicao"),
-        "quantidade": produto_atualizado.get("quantidade"),
-        "fotos": produto_atualizado.get("fotos"),
-        "cores": produto_atualizado.get("cores"),
-        "tamanhos": produto_atualizado.get("tamanhos"),
-        "numeros": produto_atualizado.get("numeros"),
-        "valor_exposicao": produto_atualizado.get("valor_pretendido", 0) * 1.10
-    }
-    dados_atualizados = {k: v for k, v in dados_atualizados.items() if v is not None}
-    
-    result = supabase.table("produtos").update(dados_atualizados).eq("id", produto_id).execute()
-    return {"mensagem": "Produto atualizado com sucesso!", "produto": result.data[0]}
-
-@app.delete("/produtos/{produto_id}")
-def excluir_produto(produto_id: int):
-    produto_existente = supabase.table("produtos").select("*").eq("id", produto_id).execute()
-    if not produto_existente.data:
-        raise HTTPException(404, "Produto não encontrado")
-    
-    supabase.table("ofertas").delete().eq("produto_id", produto_id).execute()
-    supabase.table("produtos").delete().eq("id", produto_id).execute()
-    return {"mensagem": "Produto excluído com sucesso!"}
+    try:
+        print(f"📦 Recebendo produto: {produto.nome}")
+        print(f"👤 Vendedor ID: {vendedor_id}")
+        
+        vendedor = supabase.table("usuarios").select("*").eq("id", vendedor_id).execute()
+        if not vendedor.data:
+            print(f"❌ Vendedor {vendedor_id} não encontrado")
+            raise HTTPException(404, "Vendedor não encontrado")
+        
+        print(f"✅ Vendedor encontrado: {vendedor.data[0]['nome']}")
+        
+        valor_exposicao = round(produto.valor_pretendido * 1.10, 2)
+        
+        novo_produto = {
+            "vendedor_id": vendedor_id,
+            "vendedor_nome": vendedor.data[0]["nome"],
+            "nome": produto.nome,
+            "descricao": produto.descricao,
+            "categoria": produto.categoria,
+            "valor_pretendido": produto.valor_pretendido,
+            "valor_exposicao": valor_exposicao,
+            "status": "aguardando_vistoria",
+            "fotos": produto.fotos or [],
+            "video": produto.video,
+            "cores": produto.cores or [],
+            "tamanhos": produto.tamanhos or [],
+            "numeros": produto.numeros or [],
+            "condicao": produto.condicao or "usado",
+            "quantidade": produto.quantidade or 1,
+            "peso": produto.peso or 0.5,
+            "altura": produto.altura or 10,
+            "largura": produto.largura or 15,
+            "comprimento": produto.comprimento or 20,
+            "criado_em": datetime.now().isoformat()
+        }
+        
+        print(f"📤 Inserindo no Supabase: {novo_produto['nome']}")
+        
+        result = supabase.table("produtos").insert(novo_produto).execute()
+        print(f"✅ Produto criado com ID: {result.data[0]['id']}")
+        
+        return {"produto_id": result.data[0]["id"], "mensagem": "Produto cadastrado! Aguardando vistoria."}
+    except Exception as e:
+        print(f"❌ ERRO: {str(e)}")
+        raise HTTPException(500, f"Erro: {str(e)}")
 
 # ==================================================
 # ROTAS DE OFERTA
