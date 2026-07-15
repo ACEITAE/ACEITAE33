@@ -222,7 +222,6 @@
     var editProdutoAtual = null;
     var editFotosAtuais = [];
 
-    // ==================== VERIFICAR ADMIN ====================
     async function verificarAdmin() {
         var usuarioId = localStorage.getItem('usuario_id');
         if (!usuarioId) return false;
@@ -230,9 +229,7 @@
             var response = await fetch(API_URL + '/usuarios/' + usuarioId + '/is-admin');
             var data = await response.json();
             return data.is_admin === true;
-        } catch (error) {
-            return false;
-        }
+        } catch (error) { return false; }
     }
 
     async function mostrarBotaoAdmin() {
@@ -244,11 +241,7 @@
         }
     }
 
-    // ==================== VERIFICAÇÃO DE LOGIN ====================
-    if (!VENDEDOR_ID) {
-        window.location.href = 'login.html';
-    }
-
+    if (!VENDEDOR_ID) window.location.href = 'login.html';
     if (USUARIO_TIPO !== 'vendedor' && USUARIO_TIPO !== 'ambos') {
         alert('Esta área é exclusiva para vendedores!');
         window.location.href = 'index.html';
@@ -293,16 +286,13 @@
             var data = await response.json();
             meusProdutos = data.produtos || [];
             document.getElementById('total-produtos').textContent = meusProdutos.length;
-            
             var container = document.getElementById('meus-produtos');
             if (meusProdutos.length === 0) {
                 container.innerHTML = '<div class="sem-itens"><i class="fas fa-box-open"></i><p>Você ainda não tem produtos. <a href="anunciar.html">Anunciar agora</a></p></div>';
                 return;
             }
-            
             container.innerHTML = '<div class="produtos-grid"></div>';
             var grid = container.querySelector('.produtos-grid');
-            
             for (var i = 0; i < meusProdutos.length; i++) {
                 var produto = meusProdutos[i];
                 var statusClass = '', statusText = '';
@@ -310,10 +300,8 @@
                 else if (produto.status === 'aguardando_vistoria') { statusClass = 'status-aguardando'; statusText = '⏳ Aguardando vistoria'; }
                 else if (produto.status === 'vendido') { statusClass = 'status-vendido'; statusText = '✅ Vendido'; }
                 else { statusClass = 'status-aguardando'; statusText = produto.status; }
-                
                 var fotos = produto.fotos || [];
                 var fotoPrincipal = fotos.length > 0 ? fotos[0] : null;
-                
                 var thumbnailsHtml = '';
                 if (fotos.length > 1) {
                     thumbnailsHtml = '<div class="produto-thumbnails" id="thumbnails-' + produto.id + '">';
@@ -322,7 +310,6 @@
                     }
                     thumbnailsHtml += '</div>';
                 }
-                
                 var card = document.createElement('div');
                 card.className = 'produto-card';
                 card.innerHTML = 
@@ -343,7 +330,6 @@
                         '</div>' +
                     '</div>';
                 grid.appendChild(card);
-                
                 if (fotos.length > 1) {
                     var thumbnails = document.querySelectorAll('#thumbnails-' + produto.id + ' .produto-thumbnail');
                     var principalDiv = document.getElementById('principal-' + produto.id);
@@ -393,7 +379,6 @@
             if (meusProdutos[i].id === produtoId) original = meusProdutos[i];
         }
         if (!original) return;
-        
         var novoProduto = {
             nome: original.nome + ' (cópia)',
             descricao: original.descricao,
@@ -403,7 +388,6 @@
             condicao: original.condicao || 'usado',
             quantidade: original.quantidade || 1
         };
-        
         try {
             var response = await fetch(API_URL + '/produtos?vendedor_id=' + VENDEDOR_ID, {
                 method: 'POST',
@@ -428,21 +412,14 @@
             var response = await fetch(API_URL + '/vendedor/' + VENDEDOR_ID + '/ofertas');
             var data = await response.json();
             todasOfertas = data.ofertas || [];
-            
-            // Atualiza contadores
             document.getElementById('total-ofertas').textContent = todasOfertas.length;
-            
             var pendentes = 0;
             for (var i = 0; i < todasOfertas.length; i++) {
-                if (todasOfertas[i].status === 'pendente') {
-                    pendentes++;
-                }
+                if (todasOfertas[i].status === 'pendente') pendentes++;
             }
             document.getElementById('ofertas-pendentes').textContent = pendentes;
-            
             renderizarOfertas();
         } catch (error) {
-            console.error('Erro:', error);
             document.getElementById('ofertas-container').innerHTML = '<div class="sem-itens">❌ Erro ao carregar ofertas</div>';
         }
     }
@@ -464,22 +441,18 @@
         } else {
             ofertasFiltradas = todasOfertas.slice();
         }
-        
         var container = document.getElementById('ofertas-container');
         if (ofertasFiltradas.length === 0) {
             container.innerHTML = '<div class="sem-itens"><i class="fas fa-inbox"></i><p>' + (tabAtual === 'pendentes' ? '🎉 Nenhuma oferta pendente!' : 'Nenhuma oferta encontrada.') + '</p></div>';
             return;
         }
-        
         container.innerHTML = '<div class="ofertas-grid"></div>';
         var grid = container.querySelector('.ofertas-grid');
-        
         for (var i = 0; i < ofertasFiltradas.length; i++) {
             var oferta = ofertasFiltradas[i];
             var diferenca = oferta.valor_pretendido - oferta.valor_ofertado;
             var comissao = oferta.valor_ofertado * 0.10;
             var valorLiquido = oferta.valor_ofertado - comissao;
-            
             var card = document.createElement('div');
             card.className = 'oferta-card';
             card.innerHTML = 
@@ -504,86 +477,41 @@
         }
     }
 
-    // ==================== FUNÇÃO PRINCIPAL: ACEITAR OFERTA COM PAGAMENTO ====================
+    // ==================== ACEITAR OFERTA (COM LINK DE PAGAMENTO) ====================
     function confirmarAceitar(ofertaId, valor) {
         var comissao = valor * 0.10;
         var liquido = valor - comissao;
-        
         if (confirm("⚠️ CONFIRMAR ACEITAÇÃO\n\nValor oferta: R$ " + valor.toFixed(2) + "\nComissão (10%): R$ " + comissao.toFixed(2) + "\nVocê receberá: R$ " + liquido.toFixed(2) + "\n\nEsta ação NÃO pode ser desfeita!")) {
-            
-            // ESCOLHA DO MÉTODO DE PAGAMENTO
-            var metodo = confirm("💳 COMO O COMPRADOR VAI PAGAR?\n\nClique em OK para PIX (mais rápido)\nClique em Cancelar para CARTÃO DE CRÉDITO (com parcelas)")
-                ? "pix" : "cartao";
-            
-            var parcelas = 1;
-            if (metodo === "cartao") {
-                var parcelasInput = prompt("📊 PARCELAMENTO\n\nQuantas parcelas? (1 a 12)", "1");
-                parcelas = Math.min(12, Math.max(1, parseInt(parcelasInput) || 1));
-            }
-            
-            // DESABILITA BOTÕES
             var btns = document.querySelectorAll('.btn-aceitar');
             for (var i = 0; i < btns.length; i++) {
                 btns[i].disabled = true;
-                btns[i].innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Gerando...';
+                btns[i].innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processando...';
             }
-            
-            // CHAMA A API PARA GERAR PAGAMENTO
-            fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=' + metodo + '&parcelas=' + parcelas, {
-                method: 'POST',
+            fetch(API_URL + '/ofertas/' + ofertaId + '/responder?acao=ACEITAÊ', {
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' }
             })
             .then(function(res) { return res.json(); })
             .then(function(data) {
-                if (data.erro) {
-                    if (data.erro === 'comprador_sem_cpf') {
-                        alert('⚠️ O comprador precisa cadastrar CPF antes de finalizar a compra.');
-                    } else {
-                        alert('❌ ' + (data.mensagem || 'Erro ao gerar pagamento'));
-                    }
-                    // REATIVA BOTÕES
-                    var btns2 = document.querySelectorAll('.btn-aceitar');
-                    for (var j = 0; j < btns2.length; j++) {
-                        btns2[j].disabled = false;
-                        btns2[j].innerHTML = '<i class="fas fa-gavel"></i> ACEITAÊ!';
-                    }
-                    return;
+                if (data.status === 'aceita' && data.link_pagamento) {
+                    alert("🎉 Venda confirmada!\n\n" + data.mensagem + "\n\n🔗 Link de pagamento do comprador:\n" + data.link_pagamento);
+                    navigator.clipboard.writeText(data.link_pagamento).then(function() {
+                        alert("📋 Link copiado para sua área de transferência! Envie para o comprador.");
+                    }).catch(function() {
+                        alert("📋 Copie o link manualmente: " + data.link_pagamento);
+                    });
+                } else {
+                    alert(data.mensagem);
                 }
-                
-                if (data.sucesso && data.metodo === 'pix') {
-                    var pixMsg = 
-                        '✅ PIX GERADO!\n\n' +
-                        '💰 Valor: R$ ' + data.valor.toFixed(2) + '\n' +
-                        '📅 Vence em: ' + data.vencimento + '\n\n' +
-                        '📱 COPIE O CÓDIGO PIX:\n' + data.pix_payload + '\n\n' +
-                        '🖼️ QR Code aberto em nova aba.';
-                    
-                    alert(pixMsg);
-                    if (data.pix_qr_code) window.open(data.pix_qr_code, '_blank');
-                    
-                } else if (data.sucesso && data.metodo === 'cartao') {
-                    var cartaoMsg = 
-                        '💳 CARTÃO DE CRÉDITO\n\n' +
-                        '💰 Valor: R$ ' + data.valor.toFixed(2) + '\n' +
-                        '📅 Parcelas: ' + data.parcelas + 'x de R$ ' + (data.valor / data.parcelas).toFixed(2) + '\n' +
-                        '📅 Vence em: ' + data.vencimento + '\n\n' +
-                        '🔗 Link de pagamento:\n' + data.checkout_url + '\n\n' +
-                        '📋 Copie e envie para o comprador.';
-                    
-                    alert(cartaoMsg);
-                    if (data.checkout_url) window.open(data.checkout_url, '_blank');
-                }
-                
-                // RECARREGA DADOS
                 carregarOfertas();
                 carregarMeusProdutos();
             })
             .catch(function(error) {
                 alert('❌ Erro ao processar: ' + error.message);
-                var btns3 = document.querySelectorAll('.btn-aceitar');
-                for (var k = 0; k < btns3.length; k++) {
-                    btns3[k].disabled = false;
-                    btns3[k].innerHTML = '<i class="fas fa-gavel"></i> ACEITAÊ!';
+                var btns2 = document.querySelectorAll('.btn-aceitar');
+                for (var j = 0; j < btns2.length; j++) {
+                    btns2[j].disabled = false;
+                    btns2[j].innerHTML = '<i class="fas fa-gavel"></i> ACEITAÊ!';
                 }
             });
         }
@@ -632,7 +560,6 @@
         });
     }
 
-    // ==================== INICIALIZAÇÃO ====================
     atualizarHeader();
     carregarMeusProdutos();
     carregarOfertas();
