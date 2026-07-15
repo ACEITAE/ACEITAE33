@@ -15,11 +15,13 @@ import json
 
 app = FastAPI(title="ACEITAÊ API", version="3.0.0")
 
-# CORS
+# ==================================================
+# CORS - Configuração completa
+# ==================================================
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "*",  # Permite todas as origens (em produção, coloque os domínios específicos)
+        "*",
         "https://www.aceitae.com",
         "https://aceitae.com",
         "http://localhost:3000",
@@ -31,10 +33,10 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
-# ==================================================
-# VARIÁVEIS DE AMBIENTE
-# ==================================================
 
+# ==================================================
+# VARIÁVEIS DE AMBIENTE (ASAAS)
+# ==================================================
 ASAAS_ENV = os.getenv("ASAAS_ENV", "sandbox")
 ASAAS_API_KEY_SANDBOX = os.getenv("ASAAS_API_KEY_sandbox")
 ASAAS_API_KEY_PROD = os.getenv("ASAAS_API_KEY_prod")
@@ -58,7 +60,6 @@ ASAAS_HEADERS = {
 # ==================================================
 # MODELOS
 # ==================================================
-
 class Usuario(BaseModel):
     nome: str
     email: str
@@ -98,7 +99,6 @@ class Oferta(BaseModel):
 # ==================================================
 # FUNÇÕES AUXILIARES
 # ==================================================
-
 def gerar_token(user_id: int, email: str):
     token_data = f"{user_id}:{email}:{time.time()}"
     return hashlib.sha256(token_data.encode()).hexdigest()
@@ -134,7 +134,7 @@ Valor pretendido: R$ {valor_pretendido:.2f}
 • Você receberá: R$ {valor_liquido:.2f}
 
 🔗 *Para ACEITAR ou RECUSAR, acesse:*
-https://aceitae.com.br/vendedor.html
+https://aceitae.com/vendedor.html
 
 ⚠️ Oferta condicionada à sua aceitação. Você tem 48h para decidir."""
     return mensagem
@@ -142,9 +142,7 @@ https://aceitae.com.br/vendedor.html
 # ==================================================
 # FUNÇÕES ASAAS
 # ==================================================
-
 def criar_cliente_asaas(nome, email, cpf_cnpj, telefone=None):
-    """Cria um cliente no Asaas"""
     url = f"{ASAAS_URL}/customers"
     payload = {
         "name": nome,
@@ -161,7 +159,6 @@ def criar_cliente_asaas(nome, email, cpf_cnpj, telefone=None):
         return None
 
 def criar_cobranca_pix_asaas(customer_id, valor, descricao, data_vencimento):
-    """Cria uma cobrança PIX no Asaas"""
     url = f"{ASAAS_URL}/payments"
     payload = {
         "customer": customer_id,
@@ -178,7 +175,6 @@ def criar_cobranca_pix_asaas(customer_id, valor, descricao, data_vencimento):
         return None
 
 def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_vencimento=None):
-    """Cria uma cobrança com cartão de crédito no Asaas (1 a 12 parcelas)"""
     url = f"{ASAAS_URL}/payments"
     payload = {
         "customer": customer_id,
@@ -190,7 +186,6 @@ def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_
     }
     if data_vencimento:
         payload["dueDate"] = data_vencimento
-    
     try:
         response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
         return response.json()
@@ -201,7 +196,6 @@ def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_
 # ==================================================
 # ROTAS DE USUÁRIO
 # ==================================================
-
 @app.post("/cadastrar")
 def cadastrar(user: Usuario):
     existing = supabase.table("usuarios").select("*").eq("email", user.email).execute()
@@ -223,7 +217,6 @@ def cadastrar(user: Usuario):
     
     result = supabase.table("usuarios").insert(usuario_data).execute()
     
-    # Se for vendedor, cria conta no Asaas
     if user.tipo in ['vendedor', 'ambos'] and user.cpf:
         asaas_cliente = criar_cliente_asaas(user.nome, user.email, user.cpf, user.telefone)
         if asaas_cliente:
@@ -265,16 +258,13 @@ def verificar_admin(usuario_id: int):
 # ==================================================
 # ROTAS DE PRODUTO
 # ==================================================
-
 @app.post("/produtos")
 def criar_produto(produto: Produto, vendedor_id: int):
     try:
-        # Verifica se o vendedor existe
         vendedor = supabase.table("usuarios").select("*").eq("id", vendedor_id).execute()
         if not vendedor.data:
             raise HTTPException(404, "Vendedor não encontrado")
         
-        # Verifica se o vendedor pode anunciar
         if vendedor.data[0]["tipo"] not in ["vendedor", "ambos"]:
             raise HTTPException(403, "Usuário não tem permissão para anunciar")
         
@@ -357,10 +347,68 @@ def excluir_produto(produto_id: int):
     supabase.table("ofertas").delete().eq("produto_id", produto_id).execute()
     supabase.table("produtos").delete().eq("id", produto_id).execute()
     return {"mensagem": "Produto excluído com sucesso!"}
+
+# ==================================================
+# FUNÇÃO AUXILIAR: GERAR PAGAMENTO AUTOMÁTICO
+# ==================================================
+def gerar_pagamento_automatico(comprador_id, produto_id, valor, oferta_id):
+    """Gera pagamento PIX automaticamente para venda automática"""
+    try:
+        comprador = supabase.table("usuarios").select("*").eq("id", comprador_id).execute()
+        if not comprador.data or not comprador.data[0].get("cpf"):
+            return None
+        
+        comprador = comprador.data[0]
+        
+        produto = supabase.table("produtos").select("nome").eq("id", produto_id).execute()
+        if not produto.data:
+            return None
+        produto = produto.data[0]
+        
+        if comprador.get("asaas_customer_id"):
+            customer_id = comprador["asaas_customer_id"]
+        else:
+            cliente = criar_cliente_asaas(
+                comprador["nome"],
+                comprador["email"],
+                comprador["cpf"],
+                comprador.get("telefone")
+            )
+            if cliente and cliente.get("id"):
+                customer_id = cliente["id"]
+                supabase.table("usuarios").update({
+                    "asaas_customer_id": customer_id
+                }).eq("id", comprador_id).execute()
+            else:
+                return None
+        
+        data_vencimento = (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
+        descricao = f"ACEITAÊ - {produto['nome']}"
+        cobranca = criar_cobranca_pix_asaas(customer_id, valor, descricao, data_vencimento)
+        
+        if not cobranca or not cobranca.get("id"):
+            return None
+        
+        link_pagamento = f"https://aceitae.com/pagamento.html?oferta={oferta_id}"
+        
+        supabase.table("ofertas").update({
+            "asaas_payment_id": cobranca.get("id"),
+            "asaas_pix_qr_code": cobranca.get("pixQrCode"),
+            "asaas_pix_payload": cobranca.get("pixPayload"),
+            "asaas_tipo_pagamento": "pix",
+            "link_pagamento": link_pagamento,
+            "status": "aguardando_pagamento"
+        }).eq("id", oferta_id).execute()
+        
+        return link_pagamento
+        
+    except Exception as e:
+        print(f"❌ Erro ao gerar pagamento automático: {e}")
+        return None
+
 # ==================================================
 # ROTAS DE OFERTA
 # ==================================================
-
 @app.post("/ofertas")
 def fazer_oferta(oferta: Oferta, comprador_id: int, comprador_nome: str):
     produto = supabase.table("produtos").select("*").eq("id", oferta.produto_id).execute()
@@ -406,31 +454,46 @@ def fazer_oferta(oferta: Oferta, comprador_id: int, comprador_nome: str):
     result = supabase.table("ofertas").insert(nova_oferta).execute()
     oferta_id = result.data[0]["id"]
     
-    # Notificação WhatsApp
-    link_whatsapp = None
-    vendedor_info = supabase.table("usuarios").select("whatsapp, nome").eq("id", produto["vendedor_id"]).execute()
+    link_pagamento = None
+    if status_oferta == "venda_automatica":
+        link_pagamento = gerar_pagamento_automatico(comprador_id, oferta.produto_id, valor_oferta, oferta_id)
+        if link_pagamento:
+            # Atualiza a oferta com o link
+            supabase.table("ofertas").update({
+                "link_pagamento": link_pagamento
+            }).eq("id", oferta_id).execute()
+            
+            # Envia notificação para o comprador via WhatsApp
+            comprador = supabase.table("usuarios").select("whatsapp").eq("id", comprador_id).execute()
+            if comprador.data and comprador.data[0].get("whatsapp"):
+                telefone = comprador.data[0]["whatsapp"]
+                msg = f"🎉 Venda automática! Pague seu produto: {link_pagamento}"
+                gerar_link_whatsapp(telefone, msg)
     
-    if vendedor_info.data and vendedor_info.data[0].get("whatsapp"):
-        telefone = vendedor_info.data[0]["whatsapp"]
-        mensagem_whatsapp = gerar_mensagem_oferta(
-            produto_nome=produto["nome"],
-            valor_ofertado=valor_oferta,
-            comprador_nome=comprador_nome,
-            valor_pretendido=valor_pretendido
-        )
-        link_whatsapp = gerar_link_whatsapp(telefone, mensagem_whatsapp)
-        print(f"🔗 Link WhatsApp: {link_whatsapp}")
+    link_whatsapp = None
+    if status_oferta == "pendente":
+        vendedor_info = supabase.table("usuarios").select("whatsapp, nome").eq("id", produto["vendedor_id"]).execute()
+        if vendedor_info.data and vendedor_info.data[0].get("whatsapp"):
+            telefone = vendedor_info.data[0]["whatsapp"]
+            mensagem_whatsapp = gerar_mensagem_oferta(
+                produto_nome=produto["nome"],
+                valor_ofertado=valor_oferta,
+                comprador_nome=comprador_nome,
+                valor_pretendido=valor_pretendido
+            )
+            link_whatsapp = gerar_link_whatsapp(telefone, mensagem_whatsapp)
+            print(f"🔗 Link WhatsApp: {link_whatsapp}")
     
     return {
         "mensagem": mensagem,
         "oferta_id": oferta_id,
         "status": status_oferta,
+        "link_pagamento": link_pagamento,
         "notificationLink": link_whatsapp
     }
 
 @app.get("/ofertas")
 def listar_ofertas_comprador(comprador_id: int):
-    """Lista todas as ofertas de um comprador"""
     result = supabase.table("ofertas").select("*").eq("comprador_id", comprador_id).execute()
     
     ofertas = []
@@ -448,7 +511,8 @@ def listar_ofertas_comprador(comprador_id: int):
             "vendedor_nome": vendedor_nome,
             "valor": oferta["valor"],
             "status": oferta["status"],
-            "criado_em": oferta["criado_em"]
+            "criado_em": oferta["criado_em"],
+            "link_pagamento": oferta.get("link_pagamento")
         })
     
     return {"ofertas": ofertas}
@@ -471,8 +535,20 @@ def responder_oferta(oferta_id: int, acao: str):
     if acao.upper() == "ACEITAÊ":
         supabase.table("ofertas").update({"status": "aceita"}).eq("id", oferta_id).execute()
         supabase.table("produtos").update({"status": "vendido"}).eq("id", oferta["produto_id"]).execute()
+        
+        # Gera pagamento após vendedor aceitar
+        link_pagamento = gerar_pagamento_automatico(
+            oferta["comprador_id"], 
+            oferta["produto_id"], 
+            valor_oferta, 
+            oferta_id
+        )
+        
         mensagem = f"🎉 ACEITAÊ! Venda confirmada!\nValor: R$ {valor_oferta:.2f}\nComissão (10%): R$ {comissao:.2f}\nVocê receberá: R$ {valor_liquido:.2f}"
-        return {"mensagem": mensagem, "status": "aceita"}
+        if link_pagamento:
+            mensagem += f"\n🔗 Link para pagamento: {link_pagamento}"
+        
+        return {"mensagem": mensagem, "status": "aceita", "link_pagamento": link_pagamento}
     elif acao.upper() == "RECUSAR":
         supabase.table("ofertas").update({"status": "recusada"}).eq("id", oferta_id).execute()
         return {"mensagem": "❌ Oferta recusada", "status": "recusada"}
@@ -507,41 +583,30 @@ def listar_ofertas_vendedor(vendedor_id: int):
 # ==================================================
 # ROTA: GERAR PAGAMENTO (PIX ou CARTÃO)
 # ==================================================
-
 @app.post("/ofertas/{oferta_id}/gerar-pagamento")
 def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 1):
-    """
-    Gera pagamento PIX ou Cartão de Crédito para o comprador
-    metodo: "pix" ou "cartao"
-    parcelas: 1 a 12 (para cartão)
-    """
     try:
-        # Busca a oferta
         oferta = supabase.table("ofertas").select("*").eq("id", oferta_id).execute()
         if not oferta.data:
             raise HTTPException(404, "Oferta não encontrada")
         oferta = oferta.data[0]
         
-        # Busca o comprador
         comprador = supabase.table("usuarios").select("*").eq("id", oferta["comprador_id"]).execute()
         if not comprador.data:
             raise HTTPException(404, "Comprador não encontrado")
         comprador = comprador.data[0]
         
-        # Busca o produto
         produto = supabase.table("produtos").select("*").eq("id", oferta["produto_id"]).execute()
         if not produto.data:
             raise HTTPException(404, "Produto não encontrado")
         produto = produto.data[0]
         
-        # Verifica CPF
         if not comprador.get("cpf"):
             return {
                 "erro": "comprador_sem_cpf",
                 "mensagem": "O comprador precisa ter CPF cadastrado para gerar o pagamento."
             }
         
-        # Cria ou busca cliente do comprador no Asaas
         if comprador.get("asaas_customer_id"):
             customer_id = comprador["asaas_customer_id"]
         else:
@@ -562,20 +627,13 @@ def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 
         valor = oferta["valor"]
         descricao = f"ACEITAÊ - {produto['nome']}"
         data_vencimento = (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
-        
         link_pagamento = f"https://aceitae.com/pagamento.html?oferta={oferta_id}"
-        
-        # ============================================
-        # ESCOLHE O MÉTODO DE PAGAMENTO
-        # ============================================
         
         if metodo.lower() == "pix":
             cobranca = criar_cobranca_pix_asaas(customer_id, valor, descricao, data_vencimento)
-            
             if not cobranca or not cobranca.get("id"):
                 return {"erro": "erro_cobranca", "mensagem": "Erro ao criar cobrança PIX no Asaas"}
             
-            # Salva os dados do PIX
             supabase.table("ofertas").update({
                 "asaas_payment_id": cobranca.get("id"),
                 "asaas_pix_qr_code": cobranca.get("pixQrCode"),
@@ -601,11 +659,9 @@ def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 
                 parcelas = 1
             
             cobranca = criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas, data_vencimento)
-            
             if not cobranca or not cobranca.get("id"):
                 return {"erro": "erro_cobranca", "mensagem": "Erro ao criar cobrança com cartão no Asaas"}
             
-            # Salva os dados do cartão
             supabase.table("ofertas").update({
                 "asaas_payment_id": cobranca.get("id"),
                 "asaas_tipo_pagamento": "cartao",
@@ -632,12 +688,10 @@ def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 
         raise HTTPException(500, str(e))
 
 # ==================================================
-# WEBHOOK ASAAS (CONFIRMA PAGAMENTO)
+# WEBHOOK ASAAS
 # ==================================================
-
 @app.post("/webhook-asaas")
 async def webhook_asaas(request: Request):
-    """Recebe notificações do Asaas quando um pagamento é confirmado"""
     try:
         data = await request.json()
         evento = data.get("event")
@@ -664,7 +718,6 @@ async def webhook_asaas(request: Request):
 # ==================================================
 # UPLOAD DE FOTOS
 # ==================================================
-
 @app.post("/upload-foto")
 async def upload_foto(arquivo: UploadFile = File(...)):
     try:
@@ -702,7 +755,6 @@ async def upload_foto(arquivo: UploadFile = File(...)):
 # ==================================================
 # ADMIN
 # ==================================================
-
 @app.get("/admin/produtos/pendentes")
 def listar_produtos_pendentes():
     result = supabase.table("produtos").select("*").eq("status", "aguardando_vistoria").execute()
@@ -725,7 +777,6 @@ def admin_reprovar_produto(produto_id: int):
 # ==================================================
 # ROTAS BÁSICAS
 # ==================================================
-
 @app.get("/")
 def root():
     return {"mensagem": "ACEITAÊ está no ar!"}
