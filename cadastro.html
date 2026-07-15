@@ -8,7 +8,7 @@
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#1A237E 0%,#00C853 100%);display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px}
-        .card{background:white;padding:40px;border-radius:24px;width:100%;max-width:480px;box-shadow:0 20px 40px rgba(0,0,0,0.2);text-align:center}
+        .card{background:#fff;padding:40px;border-radius:24px;width:100%;max-width:480px;box-shadow:0 20px 40px rgba(0,0,0,0.2);text-align:center}
         .logo h1{font-size:28px;color:#1A237E}
         .logo h1 span{color:#00C853}
         .logo p{color:#666;font-size:12px;margin-top:4px}
@@ -18,7 +18,7 @@
         .form-group input,.form-group select{width:100%;padding:12px 16px;border-radius:12px;border:1px solid #ddd;font-size:14px;transition:all .3s;outline:none}
         .form-group input:focus,.form-group select:focus{border-color:#00C853;box-shadow:0 0 0 3px rgba(0,200,83,0.1)}
         .form-group small{color:#999;font-size:11px;display:block;margin-top:4px}
-        button{width:100%;padding:12px;border-radius:40px;border:none;background:#00C853;color:white;font-weight:bold;font-size:16px;cursor:pointer;transition:all .3s}
+        button{width:100%;padding:12px;border-radius:40px;border:none;background:#00C853;color:#fff;font-weight:bold;font-size:16px;cursor:pointer;transition:all .3s}
         button:hover{background:#00A844;transform:scale(1.02)}
         .link-login{margin-top:20px;font-size:13px;color:#666}
         .link-login a{color:#00C853;text-decoration:none;font-weight:bold}
@@ -36,13 +36,11 @@
         <p>Faça a oferta. Torça pelo ACEITAÊ!</p>
     </div>
     <h2>Criar minha conta</h2>
-
     <form id="formCadastro">
         <div class="form-group">
             <label><i class="fas fa-user"></i> Nome completo *</label>
             <input type="text" id="nome" placeholder="Seu nome completo" required>
         </div>
-
         <div class="row-2">
             <div class="form-group">
                 <label><i class="fas fa-envelope"></i> E-mail *</label>
@@ -53,7 +51,6 @@
                 <input type="tel" id="telefone" placeholder="(11) 99999-9999" required>
             </div>
         </div>
-
         <div class="row-2">
             <div class="form-group">
                 <label><i class="fas fa-id-card"></i> CPF *</label>
@@ -69,26 +66,21 @@
                 </select>
             </div>
         </div>
-
         <div class="form-group">
             <label><i class="fas fa-whatsapp"></i> WhatsApp (opcional)</label>
             <input type="tel" id="whatsapp" placeholder="(11) 99999-9999">
             <small>Para receber notificações de ofertas</small>
         </div>
-
         <div class="form-group">
             <label><i class="fas fa-lock"></i> Senha *</label>
             <input type="password" id="senha" placeholder="Mínimo 6 caracteres" minlength="6" required>
         </div>
-
         <div class="form-group">
             <label><i class="fas fa-lock"></i> Confirmar senha *</label>
             <input type="password" id="confirmar_senha" placeholder="Digite a senha novamente" required>
         </div>
-
         <button type="submit"><i class="fas fa-user-plus"></i> Criar conta</button>
     </form>
-
     <div id="mensagem"></div>
     <div class="link-login">Já tem uma conta? <a href="login.html">Entrar</a></div>
     <div class="info"><i class="fas fa-shield-alt"></i> Seus dados estão seguros</div>
@@ -99,7 +91,6 @@
 
     document.getElementById('formCadastro').addEventListener('submit', function(e) {
         e.preventDefault();
-
         var nome = document.getElementById('nome').value.trim();
         var email = document.getElementById('email').value.trim();
         var telefone = document.getElementById('telefone').value.trim();
@@ -114,22 +105,11 @@
             msgDiv.innerHTML = '<div class="error">⚠️ Preencha todos os campos obrigatórios!</div>';
             return;
         }
-
-        if (senha.length < 6) {
-            msgDiv.innerHTML = '<div class="error">⚠️ A senha deve ter pelo menos 6 caracteres!</div>';
-            return;
-        }
-
-        if (senha !== confirmarSenha) {
-            msgDiv.innerHTML = '<div class="error">⚠️ As senhas não coincidem!</div>';
-            return;
-        }
+        if (senha.length < 6) { msgDiv.innerHTML = '<div class="error">⚠️ A senha deve ter pelo menos 6 caracteres!</div>'; return; }
+        if (senha !== confirmarSenha) { msgDiv.innerHTML = '<div class="error">⚠️ As senhas não coincidem!</div>'; return; }
 
         var cpfLimpo = cpf.replace(/\D/g, '');
-        if (cpfLimpo.length !== 11) {
-            msgDiv.innerHTML = '<div class="error">⚠️ Digite um CPF válido com 11 dígitos!</div>';
-            return;
-        }
+        if (cpfLimpo.length !== 11) { msgDiv.innerHTML = '<div class="error">⚠️ Digite um CPF válido com 11 dígitos!</div>'; return; }
 
         var btn = document.querySelector('button');
         btn.disabled = true;
@@ -148,11 +128,7 @@
                 senha: senha
             })
         })
-        .then(function(response) {
-            return response.json().then(function(data) {
-                return { status: response.status, data: data };
-            });
-        })
+        .then(function(response) { return response.json().then(function(data) { return { status: response.status, data: data }; }); })
         .then(function(result) {
             if (result.status === 200) {
                 msgDiv.innerHTML = '<div class="success">✅ Cadastro realizado com sucesso! Redirecionando...</div>';
@@ -172,51 +148,33 @@
         });
     });
 
-    // Máscara para CPF
     document.getElementById('cpf').addEventListener('input', function(e) {
         var value = this.value.replace(/\D/g, '');
         if (value.length <= 11) {
-            if (value.length > 9) {
-                this.value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-            } else if (value.length > 6) {
-                this.value = value.replace(/(\d{3})(\d{3})(\d{3})/, '$1.$2.$3');
-            } else if (value.length > 3) {
-                this.value = value.replace(/(\d{3})(\d{3})/, '$1.$2');
-            } else {
-                this.value = value;
-            }
+            if (value.length > 9) this.value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            else if (value.length > 6) this.value = value.replace(/(\d{3})(\d{3})(\d{3})/, '$1.$2.$3');
+            else if (value.length > 3) this.value = value.replace(/(\d{3})(\d{3})/, '$1.$2');
+            else this.value = value;
         }
     });
 
-    // Máscara para telefone
     document.getElementById('telefone').addEventListener('input', function(e) {
         var value = this.value.replace(/\D/g, '');
         if (value.length <= 11) {
-            if (value.length > 10) {
-                this.value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-            } else if (value.length > 6) {
-                this.value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
-            } else if (value.length > 2) {
-                this.value = value.replace(/(\d{2})(\d{4})/, '($1) $2');
-            } else {
-                this.value = value;
-            }
+            if (value.length > 10) this.value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            else if (value.length > 6) this.value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+            else if (value.length > 2) this.value = value.replace(/(\d{2})(\d{4})/, '($1) $2');
+            else this.value = value;
         }
     });
 
-    // Máscara para WhatsApp
     document.getElementById('whatsapp').addEventListener('input', function(e) {
         var value = this.value.replace(/\D/g, '');
         if (value.length <= 11) {
-            if (value.length > 10) {
-                this.value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-            } else if (value.length > 6) {
-                this.value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
-            } else if (value.length > 2) {
-                this.value = value.replace(/(\d{2})(\d{4})/, '($1) $2');
-            } else {
-                this.value = value;
-            }
+            if (value.length > 10) this.value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            else if (value.length > 6) this.value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+            else if (value.length > 2) this.value = value.replace(/(\d{2})(\d{4})/, '($1) $2');
+            else this.value = value;
         }
     });
 </script>
