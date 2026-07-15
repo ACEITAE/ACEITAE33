@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>ACEITAÊ - Pagamento</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f7fa;min-height:100vh}
+        .header{background:#1A237E;padding:16px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+        .header .logo{color:#fff;font-size:20px;font-weight:bold}
+        .header .logo span{color:#00C853}
+        .header a{color:#fff;text-decoration:none;font-size:14px;margin-left:auto}
+        .container{max-width:800px;margin:30px auto;padding:0 16px}
+        .card{background:#fff;border-radius:20px;padding:32px;box-shadow:0 4px 20px rgba(0,0,0,0.08)}
+        .card h1{font-size:24px;color:#1A237E;margin-bottom:8px}
+        .card .subtitle{color:#666;font-size:14px;margin-bottom:24px}
+        .status-badge{padding:8px 16px;border-radius:30px;font-size:13px;font-weight:bold;display:inline-block}
+        .status-pendente{background:#fff8e1;color:#f57f17}
+        .status-pago{background:#e8f5e9;color:#2e7d32}
+        .status-falha{background:#ffebee;color:#c62828}
+        .produto-info{display:flex;gap:20px;padding:16px;background:#f9f9f9;border-radius:16px;margin:20px 0}
+        .produto-info img{width:100px;height:100px;object-fit:contain;background:#fff;border-radius:12px}
+        .produto-info .detalhes h3{font-size:16px;color:#1A237E}
+        .produto-info .detalhes p{color:#666;font-size:13px;margin-top:4px}
+        .valores{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #eee}
+        .valores .label{color:#666;font-size:14px}
+        .valores .value{font-weight:bold;font-size:16px;color:#1A237E}
+        .valores.total{border-bottom:none;padding-top:16px}
+        .valores.total .value{font-size:24px;color:#00C853}
+        .metodo-pagamento{display:flex;gap:12px;margin:24px 0;flex-wrap:wrap}
+        .metodo-btn{flex:1;padding:16px;border:2px solid #ddd;border-radius:16px;text-align:center;cursor:pointer;transition:all .3s;background:#fff;min-width:120px}
+        .metodo-btn:hover{border-color:#00C853}
+        .metodo-btn.active{border-color:#00C853;background:#e8f5e9}
+        .metodo-btn i{font-size:28px;display:block;margin-bottom:8px}
+        .metodo-btn .icon-pix{color:#00C853}
+        .metodo-btn .icon-cartao{color:#1A237E}
+        .pix-area{background:#f9f9f9;padding:20px;border-radius:16px;text-align:center;margin:20px 0}
+        .pix-area .qr-code{max-width:200px;margin:16px auto;display:block}
+        .pix-area .codigo-pix{background:#fff;padding:12px;border-radius:8px;font-size:14px;word-break:break-all;border:1px solid #ddd;cursor:pointer}
+        .pix-area .codigo-pix:hover{background:#f0f0f0}
+        .pix-area .copiado{color:#00C853;font-weight:bold;margin-top:8px;display:none}
+        .cartao-area{display:none}
+        .cartao-area input{width:100%;padding:12px;border:1px solid #ddd;border-radius:12px;font-size:14px;margin-bottom:12px;outline:none}
+        .cartao-area input:focus{border-color:#00C853}
+        .cartao-area .row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .btn-pagar{width:100%;padding:16px;background:#00C853;color:#fff;border:none;border-radius:40px;font-size:18px;font-weight:bold;cursor:pointer;transition:all .3s}
+        .btn-pagar:hover{background:#00A844;transform:scale(1.02)}
+        .btn-pagar:disabled{opacity:.6;cursor:not-allowed}
+        .loading{text-align:center;padding:40px;color:#999}
+        .loading i{font-size:40px;margin-bottom:16px}
+        @media (max-width:640px){.produto-info{flex-direction:column;align-items:center;text-align:center}.metodo-btn{flex:1 1 100%}}
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo">ACEIT<span>AÊ</span></div>
+    <a href="index.html"><i class="fas fa-arrow-left"></i> Voltar à loja</a>
+</div>
+
+<div class="container">
+    <div class="card" id="pagamentoContainer">
+        <div class="loading"><i class="fas fa-spinner fa-pulse"></i><br>Carregando...</div>
+    </div>
+</div>
+
+<script>
+    var API_URL = 'https://aceitae33-api.onrender.com';
+    var usuarioId = localStorage.getItem('usuario_id');
+    var usuarioNome = localStorage.getItem('usuario_nome');
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var ofertaId = urlParams.get('oferta');
+
+    async function carregarPagamento() {
+        if (!ofertaId) {
+            document.getElementById('pagamentoContainer').innerHTML = '<div style="text-align:center;padding:40px;"><i class="fas fa-exclamation-triangle" style="font-size:48px;color:#c62828;"></i><p style="margin-top:16px;font-size:18px;">Oferta não encontrada</p><a href="index.html" style="color:#00C853;">Voltar para loja</a></div>';
+            return;
+        }
+        try {
+            var response = await fetch(API_URL + '/ofertas/' + ofertaId);
+            var data = await response.json();
+            if (!data || !data.id) throw new Error('Oferta não encontrada');
+            renderizarPagamento(data);
+        } catch (error) {
+            document.getElementById('pagamentoContainer').innerHTML = '<div style="text-align:center;padding:40px;"><i class="fas fa-exclamation-triangle" style="font-size:48px;color:#c62828;"></i><p style="margin-top:16px;font-size:18px;">Erro ao carregar pagamento</p><p style="color:#666;">' + error.message + '</p><a href="index.html" style="color:#00C853;">Voltar para loja</a></div>';
+        }
+    }
+
+    function renderizarPagamento(oferta) {
+        var container = document.getElementById('pagamentoContainer');
+        var statusText = '';
+        var statusClass = '';
+        if (oferta.status === 'pendente') { statusText = '⏳ Aguardando pagamento'; statusClass = 'status-pendente'; }
+        else if (oferta.status === 'pago') { statusText = '✅ Pagamento confirmado'; statusClass = 'status-pago'; }
+        else { statusText = '❌ ' + oferta.status; statusClass = 'status-falha'; }
+        var parcelas = oferta.parcelas || 1;
+        var valorParcela = oferta.valor / parcelas;
+        var foto = oferta.foto || '';
+        container.innerHTML = 
+            '<h1>🧾 Pagamento</h1>' +
+            '<p class="subtitle">Confira os dados e escolha como pagar</p>' +
+            '<div class="status-badge ' + statusClass + '">' + statusText + '</div>' +
+            '<div class="produto-info">' +
+                (foto ? '<img src="' + foto + '" alt="' + oferta.produto_nome + '">' : '<div style="width:100px;height:100px;background:#f0f0f0;border-radius:12px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-box" style="font-size:40px;color:#ccc;"></i></div>') +
+                '<div class="detalhes">' +
+                    '<h3>' + escapeHtml(oferta.produto_nome) + '</h3>' +
+                    '<p>Vendedor: ' + escapeHtml(oferta.vendedor_nome || 'ACEITAÊ') + '</p>' +
+                    '<p style="margin-top:8px;">📦 ' + (oferta.quantidade || 1) + ' unidade(s)</p>' +
+                '</div>' +
+            '</div>' +
+            '<div class="valores"><span class="label">Valor da oferta</span><span class="value">R$ ' + oferta.valor.toFixed(2) + '</span></div>' +
+            '<div class="valores"><span class="label">Parcelas</span><span class="value">' + parcelas + 'x de R$ ' + valorParcela.toFixed(2) + '</span></div>' +
+            '<div class="valores total"><span class="label">Total a pagar</span><span class="value">R$ ' + oferta.valor.toFixed(2) + '</span></div>' +
+            '<div style="margin:24px 0 12px;"><p style="font-weight:bold;color:#1A237E;margin-bottom:12px;">Escolha como pagar</p>' +
+            '<div class="metodo-pagamento">' +
+                '<div class="metodo-btn active" data-metodo="pix" onclick="selecionarMetodo(\'pix\')"><i class="fas fa-qrcode icon-pix"></i><span>PIX</span><div style="font-size:11px;color:#666;">Pagamento instantâneo</div></div>' +
+                '<div class="metodo-btn" data-metodo="cartao" onclick="selecionarMetodo(\'cartao\')"><i class="fas fa-credit-card icon-cartao"></i><span>Cartão de Crédito</span><div style="font-size:11px;color:#666;">Parcelamento</div></div>' +
+            '</div></div>' +
+            '<div id="pixArea" class="pix-area"><p><i class="fas fa-qrcode" style="font-size:24px;color:#00C853;"></i></p><p style="font-weight:bold;">Pague com PIX</p><p style="font-size:13px;color:#666;">Escaneie o QR Code ou copie o código</p><div id="qrCodeContainer"><button class="btn-pagar" onclick="gerarPagamentoPIX(' + oferta.id + ')"><i class="fas fa-qrcode"></i> Gerar PIX</button></div><div id="pixDados" style="display:none;margin-top:16px;"><div class="codigo-pix" onclick="copiarPIX()" id="pixCodigo">Carregando...</div><div id="pixCopiado" class="copiado">✅ Código copiado!</div></div></div>' +
+            '<div id="cartaoArea" class="cartao-area"><p style="font-weight:bold;margin-bottom:12px;">Preencha os dados do cartão</p><input type="text" placeholder="Número do cartão" id="cartaoNumero"><input type="text" placeholder="Nome no cartão" id="cartaoNome"><div class="row-2"><input type="text" placeholder="Validade (MM/AA)" id="cartaoValidade"><input type="text" placeholder="CVV" id="cartaoCvv"></div><button class="btn-pagar" onclick="processarPagamentoCartao(' + oferta.id + ')"><i class="fas fa-credit-card"></i> Pagar com Cartão</button></div>';
+        if (oferta.pix_payload && oferta.pix_qr_code) {
+            document.getElementById('qrCodeContainer').style.display = 'none';
+            document.getElementById('pixDados').style.display = 'block';
+            document.getElementById('pixCodigo').textContent = oferta.pix_payload;
+            if (oferta.pix_qr_code) document.getElementById('pixDados').innerHTML += '<img src="' + oferta.pix_qr_code + '" class="qr-code">';
+        }
+    }
+
+    function selecionarMetodo(metodo) {
+        var btns = document.querySelectorAll('.metodo-btn');
+        btns.forEach(function(b) { b.classList.remove('active'); });
+        document.querySelector('.metodo-btn[data-metodo="' + metodo + '"]').classList.add('active');
+        if (metodo === 'pix') { document.getElementById('pixArea').style.display = 'block'; document.getElementById('cartaoArea').style.display = 'none'; }
+        else { document.getElementById('pixArea').style.display = 'none'; document.getElementById('cartaoArea').style.display = 'block'; }
+    }
+
+    async function gerarPagamentoPIX(ofertaId) {
+        var btn = document.querySelector('#qrCodeContainer .btn-pagar');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Gerando...';
+        try {
+            var response = await fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=pix', { method: 'POST' });
+            var data = await response.json();
+            if (data.sucesso) {
+                document.getElementById('qrCodeContainer').style.display = 'none';
+                document.getElementById('pixDados').style.display = 'block';
+                document.getElementById('pixCodigo').textContent = data.pix_payload;
+                if (data.pix_qr_code) {
+                    var qrContainer = document.getElementById('pixDados');
+                    qrContainer.innerHTML += '<img src="' + data.pix_qr_code + '" class="qr-code">';
+                }
+                alert('✅ PIX gerado! Copie o código e pague no seu banco.');
+            } else { alert('❌ Erro: ' + (data.mensagem || 'Tente novamente')); }
+        } catch (error) { alert('❌ Erro de conexão: ' + error.message); }
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-qrcode"></i> Gerar PIX';
+    }
+
+    function copiarPIX() {
+        var texto = document.getElementById('pixCodigo').textContent;
+        navigator.clipboard.writeText(texto).then(function() {
+            var copiado = document.getElementById('pixCopiado');
+            copiado.style.display = 'block';
+            setTimeout(function() { copiado.style.display = 'none'; }, 3000);
+        });
+    }
+
+    async function processarPagamentoCartao(ofertaId) {
+        var parcelas = prompt('📊 PARCELAMENTO\n\nDigite o número de parcelas (1 a 12):', '1');
+        if (!parcelas) return;
+        parcelas = Math.min(12, Math.max(1, parseInt(parcelas) || 1));
+        var btn = document.querySelector('#cartaoArea .btn-pagar');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processando...';
+        try {
+            var response = await fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=cartao&parcelas=' + parcelas, { method: 'POST' });
+            var data = await response.json();
+            if (data.sucesso && data.checkout_url) {
+                alert('✅ Link de pagamento gerado! Abrindo...');
+                window.open(data.checkout_url, '_blank');
+            } else { alert('❌ Erro: ' + (data.mensagem || 'Tente novamente')); }
+        } catch (error) { alert('❌ Erro de conexão: ' + error.message); }
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-credit-card"></i> Pagar com Cartão';
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return String(text).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    carregarPagamento();
+</script>
+</body>
+</html>
