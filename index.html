@@ -97,7 +97,6 @@
         </div>
     </div>
 
-    <!-- TRUST BADGES -->
     <div class="trust-badges">
         <span><i class="fas fa-check-circle"></i> +500 vendas realizadas</span>
         <span><i class="fas fa-shield-alt"></i> Compra 100% segura</span>
@@ -105,7 +104,6 @@
         <span><i class="fas fa-gavel"></i> 1.234 ofertas ativas</span>
     </div>
 
-    <!-- HEADER -->
     <div class="main-header">
         <div class="header-container">
             <div class="logo-area">
@@ -127,7 +125,6 @@
         </div>
     </div>
 
-    <!-- CATEGORIAS -->
     <div class="categories">
         <div class="categories-container">
             <a href="#" class="category-item active" data-cat="todos" onclick="filtrarPorCategoria('todos'); return false;">
@@ -151,13 +148,11 @@
         </div>
     </div>
 
-    <!-- BANNER -->
     <div class="banner">
         <h2>🔥 OFERTAS RELÂMPAGO</h2>
         <p>Ofertas que você decide! Faça sua oferta e torça pelo ACEITAÊ!</p>
     </div>
 
-    <!-- PRODUTOS -->
     <div class="container">
         <div class="section-title">
             <h2>📦 Produtos em destaque</h2>
@@ -166,7 +161,6 @@
         <div id="produtos" class="loading">Carregando produtos...</div>
     </div>
 
-    <!-- FOOTER -->
     <div class="footer">
         <div class="footer-content">
             <div class="footer-section">
@@ -199,7 +193,6 @@
         var categoriaAtual = 'todos';
         var termoBusca = '';
 
-        // ==================== VERIFICAR ADMIN ====================
         async function verificarAdmin() {
             var id = localStorage.getItem('usuario_id');
             if (!id) return false;
@@ -219,7 +212,6 @@
             }
         }
 
-        // ==================== ATUALIZAR TOP BAR ====================
         function atualizarTopBar() {
             var topBarRight = document.getElementById('topBarRight');
             if (!topBarRight) return;
@@ -267,7 +259,7 @@
             }
         }
 
-        // ==================== FAZER OFERTA ====================
+        // ==================== FAZER OFERTA (CORRIGIDO) ====================
         async function fazerOferta(produtoId, valorPersonalizado) {
             if (!usuarioId) {
                 alert('Faça login para fazer uma oferta!');
@@ -302,13 +294,21 @@
                 
                 if (response.ok) {
                     criarConfetes();
-                    alert(data.mensagem || '✅ Oferta enviada! Aguarde o vendedor.');
+                    
+                    // 🔥 VERIFICA SE É VENDA AUTOMÁTICA COM LINK DE PAGAMENTO
+                    if (data.status === 'venda_automatica' && data.link_pagamento) {
+                        alert('🎉 Venda automática! Você será redirecionado para o pagamento.');
+                        window.location.href = data.link_pagamento;
+                    } else if (data.status === 'venda_automatica') {
+                        alert('✅ Venda automática! O vendedor já aceitou. Em breve você receberá o link de pagamento.');
+                    } else {
+                        alert(data.mensagem || '✅ Oferta enviada! Aguarde o vendedor.');
+                    }
                     
                     var inputEl = document.getElementById('valor-' + produtoId);
                     if (inputEl) inputEl.value = '';
                     
                     if (data.status === 'venda_automatica') {
-                        alert('✅ VENDA AUTOMÁTICA! O pagamento será processado.');
                         carregarProdutos();
                     }
                 } else {
