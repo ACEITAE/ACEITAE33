@@ -6,402 +6,58 @@
     <title>ACEITAÊ - Admin | Vistoria de Produtos</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
-            color: #333;
-            min-height: 100vh;
-        }
-
-        /* Header */
-        .header {
-            background: #1A237E;
-            padding: 12px 24px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo-img {
-            height: 36px;
-            width: auto;
-            filter: brightness(0) invert(1);
-        }
-
-        .logo-text {
-            font-size: 20px;
-            font-weight: bold;
-            color: white;
-        }
-
-        .logo-text span {
-            color: #00C853;
-            display: inline-block;
-            animation: balanco 0.8s ease-in-out infinite;
-            transform-origin: center center;
-        }
-
-        @keyframes balanco {
-            0%, 100% { transform: rotate(0deg); }
-            20% { transform: rotate(-10deg); }
-            40% { transform: rotate(10deg); }
-            60% { transform: rotate(-5deg); }
-            80% { transform: rotate(5deg); }
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .admin-badge {
-            background: #FFC107;
-            color: #1A237E;
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .btn-voltar {
-            background: rgba(255,255,255,0.2);
-            padding: 8px 20px;
-            border-radius: 30px;
-            text-decoration: none;
-            color: white;
-            font-size: 13px;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-voltar:hover {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.02);
-        }
-
-        .btn-sair {
-            background: #c62828;
-            padding: 8px 18px;
-            border-radius: 30px;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-
-        .btn-sair:hover {
-            background: #b71c1c;
-            transform: scale(1.02);
-        }
-
-        /* Container */
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 24px;
-        }
-
-        /* Hero */
-        .hero-admin {
-            background: linear-gradient(135deg, #1A237E 0%, #00C853 100%);
-            border-radius: 20px;
-            padding: 24px 30px;
-            color: white;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .hero-admin h1 {
-            font-size: 28px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .hero-admin p {
-            opacity: 0.9;
-            font-size: 14px;
-        }
-
-        /* Stats */
-        .stats {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 20px;
-            flex: 1;
-            min-width: 160px;
-            text-align: center;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-        }
-
-        .stat-number {
-            font-size: 38px;
-            font-weight: bold;
-            color: #00C853;
-        }
-
-        .stat-label {
-            font-size: 13px;
-            color: #666;
-            margin-top: 8px;
-        }
-
-        /* Grid de produtos pendentes */
-        .produtos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 24px;
-        }
-
-        .produto-card {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
-        .produto-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 28px rgba(0,0,0,0.15);
-        }
-
-        /* Galeria de fotos */
-        .produto-gallery {
-            position: relative;
-            background: #f9f9f9;
-            padding: 16px;
-        }
-
-        .foto-principal {
-            width: 100%;
-            height: 220px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            background: #f5f5f5;
-            border-radius: 12px;
-        }
-
-        .foto-principal img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
-        .foto-principal i {
-            font-size: 50px;
-            color: #ccc;
-        }
-
-        .miniaturas {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-            overflow-x: auto;
-            padding-bottom: 4px;
-        }
-
-        .miniatura {
-            width: 55px;
-            height: 55px;
-            border-radius: 8px;
-            object-fit: cover;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .miniatura.active {
-            border-color: #00C853;
-        }
-
-        /* Informações do produto */
-        .produto-info {
-            padding: 16px;
-        }
-
-        .produto-info h3 {
-            font-size: 16px;
-            font-weight: bold;
-            color: #1A237E;
-            margin-bottom: 4px;
-        }
-
-        .vendedor-info {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .vendedor-info i {
-            color: #00C853;
-        }
-
-        .descricao {
-            font-size: 13px;
-            color: #555;
-            line-height: 1.5;
-            margin-bottom: 12px;
-            max-height: 80px;
-            overflow-y: auto;
-        }
-
-        .detalhes {
-            background: #f9f9f9;
-            padding: 12px;
-            border-radius: 12px;
-            margin: 12px 0;
-        }
-
-        .detalhe-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 12px;
-        }
-
-        .detalhe-item .label {
-            color: #666;
-        }
-
-        .detalhe-item .valor {
-            font-weight: bold;
-            color: #1A237E;
-        }
-
-        .valor-destaque {
-            color: #00C853;
-            font-size: 18px;
-        }
-
-        .botoes-acao {
-            display: flex;
-            gap: 12px;
-            margin-top: 16px;
-        }
-
-        .btn-aprovar {
-            flex: 1;
-            background: #00C853;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.3s;
-        }
-
-        .btn-aprovar:hover {
-            background: #00A844;
-            transform: scale(1.02);
-        }
-
-        .btn-reprovar {
-            flex: 1;
-            background: #c62828;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.3s;
-        }
-
-        .btn-reprovar:hover {
-            background: #b71c1c;
-            transform: scale(1.02);
-        }
-
-        .sem-itens {
-            text-align: center;
-            padding: 60px;
-            color: #999;
-            background: white;
-            border-radius: 20px;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 60px;
-            color: #999;
-        }
-
-        .confete {
-            position: fixed;
-            width: 8px;
-            height: 8px;
-            background: #00C853;
-            position: absolute;
-            animation: confete 1s ease-out forwards;
-            pointer-events: none;
-            z-index: 10000;
-        }
-
-        @keyframes confete {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
-        }
-
-        @media (max-width: 640px) {
-            .container { padding: 16px; }
-            .produtos-grid { grid-template-columns: 1fr; gap: 16px; }
-            .hero-admin h1 { font-size: 22px; }
-            .stats { flex-direction: column; gap: 12px; }
-            .botoes-acao { flex-direction: column; }
-            .header { flex-direction: column; text-align: center; }
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f7fa;color:#333;min-height:100vh}
+        .header{background:#1A237E;padding:12px 24px;box-shadow:0 2px 8px rgba(0,0,0,0.1);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;position:sticky;top:0;z-index:100}
+        .logo-area{display:flex;align-items:center;gap:12px}
+        .logo-img{height:36px;width:auto;filter:brightness(0)invert(1)}
+        .logo-text{font-size:20px;font-weight:bold;color:#fff}
+        .logo-text span{color:#00C853}
+        .header-actions{display:flex;align-items:center;gap:16px}
+        .admin-badge{background:#FFC107;color:#1A237E;padding:6px 14px;border-radius:30px;font-size:12px;font-weight:bold}
+        .btn-voltar{background:rgba(255,255,255,0.2);padding:8px 20px;border-radius:30px;text-decoration:none;color:#fff;font-size:13px;transition:all .3s;display:inline-flex;align-items:center;gap:8px}
+        .btn-voltar:hover{background:rgba(255,255,255,0.3);transform:scale(1.02)}
+        .btn-sair{background:#c62828;padding:8px 18px;border-radius:30px;color:#fff;border:none;cursor:pointer;font-size:13px;transition:all .3s}
+        .btn-sair:hover{background:#b71c1c;transform:scale(1.02)}
+        .container{max-width:1280px;margin:0 auto;padding:24px}
+        .hero-admin{background:linear-gradient(135deg,#1A237E 0%,#00C853 100%);border-radius:20px;padding:24px 30px;color:#fff;margin-bottom:30px;text-align:center}
+        .hero-admin h1{font-size:28px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:10px}
+        .hero-admin p{opacity:.9;font-size:14px}
+        .stats{display:flex;gap:20px;margin-bottom:30px;flex-wrap:wrap}
+        .stat-card{background:#fff;padding:20px;border-radius:20px;flex:1;min-width:160px;text-align:center;transition:all .3s;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+        .stat-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.12)}
+        .stat-number{font-size:38px;font-weight:bold;color:#00C853}
+        .stat-label{font-size:13px;color:#666;margin-top:8px}
+        .produtos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:24px}
+        .produto-card{background:#fff;border-radius:20px;overflow:hidden;transition:all .3s;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+        .produto-card:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(0,0,0,0.15)}
+        .produto-gallery{position:relative;background:#f9f9f9;padding:16px}
+        .foto-principal{width:100%;height:220px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f5f5f5;border-radius:12px}
+        .foto-principal img{max-width:100%;max-height:100%;object-fit:contain}
+        .foto-principal i{font-size:50px;color:#ccc}
+        .miniaturas{display:flex;gap:8px;margin-top:12px;overflow-x:auto;padding-bottom:4px}
+        .miniatura{width:55px;height:55px;border-radius:8px;object-fit:cover;cursor:pointer;border:2px solid transparent;transition:all .2s}
+        .miniatura.active{border-color:#00C853}
+        .produto-info{padding:16px}
+        .produto-info h3{font-size:16px;font-weight:bold;color:#1A237E;margin-bottom:4px}
+        .vendedor-info{font-size:12px;color:#666;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+        .vendedor-info i{color:#00C853}
+        .descricao{font-size:13px;color:#555;line-height:1.5;margin-bottom:12px;max-height:80px;overflow-y:auto}
+        .detalhes{background:#f9f9f9;padding:12px;border-radius:12px;margin:12px 0}
+        .detalhe-item{display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px}
+        .detalhe-item .label{color:#666}
+        .detalhe-item .valor{font-weight:bold;color:#1A237E}
+        .valor-destaque{color:#00C853;font-size:18px}
+        .botoes-acao{display:flex;gap:12px;margin-top:16px}
+        .btn-aprovar{flex:1;background:#00C853;color:#fff;border:none;padding:12px;border-radius:40px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .3s}
+        .btn-aprovar:hover{background:#00A844;transform:scale(1.02)}
+        .btn-reprovar{flex:1;background:#c62828;color:#fff;border:none;padding:12px;border-radius:40px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .3s}
+        .btn-reprovar:hover{background:#b71c1c;transform:scale(1.02)}
+        .sem-itens{text-align:center;padding:60px;color:#999;background:#fff;border-radius:20px}
+        .loading{text-align:center;padding:60px;color:#999}
+        .confete{position:fixed;width:8px;height:8px;background:#00C853;position:absolute;animation:confete 1s ease-out forwards;pointer-events:none;z-index:10000}
+        @keyframes confete{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(-100px) rotate(360deg);opacity:0}}
+        @media (max-width:640px){.container{padding:16px}.produtos-grid{grid-template-columns:1fr;gap:16px}.hero-admin h1{font-size:22px}.stats{flex-direction:column;gap:12px}.botoes-acao{flex-direction:column}.header{flex-direction:column;text-align:center}}
     </style>
 </head>
 <body>
@@ -439,276 +95,154 @@
         </div>
     </div>
 
-    <div id="produtos-container" class="loading">
-        <i class="fas fa-spinner fa-pulse"></i> Carregando produtos pendentes...
-    </div>
+    <div id="produtos-container" class="loading"><i class="fas fa-spinner fa-pulse"></i> Carregando produtos pendentes...</div>
 </div>
 
 <script>
-    const API_URL = 'https://aceitae33-api.onrender.com';
+    var API_URL = 'https://aceitae33-api.onrender.com';
 
-    function logout() {
-        localStorage.clear();
-        window.location.href = 'index.html';
-    }
+    function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 
     function criarConfetes() {
-        for (let i = 0; i < 50; i++) {
-            const confete = document.createElement('div');
+        for (var i = 0; i < 50; i++) {
+            var confete = document.createElement('div');
             confete.className = 'confete';
             confete.style.left = Math.random() * window.innerWidth + 'px';
             confete.style.top = window.innerHeight / 2 + 'px';
-            confete.style.background = ['#00C853', '#1A237E', '#FFC107', '#FF4757'][Math.floor(Math.random() * 4)];
+            var cores = ['#00C853', '#1A237E', '#FFC107', '#FF4757'];
+            confete.style.background = cores[Math.floor(Math.random() * cores.length)];
             confete.style.width = Math.random() * 8 + 4 + 'px';
             confete.style.height = Math.random() * 8 + 4 + 'px';
             document.body.appendChild(confete);
-            setTimeout(() => confete.remove(), 1000);
+            (function(c) { setTimeout(function() { c.remove(); }, 1000); })(confete);
         }
     }
 
-    // ==================== VERIFICAÇÃO DE ADMIN ====================
     async function verificarAdminEAcessar() {
-        const usuarioId = localStorage.getItem('usuario_id');
-        const usuarioNome = localStorage.getItem('usuario_nome');
-        
-        if (!usuarioId) {
-            alert('⛔ Área restrita. Faça login primeiro.');
-            window.location.href = 'login.html';
-            return false;
-        }
-        
+        var usuarioId = localStorage.getItem('usuario_id');
+        if (!usuarioId) { alert('⛔ Área restrita. Faça login primeiro.'); window.location.href = 'login.html'; return false; }
         try {
-            const response = await fetch(`${API_URL}/usuarios/${usuarioId}/is-admin`);
-            const data = await response.json();
-            
-            if (!data.is_admin) {
-                alert('⛔ Acesso negado! Esta área é apenas para administradores.');
-                window.location.href = 'index.html';
-                return false;
-            }
+            var response = await fetch(API_URL + '/usuarios/' + usuarioId + '/is-admin');
+            var data = await response.json();
+            if (!data.is_admin) { alert('⛔ Acesso negado! Esta área é apenas para administradores.'); window.location.href = 'index.html'; return false; }
             return true;
-        } catch (error) {
-            console.error('Erro na verificação:', error);
-            alert('❌ Erro de conexão. Tente novamente.');
-            window.location.href = 'index.html';
-            return false;
-        }
+        } catch (error) { alert('❌ Erro de conexão.'); window.location.href = 'index.html'; return false; }
     }
 
-    // ==================== CARREGAR PRODUTOS PENDENTES ====================
     async function carregarProdutosPendentes() {
         try {
-            const response = await fetch(`${API_URL}/admin/produtos/pendentes`);
-            const data = await response.json();
-            
-            const produtosPendentes = data.produtos || [];
-            
+            var response = await fetch(API_URL + '/admin/produtos/pendentes');
+            var data = await response.json();
+            var produtosPendentes = data.produtos || [];
             document.getElementById('total-pendentes').textContent = produtosPendentes.length;
-            
-            // Stats fictícios para demonstração
             document.getElementById('total-aprovados').textContent = Math.floor(Math.random() * 15) + 3;
             document.getElementById('total-vendedores').textContent = Math.floor(Math.random() * 30) + 10;
-            
-            const container = document.getElementById('produtos-container');
-            
+            var container = document.getElementById('produtos-container');
             if (produtosPendentes.length === 0) {
-                container.innerHTML = `
-                    <div class="sem-itens">
-                        <i class="fas fa-check-circle" style="font-size: 48px; color: #00C853;"></i>
-                        <p style="margin-top: 16px;">🎉 Nenhum produto aguardando vistoria!</p>
-                        <p style="font-size: 13px;">Todos os produtos foram vistoriados.</p>
-                    </div>
-                `;
+                container.innerHTML = '<div class="sem-itens"><i class="fas fa-check-circle" style="font-size:48px;color:#00C853;"></i><p style="margin-top:16px;">🎉 Nenhum produto aguardando vistoria!</p></div>';
                 return;
             }
-            
             container.innerHTML = '<div class="produtos-grid"></div>';
-            const grid = container.querySelector('.produtos-grid');
-            
-            for (const produto of produtosPendentes) {
-                const fotos = produto.fotos || [];
-                const fotoPrincipal = fotos.length > 0 ? fotos[0] : null;
-                
-                let miniaturasHtml = '';
+            var grid = container.querySelector('.produtos-grid');
+            for (var i = 0; i < produtosPendentes.length; i++) {
+                var produto = produtosPendentes[i];
+                var fotos = produto.fotos || [];
+                var fotoPrincipal = fotos.length > 0 ? fotos[0] : null;
+                var miniaturasHtml = '';
                 if (fotos.length > 1) {
-                    miniaturasHtml = `<div class="miniaturas" id="miniaturas-${produto.id}">`;
-                    fotos.forEach((foto, idx) => {
-                        miniaturasHtml += `<img src="${foto}" class="miniatura" data-idx="${idx}" data-foto="${foto}">`;
-                    });
-                    miniaturasHtml += `</div>`;
+                    miniaturasHtml = '<div class="miniaturas" id="miniaturas-' + produto.id + '">';
+                    for (var j = 0; j < fotos.length; j++) {
+                        miniaturasHtml += '<img src="' + fotos[j] + '" class="miniatura" data-idx="' + j + '" data-foto="' + fotos[j] + '">';
+                    }
+                    miniaturasHtml += '</div>';
                 }
-                
-                const condicaoTexto = produto.condicao === 'novo' ? '🆕 Produto novo' : '🔄 Produto usado';
-                const coresTexto = produto.cores && produto.cores.length > 0 ? produto.cores.length + ' cores disponíveis' : 'Não informado';
-                const tamanhosTexto = produto.tamanhos && produto.tamanhos.length > 0 ? produto.tamanhos.join(', ') : 'Não informado';
-                const quantidadeDisp = produto.quantidade || 1;
-                
-                const card = document.createElement('div');
+                var condicaoTexto = produto.condicao === 'novo' ? '🆕 Produto novo' : '🔄 Produto usado';
+                var coresTexto = produto.cores && produto.cores.length > 0 ? produto.cores.length + ' cores disponíveis' : 'Não informado';
+                var tamanhosTexto = produto.tamanhos && produto.tamanhos.length > 0 ? produto.tamanhos.join(', ') : 'Não informado';
+                var quantidadeDisp = produto.quantidade || 1;
+                var card = document.createElement('div');
                 card.className = 'produto-card';
-                card.innerHTML = `
-                    <div class="produto-gallery">
-                        <div class="foto-principal" id="principal-${produto.id}">
-                            ${fotoPrincipal ? `<img src="${fotoPrincipal}" alt="${produto.nome}">` : '<i class="fas fa-box"></i>'}
-                        </div>
-                        ${miniaturasHtml}
-                    </div>
-                    <div class="produto-info">
-                        <h3>${escapeHtml(produto.nome)}</h3>
-                        <div class="vendedor-info">
-                            <i class="fas fa-user-circle"></i> Vendedor: ${escapeHtml(produto.vendedor_nome || 'Não informado')}
-                        </div>
-                        <div class="descricao">${escapeHtml(produto.descricao || 'Sem descrição')}</div>
-                        
-                        <div class="detalhes">
-                            <div class="detalhe-item">
-                                <span class="label"><i class="fas fa-tag"></i> Categoria:</span>
-                                <span class="valor">${produto.categoria || 'Não informada'}</span>
-                            </div>
-                            <div class="detalhe-item">
-                                <span class="label"><i class="fas fa-dollar-sign"></i> Valor pretendido:</span>
-                                <span class="valor valor-destaque">R$ ${produto.valor_pretendido?.toFixed(2)}</span>
-                            </div>
-                            <div class="detalhe-item">
-                                <span class="label"><i class="fas fa-clipboard-list"></i> Condição:</span>
-                                <span class="valor">${condicaoTexto}</span>
-                            </div>
-                            <div class="detalhe-item">
-                                <span class="label"><i class="fas fa-boxes"></i> Estoque:</span>
-                                <span class="valor">${quantidadeDisp} unidade(s)</span>
-                            </div>
-                            <div class="detalhe-item">
-                                <span class="label"><i class="fas fa-palette"></i> Cores:</span>
-                                <span class="valor">${coresTexto}</span>
-                            </div>
-                            <div class="detalhe-item">
-                                <span class="label"><i class="fas fa-tshirt"></i> Tamanhos/Números:</span>
-                                <span class="valor">${tamanhosTexto}</span>
-                            </div>
-                            ${produto.peso ? `<div class="detalhe-item">
-                                <span class="label"><i class="fas fa-weight-hanging"></i> Peso:</span>
-                                <span class="valor">${produto.peso} kg</span>
-                            </div>` : ''}
-                        </div>
-                        
-                        <div class="botoes-acao">
-                            <button class="btn-aprovar" onclick="aprovarProduto(${produto.id})">
-                                <i class="fas fa-check-circle"></i> Aprovar
-                            </button>
-                            <button class="btn-reprovar" onclick="reprovarProduto(${produto.id})">
-                                <i class="fas fa-times-circle"></i> Reprovar
-                            </button>
-                        </div>
-                    </div>
-                `;
+                card.innerHTML = 
+                    '<div class="produto-gallery">' +
+                        '<div class="foto-principal" id="principal-' + produto.id + '">' +
+                            (fotoPrincipal ? '<img src="' + fotoPrincipal + '" alt="' + produto.nome + '">' : '<i class="fas fa-box"></i>') +
+                        '</div>' +
+                        miniaturasHtml +
+                    '</div>' +
+                    '<div class="produto-info">' +
+                        '<h3>' + escapeHtml(produto.nome) + '</h3>' +
+                        '<div class="vendedor-info"><i class="fas fa-user-circle"></i> Vendedor: ' + escapeHtml(produto.vendedor_nome || 'Não informado') + '</div>' +
+                        '<div class="descricao">' + escapeHtml(produto.descricao || 'Sem descrição') + '</div>' +
+                        '<div class="detalhes">' +
+                            '<div class="detalhe-item"><span class="label"><i class="fas fa-tag"></i> Categoria:</span><span class="valor">' + (produto.categoria || 'Não informada') + '</span></div>' +
+                            '<div class="detalhe-item"><span class="label"><i class="fas fa-dollar-sign"></i> Valor pretendido:</span><span class="valor valor-destaque">R$ ' + (produto.valor_pretendido ? produto.valor_pretendido.toFixed(2) : '0.00') + '</span></div>' +
+                            '<div class="detalhe-item"><span class="label"><i class="fas fa-clipboard-list"></i> Condição:</span><span class="valor">' + condicaoTexto + '</span></div>' +
+                            '<div class="detalhe-item"><span class="label"><i class="fas fa-boxes"></i> Estoque:</span><span class="valor">' + quantidadeDisp + ' unidade(s)</span></div>' +
+                            '<div class="detalhe-item"><span class="label"><i class="fas fa-palette"></i> Cores:</span><span class="valor">' + coresTexto + '</span></div>' +
+                            '<div class="detalhe-item"><span class="label"><i class="fas fa-tshirt"></i> Tamanhos/Números:</span><span class="valor">' + tamanhosTexto + '</span></div>' +
+                            (produto.peso ? '<div class="detalhe-item"><span class="label"><i class="fas fa-weight-hanging"></i> Peso:</span><span class="valor">' + produto.peso + ' kg</span></div>' : '') +
+                        '</div>' +
+                        '<div class="botoes-acao">' +
+                            '<button class="btn-aprovar" onclick="aprovarProduto(' + produto.id + ')"><i class="fas fa-check-circle"></i> Aprovar</button>' +
+                            '<button class="btn-reprovar" onclick="reprovarProduto(' + produto.id + ')"><i class="fas fa-times-circle"></i> Reprovar</button>' +
+                        '</div>' +
+                    '</div>';
                 grid.appendChild(card);
-                
                 if (fotos.length > 1) {
-                    const miniaturas = document.querySelectorAll(`#miniaturas-${produto.id} .miniatura`);
-                    const principalDiv = document.getElementById(`principal-${produto.id}`);
-                    miniaturas.forEach(thumb => {
-                        thumb.addEventListener('click', () => {
-                            const fotoUrl = thumb.getAttribute('data-foto');
-                            principalDiv.innerHTML = `<img src="${fotoUrl}" alt="${produto.nome}">`;
-                            miniaturas.forEach(t => t.classList.remove('active'));
-                            thumb.classList.add('active');
-                        });
-                    });
+                    var miniaturas = document.querySelectorAll('#miniaturas-' + produto.id + ' .miniatura');
+                    var principalDiv = document.getElementById('principal-' + produto.id);
+                    for (var k = 0; k < miniaturas.length; k++) {
+                        (function(idx, thumb) {
+                            thumb.addEventListener('click', function() {
+                                var fotoUrl = thumb.getAttribute('data-foto');
+                                principalDiv.innerHTML = '<img src="' + fotoUrl + '" alt="' + produto.nome + '">';
+                                var allThumbs = document.querySelectorAll('#miniaturas-' + produto.id + ' .miniatura');
+                                for (var t = 0; t < allThumbs.length; t++) {
+                                    allThumbs[t].classList.remove('active');
+                                }
+                                thumb.classList.add('active');
+                            });
+                        })(k, miniaturas[k]);
+                    }
                     if (miniaturas.length > 0) miniaturas[0].classList.add('active');
                 }
             }
         } catch (error) {
-            console.error('Erro:', error);
-            document.getElementById('produtos-container').innerHTML = `
-                <div class="sem-itens">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #c62828;"></i>
-                    <p style="margin-top: 16px;">❌ Erro ao carregar produtos pendentes</p>
-                    <p style="font-size: 13px;">Verifique sua conexão e tente novamente.</p>
-                </div>
-            `;
+            document.getElementById('produtos-container').innerHTML = '<div class="sem-itens"><i class="fas fa-exclamation-triangle" style="font-size:48px;color:#c62828;"></i><p style="margin-top:16px;">❌ Erro ao carregar produtos pendentes</p></div>';
         }
     }
 
     async function aprovarProduto(produtoId) {
-        if (!confirm('✅ Confirmar aprovação?\n\nO produto será publicado na loja e os compradores poderão fazer ofertas.')) return;
-        
-        const card = document.querySelector(`.produto-card:has(button[onclick="aprovarProduto(${produtoId})"])`);
-        const botoes = card?.querySelector('.botoes-acao');
-        if (botoes) {
-            botoes.style.opacity = '0.5';
-            botoes.style.pointerEvents = 'none';
-        }
-        
+        if (!confirm('✅ Confirmar aprovação?\n\nO produto será publicado na loja.')) return;
+        var card = document.querySelector('.produto-card:has(button[onclick="aprovarProduto(' + produtoId + ')"])');
+        var botoes = card ? card.querySelector('.botoes-acao') : null;
+        if (botoes) { botoes.style.opacity = '0.5'; botoes.style.pointerEvents = 'none'; }
         try {
-            const response = await fetch(`${API_URL}/admin/produtos/${produtoId}/aprovar`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            
+            var response = await fetch(API_URL + '/admin/produtos/' + produtoId + '/aprovar', { method: 'PUT' });
             if (response.ok) {
                 criarConfetes();
-                alert('🎉 Produto aprovado com sucesso! Ele já está disponível na loja.');
+                alert('🎉 Produto aprovado com sucesso!');
                 carregarProdutosPendentes();
-            } else {
-                const error = await response.json();
-                alert('❌ Erro ao aprovar: ' + (error.detail || 'Tente novamente'));
-                if (botoes) {
-                    botoes.style.opacity = '1';
-                    botoes.style.pointerEvents = 'auto';
-                }
-            }
-        } catch (error) {
-            console.error('Erro:', error);
-            alert('❌ Erro de conexão. Tente novamente.');
-            if (botoes) {
-                botoes.style.opacity = '1';
-                botoes.style.pointerEvents = 'auto';
-            }
-        }
+            } else { alert('❌ Erro ao aprovar'); if (botoes) { botoes.style.opacity = '1'; botoes.style.pointerEvents = 'auto'; } }
+        } catch (error) { alert('❌ Erro de conexão.'); if (botoes) { botoes.style.opacity = '1'; botoes.style.pointerEvents = 'auto'; } }
     }
 
     async function reprovarProduto(produtoId) {
-        const motivo = prompt('❌ Informe o motivo da reprovação (opcional):');
-        
-        if (!confirm('❌ Confirmar reprovação?\n\nO produto NÃO será publicado na loja.')) return;
-        
-        const card = document.querySelector(`.produto-card:has(button[onclick="reprovarProduto(${produtoId})"])`);
-        const botoes = card?.querySelector('.botoes-acao');
-        if (botoes) {
-            botoes.style.opacity = '0.5';
-            botoes.style.pointerEvents = 'none';
-        }
-        
+        var motivo = prompt('❌ Informe o motivo da reprovação (opcional):');
+        if (!confirm('❌ Confirmar reprovação?')) return;
+        var card = document.querySelector('.produto-card:has(button[onclick="reprovarProduto(' + produtoId + ')"])');
+        var botoes = card ? card.querySelector('.botoes-acao') : null;
+        if (botoes) { botoes.style.opacity = '0.5'; botoes.style.pointerEvents = 'none'; }
         try {
-            const response = await fetch(`${API_URL}/admin/produtos/${produtoId}/reprovar`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ motivo: motivo })
-            });
-            
-            if (response.ok) {
-                alert('📋 Produto reprovado. O vendedor será notificado.');
-                carregarProdutosPendentes();
-            } else {
-                const error = await response.json();
-                alert('❌ Erro ao reprovar: ' + (error.detail || 'Tente novamente'));
-                if (botoes) {
-                    botoes.style.opacity = '1';
-                    botoes.style.pointerEvents = 'auto';
-                }
-            }
-        } catch (error) {
-            console.error('Erro:', error);
-            alert('❌ Erro de conexão. Tente novamente.');
-            if (botoes) {
-                botoes.style.opacity = '1';
-                botoes.style.pointerEvents = 'auto';
-            }
-        }
+            var response = await fetch(API_URL + '/admin/produtos/' + produtoId + '/reprovar', { method: 'PUT', body: JSON.stringify({ motivo: motivo }) });
+            if (response.ok) { alert('📋 Produto reprovado.'); carregarProdutosPendentes(); }
+            else { alert('❌ Erro ao reprovar'); if (botoes) { botoes.style.opacity = '1'; botoes.style.pointerEvents = 'auto'; } }
+        } catch (error) { alert('❌ Erro de conexão.'); if (botoes) { botoes.style.opacity = '1'; botoes.style.pointerEvents = 'auto'; } }
     }
 
     function escapeHtml(text) {
         if (!text) return '';
-        return text.replace(/[&<>]/g, function(m) {
+        return String(text).replace(/[&<>]/g, function(m) {
             if (m === '&') return '&amp;';
             if (m === '<') return '&lt;';
             if (m === '>') return '&gt;';
@@ -716,14 +250,10 @@
         });
     }
 
-    // ==================== INICIALIZAÇÃO ====================
     async function init() {
-        const acessoPermitido = await verificarAdminEAcessar();
-        if (acessoPermitido) {
-            carregarProdutosPendentes();
-        }
+        var acessoPermitido = await verificarAdminEAcessar();
+        if (acessoPermitido) carregarProdutosPendentes();
     }
-    
     init();
 </script>
 </body>
