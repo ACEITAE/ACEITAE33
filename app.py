@@ -555,6 +555,46 @@ def responder_oferta(oferta_id: int, acao: str):
     else:
         raise HTTPException(400, "Ação inválida. Use 'ACEITAÊ' ou 'RECUSAR'")
 
+@app.get("/ofertas/{oferta_id}")
+def buscar_oferta(oferta_id: int):
+    """Busca uma oferta específica pelo ID para a página de pagamento"""
+    try:
+        oferta = supabase.table("ofertas").select("*").eq("id", oferta_id).execute()
+        if not oferta.data:
+            raise HTTPException(404, "Oferta não encontrada")
+        oferta = oferta.data[0]
+        
+        # Busca informações do produto
+        produto = supabase.table("produtos").select("nome, vendedor_id, fotos").eq("id", oferta["produto_id"]).execute()
+        produto_nome = produto.data[0]["nome"] if produto.data else "Produto"
+        fotos = produto.data[0].get("fotos", []) if produto.data else []
+        
+        # Busca nome do vendedor
+        vendedor_nome = "ACEITAÊ"
+        if produto.data and produto.data[0].get("vendedor_id"):
+            vendedor = supabase.table("usuarios").select("nome").eq("id", produto.data[0]["vendedor_id"]).execute()
+            if vendedor.data:
+                vendedor_nome = vendedor.data[0]["nome"]
+        
+        return {
+            "id": oferta["id"],
+            "produto_nome": produto_nome,
+            "vendedor_nome": vendedor_nome,
+            "valor": oferta["valor"],
+            "status": oferta["status"],
+            "quantidade": oferta.get("quantidade", 1),
+            "foto": fotos[0] if fotos else "",
+            "criado_em": oferta["criado_em"],
+            "link_pagamento": oferta.get("link_pagamento"),
+            "pix_payload": oferta.get("asaas_pix_payload"),
+            "pix_qr_code": oferta.get("asaas_pix_qr_code"),
+            "parcelas": oferta.get("asaas_parcelas", 1)
+        }
+    except Exception as e:
+        print(f"❌ Erro ao buscar oferta: {str(e)}")
+        raise HTTPException(500, str(e))
+
+
 @app.get("/vendedor/{vendedor_id}/ofertas")
 def listar_ofertas_vendedor(vendedor_id: int):
     produtos = supabase.table("produtos").select("*").eq("vendedor_id", vendedor_id).execute()
