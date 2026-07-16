@@ -626,30 +626,43 @@ def listar_ofertas_vendedor(vendedor_id: int):
 @app.post("/ofertas/{oferta_id}/gerar-pagamento")
 def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 1):
     try:
+        print(f"🔍 Gerando pagamento para oferta {oferta_id}, método: {metodo}")
+        
+        # Busca a oferta
         oferta = supabase.table("ofertas").select("*").eq("id", oferta_id).execute()
         if not oferta.data:
-            raise HTTPException(404, "Oferta não encontrada")
+            return {"erro": "oferta_nao_encontrada", "mensagem": "Oferta não encontrada"}
         oferta = oferta.data[0]
+        print(f"📦 Oferta encontrada: status={oferta['status']}, valor={oferta['valor']}")
         
+        # Verifica se a oferta já foi paga
+        if oferta.get("status") == "pago":
+            return {"erro": "ja_pago", "mensagem": "Esta oferta já foi paga"}
+        
+        # Busca o comprador
         comprador = supabase.table("usuarios").select("*").eq("id", oferta["comprador_id"]).execute()
         if not comprador.data:
-            raise HTTPException(404, "Comprador não encontrado")
+            return {"erro": "comprador_nao_encontrado", "mensagem": "Comprador não encontrado"}
         comprador = comprador.data[0]
+        print(f"👤 Comprador: {comprador['nome']}, CPF: {comprador.get('cpf')}")
         
-        produto = supabase.table("produtos").select("*").eq("id", oferta["produto_id"]).execute()
-        if not produto.data:
-            raise HTTPException(404, "Produto não encontrado")
-        produto = produto.data[0]
-        
+        # Verifica CPF
         if not comprador.get("cpf"):
             return {
                 "erro": "comprador_sem_cpf",
-                "mensagem": "O comprador precisa ter CPF cadastrado para gerar o pagamento."
+                "mensagem": "⚠️ O comprador precisa ter CPF cadastrado para gerar o pagamento.\nAcesse seu perfil e cadastre seu CPF."
             }
         
-        if comprador.get("asaas_customer_id"):
-            customer_id = comprador["asaas_customer_id"]
-        else:
+        # Busca o produto
+        produto = supabase.table("produtos").select("*").eq("id", oferta["produto_id"]).execute()
+        if not produto.data:
+            return {"erro": "produto_nao_encontrado", "mensagem": "Produto não encontrado"}
+        produto = produto.data[0]
+        
+        # Cria ou busca cliente do comprador no Asaas
+        customer_id = comprador.get("asaas_customer_id")
+        if not customer_id:
+            print("🆕 Criando cliente no Asaas...")
             cliente = criar_cliente_asaas(
                 comprador["nome"],
                 comprador["email"],
@@ -661,6 +674,7 @@ def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 
                 supabase.table("usuarios").update({
                     "asaas_customer_id": customer_id
                 }).eq("id", comprador["id"]).execute()
+                print(f"✅ Cliente Asaas criado: {customer_id}")
             else:
                 return {"erro": "erro_asaas", "mensagem": "Erro ao criar cliente no Asaas"}
         
@@ -669,11 +683,23 @@ def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 
         data_vencimento = (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
         link_pagamento = f"https://aceitae.com/pagamento.html?oferta={oferta_id}"
         
+        # ============================================
+        # PIX
+        # ============================================
         if metodo.lower() == "pix":
+            print(f"💳 Gerando PIX para {customer_id}, valor R$ {valor}")
+            
             cobranca = criar_cobranca_pix_asaas(customer_id, valor, descricao, data_vencimento)
-            if not cobranca or not cobranca.get("id"):
+            
+            if not cobranca:
                 return {"erro": "erro_cobranca", "mensagem": "Erro ao criar cobrança PIX no Asaas"}
             
+            if cobranca.get("errors"):
+                return {"erro": "erro_asaas", "mensagem": cobranca.get("errors")}
+            
+            print(f"✅ Cobrança PIX criada: {cobranca.get('id')}")
+            
+            # Salva os dados do PIX
             supabase.table("ofertas").update({
                 "asaas_payment_id": cobranca.get("id"),
                 "asaas_pix_qr_code": cobranca.get("pixQrCode"),
@@ -694,13 +720,24 @@ def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 
                 "vencimento": data_vencimento
             }
             
+        # ============================================
+        # CARTÃO
+        # ============================================
         elif metodo.lower() == "cartao":
             if parcelas < 1 or parcelas > 12:
                 parcelas = 1
             
+            print(f"💳 Gerando Cartão para {customer_id}, valor R$ {valor}, parcelas: {parcelas}")
+            
             cobranca = criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas, data_vencimento)
-            if not cobranca or not cobranca.get("id"):
+            
+            if not cobranca:
                 return {"erro": "erro_cobranca", "mensagem": "Erro ao criar cobrança com cartão no Asaas"}
+            
+            if cobranca.get("errors"):
+                return {"erro": "erro_asaas", "mensagem": cobranca.get("errors")}
+            
+            print(f"✅ Cobrança Cartão criada: {cobranca.get('id')}")
             
             supabase.table("ofertas").update({
                 "asaas_payment_id": cobranca.get("id"),
@@ -724,9 +761,8 @@ def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 
             return {"erro": "metodo_invalido", "mensagem": "Método inválido. Use 'pix' ou 'cartao'"}
         
     except Exception as e:
-        print(f"❌ Erro: {e}")
-        raise HTTPException(500, str(e))
-
+        print(f"❌ Erro ao gerar pagamento: {str(e)}")
+        return {"erro": "erro_interno", "mensagem": f"Erro interno: {str(e)}"}
 # ==================================================
 # WEBHOOK ASAAS
 # ==================================================
