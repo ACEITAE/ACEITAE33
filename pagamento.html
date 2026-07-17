@@ -169,7 +169,7 @@
             // Mostra o código PIX
             document.getElementById('pixCodigo').textContent = data.pix_payload;
 
-            // 🔥 MOSTRA O QR CODE NA TELA (SUPORTE A BASE64)
+            // 🔥 MOSTRA O QR CODE COMO IMAGEM
             var qrContainer = document.getElementById('qrCodeContainer');
             qrContainer.innerHTML = ''; // Limpa o container
             
@@ -177,7 +177,7 @@
                 var qrData = data.pix_qr_code;
                 console.log('🖼️ QR Code data (primeiros 50 chars):', qrData.substring(0, 50));
                 
-                // Verifica se é Base64 (começa com dados de imagem)
+                // CRIA A IMAGEM DO QR CODE
                 var img = document.createElement('img');
                 img.className = 'qr-code';
                 img.alt = 'QR Code PIX';
@@ -185,21 +185,22 @@
                 img.style.margin = '16px auto';
                 img.style.display = 'block';
                 img.style.borderRadius = '8px';
+                img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
                 
-                // Se começar com "data:image", é Base64
+                // 🔥 CORREÇÃO: Se for Base64, adiciona o prefixo correto
                 if (qrData.startsWith('data:image')) {
                     img.src = qrData;
                 } else if (qrData.startsWith('iVBORw0KGgo')) {
-                    // É Base64 puro (sem o prefixo)
+                    // Base64 puro (sem prefixo)
                     img.src = 'data:image/png;base64,' + qrData;
                 } else if (qrData.startsWith('http')) {
-                    // É uma URL
                     img.src = qrData;
                 } else {
-                    // Tenta como Base64 com prefixo
+                    // Tenta como Base64
                     img.src = 'data:image/png;base64,' + qrData;
                 }
                 
+                // Verifica se a imagem carregou
                 img.onload = function() {
                     console.log('✅ QR Code carregado com sucesso!');
                 };
@@ -226,15 +227,6 @@
         btn.innerHTML = '<i class="fas fa-qrcode"></i> Gerar PIX';
     }
 }
-    function copiarPIX() {
-        var texto = document.getElementById('pixCodigo').textContent;
-        navigator.clipboard.writeText(texto).then(function() {
-            var copiado = document.getElementById('pixCopiado');
-            copiado.style.display = 'block';
-            setTimeout(function() { copiado.style.display = 'none'; }, 3000);
-        });
-    }
-
     async function processarPagamentoCartao(ofertaId) {
         var parcelas = prompt('📊 PARCELAMENTO\n\nDigite o número de parcelas (1 a 12):', '1');
         if (!parcelas) return;
