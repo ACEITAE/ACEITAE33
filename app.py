@@ -159,6 +159,7 @@ def criar_cliente_asaas(nome, email, cpf_cnpj, telefone=None):
         return None
 
 def criar_cobranca_pix_asaas(customer_id, valor, descricao, data_vencimento):
+    """Cria uma cobrança PIX no Asaas e retorna os dados completos"""
     url = f"{ASAAS_URL}/payments"
     payload = {
         "customer": customer_id,
@@ -169,29 +170,28 @@ def criar_cobranca_pix_asaas(customer_id, valor, descricao, data_vencimento):
     }
     try:
         response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
-        return response.json()
+        data = response.json()
+        print(f"📦 Resposta Asaas PIX: {data}")
+        
+        # Verifica se a cobrança foi criada com sucesso
+        if data.get("id"):
+            # Busca os dados completos da cobrança para obter o QR Code
+            payment_id = data["id"]
+            payment_url = f"{ASAAS_URL}/payments/{payment_id}/pixQrCode"
+            qr_response = requests.get(payment_url, headers=ASAAS_HEADERS)
+            qr_data = qr_response.json()
+            print(f"📦 QR Code resposta: {qr_data}")
+            
+            # Combina os dados
+            data["pixQrCode"] = qr_data.get("encodedImage") or qr_data.get("qrCodeImage") or qr_data.get("payload")
+            data["pixPayload"] = qr_data.get("payload") or data.get("pixPayload")
+            
+            return data
+        return data
     except Exception as e:
         print(f"❌ Erro ao criar cobrança PIX Asaas: {e}")
         return None
 
-def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_vencimento=None):
-    url = f"{ASAAS_URL}/payments"
-    payload = {
-        "customer": customer_id,
-        "billingType": "CREDIT_CARD",
-        "value": valor,
-        "description": descricao,
-        "installmentCount": parcelas,
-        "installmentValue": round(valor / parcelas, 2) if parcelas > 1 else valor,
-    }
-    if data_vencimento:
-        payload["dueDate"] = data_vencimento
-    try:
-        response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
-        return response.json()
-    except Exception as e:
-        print(f"❌ Erro ao criar cobrança cartão Asaas: {e}")
-        return None
 
 # ==================================================
 # ROTAS DE USUÁRIO
