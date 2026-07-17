@@ -117,8 +117,8 @@
                 <p><i class="fas fa-qrcode" style="font-size:24px;color:#00C853;"></i></p>
                 <p style="font-weight:bold;">Pague com PIX</p>
                 <p style="font-size:13px;color:#666;">Escaneie o QR Code ou copie o código</p>
-                <button class="btn-pagar" onclick="gerarPagamentoPIX(${oferta.id})" id="btnGerarPix">
-                    <i class="fas fa-qrcode"></i> Gerar PIX
+                <button class="btn-pagar" onclick="PagamentoPIX(${oferta.id})" id="btnPix">
+                    <i class="fas fa-qrcode"></i>  PIX
                 </button>
                 <div id="pixDados" style="display:none;margin-top:16px;">
                     <div class="codigo-pix" onclick="copiarPIX()" id="pixCodigo">Carregando...</div>
@@ -169,18 +169,16 @@
             // Mostra o código PIX
             document.getElementById('pixCodigo').textContent = data.pix_payload;
 
-            // 🔥 MOSTRA O QR CODE NA TELA (CORRIGIDO)
+            // 🔥 MOSTRA O QR CODE NA TELA (SUPORTE A BASE64)
             var qrContainer = document.getElementById('qrCodeContainer');
             qrContainer.innerHTML = ''; // Limpa o container
             
             if (data.pix_qr_code) {
-                // Verifica se é uma URL válida
-                var qrUrl = data.pix_qr_code;
-                console.log('🖼️ QR Code URL:', qrUrl);
+                var qrData = data.pix_qr_code;
+                console.log('🖼️ QR Code data (primeiros 50 chars):', qrData.substring(0, 50));
                 
-                // Tenta carregar a imagem
+                // Verifica se é Base64 (começa com dados de imagem)
                 var img = document.createElement('img');
-                img.src = qrUrl;
                 img.className = 'qr-code';
                 img.alt = 'QR Code PIX';
                 img.style.maxWidth = '200px';
@@ -188,23 +186,29 @@
                 img.style.display = 'block';
                 img.style.borderRadius = '8px';
                 
-                // Verifica se a imagem carregou
+                // Se começar com "data:image", é Base64
+                if (qrData.startsWith('data:image')) {
+                    img.src = qrData;
+                } else if (qrData.startsWith('iVBORw0KGgo')) {
+                    // É Base64 puro (sem o prefixo)
+                    img.src = 'data:image/png;base64,' + qrData;
+                } else if (qrData.startsWith('http')) {
+                    // É uma URL
+                    img.src = qrData;
+                } else {
+                    // Tenta como Base64 com prefixo
+                    img.src = 'data:image/png;base64,' + qrData;
+                }
+                
                 img.onload = function() {
                     console.log('✅ QR Code carregado com sucesso!');
                 };
                 img.onerror = function() {
-                    console.warn('⚠️ Erro ao carregar QR Code:', qrUrl);
+                    console.warn('⚠️ Erro ao carregar QR Code');
                     qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">⚠️ QR Code não disponível. Use o código PIX acima.</p>';
                 };
                 
                 qrContainer.appendChild(img);
-                
-                // Tenta carregar também como fallback
-                setTimeout(function() {
-                    if (qrContainer.children.length === 0) {
-                        qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">⚠️ QR Code não disponível. Use o código PIX acima.</p>';
-                    }
-                }, 5000);
             } else {
                 qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">⚠️ QR Code não disponível. Use o código PIX acima.</p>';
             }
