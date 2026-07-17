@@ -145,45 +145,83 @@
     }
 
     async function gerarPagamentoPIX(ofertaId) {
-        var btn = document.getElementById('btnGerarPix');
-        if (!btn) return;
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Gerando...';
+    var btn = document.getElementById('btnGerarPix');
+    if (!btn) return;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Gerando...';
 
-        try {
-            var response = await fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=pix', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            var data = await response.json();
-            console.log('📥 Resposta PIX:', data);
+    try {
+        var response = await fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=pix', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        var data = await response.json();
+        console.log('📥 Resposta PIX:', data);
 
-            if (data.sucesso) {
-                btn.style.display = 'none';
-                var pixDados = document.getElementById('pixDados');
-                var qrContainer = document.getElementById('qrCodeContainer');
-                pixDados.style.display = 'block';
-                document.getElementById('pixCodigo').textContent = data.pix_payload;
+        if (data.sucesso) {
+            // Esconde o botão
+            btn.style.display = 'none';
+            
+            // Mostra a área do PIX
+            var pixDados = document.getElementById('pixDados');
+            pixDados.style.display = 'block';
+            
+            // Mostra o código PIX
+            document.getElementById('pixCodigo').textContent = data.pix_payload;
 
-                // 🔥 MOSTRA O QR CODE NA TELA
-                if (data.pix_qr_code) {
-                    qrContainer.innerHTML = '<img src="' + data.pix_qr_code + '" class="qr-code">';
-                } else {
-                    qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">QR Code não disponível. Use o código PIX acima.</p>';
-                }
-                alert('✅ PIX gerado! Escaneie o QR Code ou copie o código.');
+            // 🔥 MOSTRA O QR CODE NA TELA (CORRIGIDO)
+            var qrContainer = document.getElementById('qrCodeContainer');
+            qrContainer.innerHTML = ''; // Limpa o container
+            
+            if (data.pix_qr_code) {
+                // Verifica se é uma URL válida
+                var qrUrl = data.pix_qr_code;
+                console.log('🖼️ QR Code URL:', qrUrl);
+                
+                // Tenta carregar a imagem
+                var img = document.createElement('img');
+                img.src = qrUrl;
+                img.className = 'qr-code';
+                img.alt = 'QR Code PIX';
+                img.style.maxWidth = '200px';
+                img.style.margin = '16px auto';
+                img.style.display = 'block';
+                img.style.borderRadius = '8px';
+                
+                // Verifica se a imagem carregou
+                img.onload = function() {
+                    console.log('✅ QR Code carregado com sucesso!');
+                };
+                img.onerror = function() {
+                    console.warn('⚠️ Erro ao carregar QR Code:', qrUrl);
+                    qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">⚠️ QR Code não disponível. Use o código PIX acima.</p>';
+                };
+                
+                qrContainer.appendChild(img);
+                
+                // Tenta carregar também como fallback
+                setTimeout(function() {
+                    if (qrContainer.children.length === 0) {
+                        qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">⚠️ QR Code não disponível. Use o código PIX acima.</p>';
+                    }
+                }, 5000);
             } else {
-                alert('❌ Erro: ' + (data.mensagem || 'Tente novamente'));
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-qrcode"></i> Gerar PIX';
+                qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">⚠️ QR Code não disponível. Use o código PIX acima.</p>';
             }
-        } catch (error) {
-            alert('❌ Erro de conexão: ' + error.message);
+
+            alert('✅ PIX gerado! Escaneie o QR Code ou copie o código.');
+        } else {
+            alert('❌ Erro: ' + (data.mensagem || 'Tente novamente'));
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-qrcode"></i> Gerar PIX';
         }
+    } catch (error) {
+        console.error('❌ Erro:', error);
+        alert('❌ Erro de conexão: ' + error.message);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-qrcode"></i> Gerar PIX';
     }
-
+}
     function copiarPIX() {
         var texto = document.getElementById('pixCodigo').textContent;
         navigator.clipboard.writeText(texto).then(function() {
