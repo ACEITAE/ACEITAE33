@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>ACEITAÊ - Pagamento</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f7fa;min-height:100vh}
@@ -52,6 +53,7 @@
         .erro-box{text-align:center;padding:40px}
         .erro-box i{font-size:48px;color:#c62828}
         .erro-box p{margin-top:16px;font-size:18px}
+        #qrcode img { margin: 0 auto; }
         @media (max-width:640px){.produto-info{flex-direction:column;align-items:center;text-align:center}.metodo-btn{flex:1 1 100%}}
     </style>
 </head>
@@ -123,7 +125,7 @@
                 <div id="pixDados" style="display:none;margin-top:16px;">
                     <div class="codigo-pix" onclick="copiarPIX()" id="pixCodigo">Carregando...</div>
                     <div id="pixCopiado" class="copiado">✅ Código copiado!</div>
-                    <div id="qrCodeContainer" style="margin-top:16px;"></div>
+                    <div id="qrCodeContainer" style="margin-top:16px;display:flex;justify-content:center;"></div>
                 </div>
             </div>
             <div id="cartaoArea" class="cartao-area">
@@ -167,24 +169,42 @@
                 pixDados.style.display = 'block';
                 document.getElementById('pixCodigo').textContent = data.pix_payload;
 
+                // 🔥 GERA QR CODE LOCALMENTE
                 var qrContainer = document.getElementById('qrCodeContainer');
                 qrContainer.innerHTML = '';
                 
                 if (data.pix_payload) {
-                    var qrUrl = 'https://chart.googleapis.com/chart?cht=qr&chl=' + encodeURIComponent(data.pix_payload) + '&chs=300x300&choe=UTF-8';
-                    var img = document.createElement('img');
-                    img.src = qrUrl;
-                    img.className = 'qr-code';
-                    img.alt = 'QR Code PIX';
-                    img.style.maxWidth = '200px';
-                    img.style.margin = '16px auto';
-                    img.style.display = 'block';
-                    img.style.borderRadius = '8px';
-                    img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-                    img.onerror = function() {
+                    try {
+                        // Limpa o container
+                        qrContainer.innerHTML = '';
+                        
+                        // Cria um container para o QR Code
+                        var qrDiv = document.createElement('div');
+                        qrDiv.id = 'qrcode';
+                        qrDiv.style.display = 'flex';
+                        qrDiv.style.justifyContent = 'center';
+                        qrDiv.style.margin = '16px 0';
+                        qrContainer.appendChild(qrDiv);
+
+                        // Verifica se a biblioteca QRCode está carregada
+                        if (typeof QRCode !== 'undefined') {
+                            var qr = new QRCode(qrDiv, {
+                                text: data.pix_payload,
+                                width: 200,
+                                height: 200,
+                                colorDark: '#1A237E',
+                                colorLight: '#ffffff',
+                                correctLevel: QRCode.CorrectLevel.H
+                            });
+                            console.log('✅ QR Code gerado localmente!');
+                        } else {
+                            console.warn('⚠️ QRCode library não carregada');
+                            qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">⚠️ Use o código PIX acima para pagar.</p>';
+                        }
+                    } catch (e) {
+                        console.error('❌ Erro ao gerar QR Code:', e);
                         qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">⚠️ Use o código PIX acima para pagar.</p>';
-                    };
-                    qrContainer.appendChild(img);
+                    }
                 } else {
                     qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">⚠️ Código PIX não disponível.</p>';
                 }
