@@ -17,9 +17,8 @@
         .card h1{font-size:24px;color:#1A237E;margin-bottom:8px}
         .card .subtitle{color:#666;font-size:14px;margin-bottom:24px}
         .status-badge{padding:8px 16px;border-radius:30px;font-size:13px;font-weight:bold;display:inline-block}
-        .status-pendente{background:#fff8e1;color:#f57f17}
+        .status-aguardando{background:#fff8e1;color:#f57f17}
         .status-pago{background:#e8f5e9;color:#2e7d32}
-        .status-falha{background:#ffebee;color:#c62828}
         .produto-info{display:flex;gap:20px;padding:16px;background:#f9f9f9;border-radius:16px;margin:20px 0}
         .produto-info img{width:100px;height:100px;object-fit:contain;background:#fff;border-radius:12px}
         .produto-info .detalhes h3{font-size:16px;color:#1A237E}
@@ -50,6 +49,9 @@
         .btn-pagar:disabled{opacity:.6;cursor:not-allowed}
         .loading{text-align:center;padding:40px;color:#999}
         .loading i{font-size:40px;margin-bottom:16px}
+        .erro-box{text-align:center;padding:40px}
+        .erro-box i{font-size:48px;color:#c62828}
+        .erro-box p{margin-top:16px;font-size:18px}
         @media (max-width:640px){.produto-info{flex-direction:column;align-items:center;text-align:center}.metodo-btn{flex:1 1 100%}}
     </style>
 </head>
@@ -62,21 +64,19 @@
 
 <div class="container">
     <div class="card" id="pagamentoContainer">
-        <div class="loading"><i class="fas fa-spinner fa-pulse"></i><br>Carregando...</div>
+        <div class="loading"><i class="fas fa-spinner fa-pulse"></i><br>Carregando pagamento...</div>
     </div>
 </div>
 
 <script>
     var API_URL = 'https://aceitae33-api.onrender.com';
-    var usuarioId = localStorage.getItem('usuario_id');
-    var usuarioNome = localStorage.getItem('usuario_nome');
-
     var urlParams = new URLSearchParams(window.location.search);
     var ofertaId = urlParams.get('oferta');
 
     async function carregarPagamento() {
+        var container = document.getElementById('pagamentoContainer');
         if (!ofertaId) {
-            document.getElementById('pagamentoContainer').innerHTML = '<div style="text-align:center;padding:40px;"><i class="fas fa-exclamation-triangle" style="font-size:48px;color:#c62828;"></i><p style="margin-top:16px;font-size:18px;">Oferta não encontrada</p><a href="index.html" style="color:#00C853;">Voltar para loja</a></div>';
+            container.innerHTML = '<div class="erro-box"><i class="fas fa-exclamation-triangle"></i><p>Oferta não encontrada</p><a href="index.html" style="color:#00C853;display:inline-block;margin-top:12px;">Voltar para loja</a></div>';
             return;
         }
         try {
@@ -85,105 +85,104 @@
             if (!data || !data.id) throw new Error('Oferta não encontrada');
             renderizarPagamento(data);
         } catch (error) {
-            document.getElementById('pagamentoContainer').innerHTML = '<div style="text-align:center;padding:40px;"><i class="fas fa-exclamation-triangle" style="font-size:48px;color:#c62828;"></i><p style="margin-top:16px;font-size:18px;">Erro ao carregar pagamento</p><p style="color:#666;">' + error.message + '</p><a href="index.html" style="color:#00C853;">Voltar para loja</a></div>';
+            container.innerHTML = '<div class="erro-box"><i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar pagamento</p><p style="font-size:14px;color:#666;">'+error.message+'</p><a href="index.html" style="color:#00C853;display:inline-block;margin-top:12px;">Voltar para loja</a></div>';
         }
     }
 
     function renderizarPagamento(oferta) {
         var container = document.getElementById('pagamentoContainer');
-        var statusText = '';
-        var statusClass = '';
-        if (oferta.status === 'pendente') { statusText = '⏳ Aguardando pagamento'; statusClass = 'status-pendente'; }
-        else if (oferta.status === 'pago') { statusText = '✅ Pagamento confirmado'; statusClass = 'status-pago'; }
-        else { statusText = '❌ ' + oferta.status; statusClass = 'status-falha'; }
+        var statusText = 'Aguardando pagamento';
+        var statusClass = 'status-aguardando';
+        if (oferta.status === 'pago') { statusText = '✅ Pagamento confirmado'; statusClass = 'status-pago'; }
         var parcelas = oferta.parcelas || 1;
         var valorParcela = oferta.valor / parcelas;
-        var foto = oferta.foto || '';
-        container.innerHTML = 
-            '<h1>🧾 Pagamento</h1>' +
-            '<p class="subtitle">Confira os dados e escolha como pagar</p>' +
-            '<div class="status-badge ' + statusClass + '">' + statusText + '</div>' +
-            '<div class="produto-info">' +
-                (foto ? '<img src="' + foto + '" alt="' + oferta.produto_nome + '">' : '<div style="width:100px;height:100px;background:#f0f0f0;border-radius:12px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-box" style="font-size:40px;color:#ccc;"></i></div>') +
-                '<div class="detalhes">' +
-                    '<h3>' + escapeHtml(oferta.produto_nome) + '</h3>' +
-                    '<p>Vendedor: ' + escapeHtml(oferta.vendedor_nome || 'ACEITAÊ') + '</p>' +
-                    '<p style="margin-top:8px;">📦 ' + (oferta.quantidade || 1) + ' unidade(s)</p>' +
-                '</div>' +
-            '</div>' +
-            '<div class="valores"><span class="label">Valor da oferta</span><span class="value">R$ ' + oferta.valor.toFixed(2) + '</span></div>' +
-            '<div class="valores"><span class="label">Parcelas</span><span class="value">' + parcelas + 'x de R$ ' + valorParcela.toFixed(2) + '</span></div>' +
-            '<div class="valores total"><span class="label">Total a pagar</span><span class="value">R$ ' + oferta.valor.toFixed(2) + '</span></div>' +
-            '<div style="margin:24px 0 12px;"><p style="font-weight:bold;color:#1A237E;margin-bottom:12px;">Escolha como pagar</p>' +
-            '<div class="metodo-pagamento">' +
-                '<div class="metodo-btn active" data-metodo="pix" onclick="selecionarMetodo(\'pix\')"><i class="fas fa-qrcode icon-pix"></i><span>PIX</span><div style="font-size:11px;color:#666;">Pagamento instantâneo</div></div>' +
-                '<div class="metodo-btn" data-metodo="cartao" onclick="selecionarMetodo(\'cartao\')"><i class="fas fa-credit-card icon-cartao"></i><span>Cartão de Crédito</span><div style="font-size:11px;color:#666;">Parcelamento</div></div>' +
-            '</div></div>' +
-            '<div id="pixArea" class="pix-area"><p><i class="fas fa-qrcode" style="font-size:24px;color:#00C853;"></i></p><p style="font-weight:bold;">Pague com PIX</p><p style="font-size:13px;color:#666;">Escaneie o QR Code ou copie o código</p><div id="qrCodeContainer"><button class="btn-pagar" onclick="gerarPagamentoPIX(' + oferta.id + ')"><i class="fas fa-qrcode"></i> Gerar PIX</button></div><div id="pixDados" style="display:none;margin-top:16px;"><div class="codigo-pix" onclick="copiarPIX()" id="pixCodigo">Carregando...</div><div id="pixCopiado" class="copiado">✅ Código copiado!</div></div></div>' +
-            '<div id="cartaoArea" class="cartao-area"><p style="font-weight:bold;margin-bottom:12px;">Preencha os dados do cartão</p><input type="text" placeholder="Número do cartão" id="cartaoNumero"><input type="text" placeholder="Nome no cartão" id="cartaoNome"><div class="row-2"><input type="text" placeholder="Validade (MM/AA)" id="cartaoValidade"><input type="text" placeholder="CVV" id="cartaoCvv"></div><button class="btn-pagar" onclick="processarPagamentoCartao(' + oferta.id + ')"><i class="fas fa-credit-card"></i> Pagar com Cartão</button></div>';
-        if (oferta.pix_payload && oferta.pix_qr_code) {
-            document.getElementById('qrCodeContainer').style.display = 'none';
-            document.getElementById('pixDados').style.display = 'block';
-            document.getElementById('pixCodigo').textContent = oferta.pix_payload;
-            if (oferta.pix_qr_code) document.getElementById('pixDados').innerHTML += '<img src="' + oferta.pix_qr_code + '" class="qr-code">';
-        }
+
+        container.innerHTML = `
+            <h1>🧾 Pagamento</h1>
+            <p class="subtitle">Confira os dados e escolha como pagar</p>
+            <div class="status-badge ${statusClass}">${statusText}</div>
+            <div class="produto-info">
+                <div style="width:100px;height:100px;background:#f0f0f0;border-radius:12px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-box" style="font-size:40px;color:#ccc;"></i></div>
+                <div class="detalhes"><h3>${escapeHtml(oferta.produto_nome)}</h3><p>Vendedor: ${escapeHtml(oferta.vendedor_nome || 'ACEITAÊ')}</p><p>📦 ${oferta.quantidade || 1} unidade(s)</p></div>
+            </div>
+            <div class="valores"><span class="label">Valor da oferta</span><span class="value">R$ ${oferta.valor.toFixed(2)}</span></div>
+            <div class="valores"><span class="label">Parcelas</span><span class="value">${parcelas}x de R$ ${valorParcela.toFixed(2)}</span></div>
+            <div class="valores total"><span class="label">Total a pagar</span><span class="value">R$ ${oferta.valor.toFixed(2)}</span></div>
+            <div style="margin:24px 0 12px;"><p style="font-weight:bold;color:#1A237E;margin-bottom:12px;">Escolha como pagar</p>
+            <div class="metodo-pagamento">
+                <div class="metodo-btn active" data-metodo="pix" onclick="selecionarMetodo('pix')"><i class="fas fa-qrcode icon-pix"></i><span>PIX</span><div style="font-size:11px;color:#666;">Pagamento instantâneo</div></div>
+                <div class="metodo-btn" data-metodo="cartao" onclick="selecionarMetodo('cartao')"><i class="fas fa-credit-card icon-cartao"></i><span>Cartão de Crédito</span><div style="font-size:11px;color:#666;">Parcelamento</div></div>
+            </div></div>
+            <div id="pixArea" class="pix-area">
+                <p><i class="fas fa-qrcode" style="font-size:24px;color:#00C853;"></i></p>
+                <p style="font-weight:bold;">Pague com PIX</p>
+                <p style="font-size:13px;color:#666;">Escaneie o QR Code ou copie o código</p>
+                <button class="btn-pagar" onclick="gerarPagamentoPIX(${oferta.id})" id="btnGerarPix">
+                    <i class="fas fa-qrcode"></i> Gerar PIX
+                </button>
+                <div id="pixDados" style="display:none;margin-top:16px;">
+                    <div class="codigo-pix" onclick="copiarPIX()" id="pixCodigo">Carregando...</div>
+                    <div id="pixCopiado" class="copiado">✅ Código copiado!</div>
+                    <div id="qrCodeContainer" style="margin-top:16px;"></div>
+                </div>
+            </div>
+            <div id="cartaoArea" class="cartao-area">
+                <p style="font-weight:bold;margin-bottom:12px;">Preencha os dados do cartão</p>
+                <input type="text" placeholder="Número do cartão" id="cartaoNumero">
+                <input type="text" placeholder="Nome no cartão" id="cartaoNome">
+                <div class="row-2"><input type="text" placeholder="Validade (MM/AA)" id="cartaoValidade"><input type="text" placeholder="CVV" id="cartaoCvv"></div>
+                <button class="btn-pagar" onclick="processarPagamentoCartao(${oferta.id})"><i class="fas fa-credit-card"></i> Pagar com Cartão</button>
+            </div>
+        `;
     }
 
     function selecionarMetodo(metodo) {
         var btns = document.querySelectorAll('.metodo-btn');
         btns.forEach(function(b) { b.classList.remove('active'); });
         document.querySelector('.metodo-btn[data-metodo="' + metodo + '"]').classList.add('active');
-        if (metodo === 'pix') { document.getElementById('pixArea').style.display = 'block'; document.getElementById('cartaoArea').style.display = 'none'; }
-        else { document.getElementById('pixArea').style.display = 'none'; document.getElementById('cartaoArea').style.display = 'block'; }
+        document.getElementById('pixArea').style.display = metodo === 'pix' ? 'block' : 'none';
+        document.getElementById('cartaoArea').style.display = metodo === 'cartao' ? 'block' : 'none';
     }
 
     async function gerarPagamentoPIX(ofertaId) {
-    var btn = document.querySelector('#qrCodeContainer .btn-pagar');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Gerando...';
+        var btn = document.getElementById('btnGerarPix');
+        if (!btn) return;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Gerando...';
 
-    try {
-        var response = await fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=pix', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        var data = await response.json();
+        try {
+            var response = await fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=pix', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            var data = await response.json();
+            console.log('📥 Resposta PIX:', data);
 
-        console.log('📥 Resposta do PIX:', data);
+            if (data.sucesso) {
+                btn.style.display = 'none';
+                var pixDados = document.getElementById('pixDados');
+                var qrContainer = document.getElementById('qrCodeContainer');
+                pixDados.style.display = 'block';
+                document.getElementById('pixCodigo').textContent = data.pix_payload;
 
-        if (data.sucesso) {
-            // Esconde o botão "Gerar PIX"
-            document.getElementById('qrCodeContainer').style.display = 'none';
-            
-            // Mostra a área do PIX
-            var pixDados = document.getElementById('pixDados');
-            pixDados.style.display = 'block';
-            
-            // Mostra o código PIX
-            document.getElementById('pixCodigo').textContent = data.pix_payload;
-
-            // 🔥 MOSTRA O QR CODE NA TELA
-            if (data.pix_qr_code) {
-                // Se for uma URL de imagem, exibe como <img>
-                var qrContainer = document.getElementById('pixDados');
-                qrContainer.innerHTML += '<img src="' + data.pix_qr_code + '" class="qr-code" style="max-width:200px;margin:16px auto;display:block;">';
+                // 🔥 MOSTRA O QR CODE NA TELA
+                if (data.pix_qr_code) {
+                    qrContainer.innerHTML = '<img src="' + data.pix_qr_code + '" class="qr-code">';
+                } else {
+                    qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">QR Code não disponível. Use o código PIX acima.</p>';
+                }
+                alert('✅ PIX gerado! Escaneie o QR Code ou copie o código.');
             } else {
-                // Se não tiver QR Code, mostra uma mensagem
-                qrContainer.innerHTML += '<p style="color:#999;font-size:13px;">QR Code não disponível. Use o código PIX acima.</p>';
+                alert('❌ Erro: ' + (data.mensagem || 'Tente novamente'));
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-qrcode"></i> Gerar PIX';
             }
-
-            alert('✅ PIX gerado! Escaneie o QR Code ou copie o código.');
-        } else {
-            alert('❌ Erro: ' + (data.mensagem || 'Tente novamente'));
+        } catch (error) {
+            alert('❌ Erro de conexão: ' + error.message);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-qrcode"></i> Gerar PIX';
         }
-    } catch (error) {
-        console.error('❌ Erro:', error);
-        alert('❌ Erro de conexão: ' + error.message);
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-qrcode"></i> Gerar PIX';
     }
-}
 
     function copiarPIX() {
         var texto = document.getElementById('pixCodigo').textContent;
@@ -202,12 +201,17 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processando...';
         try {
-            var response = await fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=cartao&parcelas=' + parcelas, { method: 'POST' });
+            var response = await fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=cartao&parcelas=' + parcelas, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
             var data = await response.json();
             if (data.sucesso && data.checkout_url) {
                 alert('✅ Link de pagamento gerado! Abrindo...');
                 window.open(data.checkout_url, '_blank');
-            } else { alert('❌ Erro: ' + (data.mensagem || 'Tente novamente')); }
+            } else {
+                alert('❌ Erro: ' + (data.mensagem || 'Tente novamente'));
+            }
         } catch (error) { alert('❌ Erro de conexão: ' + error.message); }
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-credit-card"></i> Pagar com Cartão';
