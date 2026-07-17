@@ -138,26 +138,52 @@
     }
 
     async function gerarPagamentoPIX(ofertaId) {
-        var btn = document.querySelector('#qrCodeContainer .btn-pagar');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Gerando...';
-        try {
-            var response = await fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=pix', { method: 'POST' });
-            var data = await response.json();
-            if (data.sucesso) {
-                document.getElementById('qrCodeContainer').style.display = 'none';
-                document.getElementById('pixDados').style.display = 'block';
-                document.getElementById('pixCodigo').textContent = data.pix_payload;
-                if (data.pix_qr_code) {
-                    var qrContainer = document.getElementById('pixDados');
-                    qrContainer.innerHTML += '<img src="' + data.pix_qr_code + '" class="qr-code">';
-                }
-                alert('✅ PIX gerado! Copie o código e pague no seu banco.');
-            } else { alert('❌ Erro: ' + (data.mensagem || 'Tente novamente')); }
-        } catch (error) { alert('❌ Erro de conexão: ' + error.message); }
+    var btn = document.querySelector('#qrCodeContainer .btn-pagar');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Gerando...';
+
+    try {
+        var response = await fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=pix', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        var data = await response.json();
+
+        console.log('📥 Resposta do PIX:', data);
+
+        if (data.sucesso) {
+            // Esconde o botão "Gerar PIX"
+            document.getElementById('qrCodeContainer').style.display = 'none';
+            
+            // Mostra a área do PIX
+            var pixDados = document.getElementById('pixDados');
+            pixDados.style.display = 'block';
+            
+            // Mostra o código PIX
+            document.getElementById('pixCodigo').textContent = data.pix_payload;
+
+            // 🔥 MOSTRA O QR CODE NA TELA
+            if (data.pix_qr_code) {
+                // Se for uma URL de imagem, exibe como <img>
+                var qrContainer = document.getElementById('pixDados');
+                qrContainer.innerHTML += '<img src="' + data.pix_qr_code + '" class="qr-code" style="max-width:200px;margin:16px auto;display:block;">';
+            } else {
+                // Se não tiver QR Code, mostra uma mensagem
+                qrContainer.innerHTML += '<p style="color:#999;font-size:13px;">QR Code não disponível. Use o código PIX acima.</p>';
+            }
+
+            alert('✅ PIX gerado! Escaneie o QR Code ou copie o código.');
+        } else {
+            alert('❌ Erro: ' + (data.mensagem || 'Tente novamente'));
+        }
+    } catch (error) {
+        console.error('❌ Erro:', error);
+        alert('❌ Erro de conexão: ' + error.message);
+    } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-qrcode"></i> Gerar PIX';
     }
+}
 
     function copiarPIX() {
         var texto = document.getElementById('pixCodigo').textContent;
