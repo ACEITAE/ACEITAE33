@@ -169,16 +169,16 @@
             // Mostra o código PIX
             document.getElementById('pixCodigo').textContent = data.pix_payload;
 
-            // 🔥 MOSTRA O QR CODE COMO IMAGEM
+            // 🔥 GERA QR CODE A PARTIR DO PAYLOAD (API DO GOOGLE)
             var qrContainer = document.getElementById('qrCodeContainer');
             qrContainer.innerHTML = ''; // Limpa o container
             
-            if (data.pix_qr_code) {
-                var qrData = data.pix_qr_code;
-                console.log('🖼️ QR Code data (primeiros 50 chars):', qrData.substring(0, 50));
+            if (data.pix_payload) {
+                // Usa a API do Google Charts para gerar QR Code
+                var qrUrl = 'https://chart.googleapis.com/chart?cht=qr&chl=' + encodeURIComponent(data.pix_payload) + '&chs=300x300&choe=UTF-8';
                 
-                // CRIA A IMAGEM DO QR CODE
                 var img = document.createElement('img');
+                img.src = qrUrl;
                 img.className = 'qr-code';
                 img.alt = 'QR Code PIX';
                 img.style.maxWidth = '200px';
@@ -187,31 +187,17 @@
                 img.style.borderRadius = '8px';
                 img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
                 
-                // 🔥 CORREÇÃO: Se for Base64, adiciona o prefixo correto
-                if (qrData.startsWith('data:image')) {
-                    img.src = qrData;
-                } else if (qrData.startsWith('iVBORw0KGgo')) {
-                    // Base64 puro (sem prefixo)
-                    img.src = 'data:image/png;base64,' + qrData;
-                } else if (qrData.startsWith('http')) {
-                    img.src = qrData;
-                } else {
-                    // Tenta como Base64
-                    img.src = 'data:image/png;base64,' + qrData;
-                }
-                
-                // Verifica se a imagem carregou
                 img.onload = function() {
-                    console.log('✅ QR Code carregado com sucesso!');
+                    console.log('✅ QR Code gerado com sucesso!');
                 };
                 img.onerror = function() {
-                    console.warn('⚠️ Erro ao carregar QR Code');
-                    qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">⚠️ QR Code não disponível. Use o código PIX acima.</p>';
+                    console.warn('⚠️ Erro ao gerar QR Code, usando fallback');
+                    qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">⚠️ Use o código PIX acima para pagar.</p>';
                 };
                 
                 qrContainer.appendChild(img);
             } else {
-                qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">⚠️ QR Code não disponível. Use o código PIX acima.</p>';
+                qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">⚠️ Código PIX não disponível.</p>';
             }
 
             alert('✅ PIX gerado! Escaneie o QR Code ou copie o código.');
