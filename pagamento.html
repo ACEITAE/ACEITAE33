@@ -85,7 +85,7 @@
             if (!data || !data.id) throw new Error('Oferta não encontrada');
             renderizarPagamento(data);
         } catch (error) {
-            container.innerHTML = '<div class="erro-box"><i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar pagamento</p><p style="font-size:14px;color:#666;">'+error.message+'</p><a href="index.html" style="color:#00C853;display:inline-block;margin-top:12px;">Voltar para loja</a></div>';
+            container.innerHTML = '<div class="erro-box"><i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar pagamento</p><p style="font-size:14px;color:#666;">' + error.message + '</p><a href="index.html" style="color:#00C853;display:inline-block;margin-top:12px;">Voltar para loja</a></div>';
         }
     }
 
@@ -224,7 +224,6 @@
     }
 
     async function processarPagamentoCartao() {
-        // Captura o valor do total a pagar
         var totalElement = document.querySelector('.valores.total .value');
         var valorTexto = totalElement ? totalElement.textContent : '0';
         var valor = parseFloat(valorTexto.replace(/R\$\s*/g, '').replace(/\./g, '').replace(',', '.')) || 0;
