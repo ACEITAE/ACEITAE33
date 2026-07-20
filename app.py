@@ -657,7 +657,6 @@ def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 
         if not oferta.data:
             return {"erro": "oferta_nao_encontrada", "mensagem": "Oferta não encontrada"}
         oferta = oferta.data[0]
-        print(f"📦 Oferta encontrada: status={oferta['status']}, valor={oferta['valor']}")
         
         # Verifica se a oferta já foi paga
         if oferta.get("status") == "pago":
@@ -668,13 +667,12 @@ def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 
         if not comprador.data:
             return {"erro": "comprador_nao_encontrado", "mensagem": "Comprador não encontrado"}
         comprador = comprador.data[0]
-        print(f"👤 Comprador: {comprador['nome']}, CPF: {comprador.get('cpf')}")
         
         # Verifica CPF
         if not comprador.get("cpf"):
             return {
                 "erro": "comprador_sem_cpf",
-                "mensagem": "⚠️ O comprador precisa ter CPF cadastrado para gerar o pagamento.\nAcesse seu perfil e cadastre seu CPF."
+                "mensagem": "⚠️ O comprador precisa ter CPF cadastrado para gerar o pagamento."
             }
         
         # Busca o produto
@@ -686,7 +684,6 @@ def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 
         # Cria ou busca cliente do comprador no Asaas
         customer_id = comprador.get("asaas_customer_id")
         if not customer_id:
-            print("🆕 Criando cliente no Asaas...")
             cliente = criar_cliente_asaas(
                 comprador["nome"],
                 comprador["email"],
@@ -698,7 +695,6 @@ def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 
                 supabase.table("usuarios").update({
                     "asaas_customer_id": customer_id
                 }).eq("id", comprador["id"]).execute()
-                print(f"✅ Cliente Asaas criado: {customer_id}")
             else:
                 return {"erro": "erro_asaas", "mensagem": "Erro ao criar cliente no Asaas"}
         
@@ -711,19 +707,11 @@ def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 
         # PIX
         # ============================================
         if metodo.lower() == "pix":
-            print(f"💳 Gerando PIX para {customer_id}, valor R$ {valor}")
-            
             cobranca = criar_cobranca_pix_asaas(customer_id, valor, descricao, data_vencimento)
             
-            if not cobranca:
+            if not cobranca or not cobranca.get("id"):
                 return {"erro": "erro_cobranca", "mensagem": "Erro ao criar cobrança PIX no Asaas"}
             
-            if cobranca.get("errors"):
-                return {"erro": "erro_asaas", "mensagem": cobranca.get("errors")}
-            
-            print(f"✅ Cobrança PIX criada: {cobranca.get('id')}")
-            
-            # Salva os dados do PIX
             supabase.table("ofertas").update({
                 "asaas_payment_id": cobranca.get("id"),
                 "asaas_pix_qr_code": cobranca.get("pixQrCode"),
@@ -743,47 +731,44 @@ def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 
                 "valor": valor,
                 "vencimento": data_vencimento
             }
-            
+        
         # ============================================
-        # CARTÃO
+        # CARTÃO DE CRÉDITO
         # ============================================
         elif metodo.lower() == "cartao":
-    if parcelas < 1 or parcelas > 12:
-        parcelas = 1
-    
-    cobranca = criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas, data_vencimento)
-    
-    if not cobranca or not cobranca.get("id"):
-        return {"erro": "erro_cobranca", "mensagem": "Erro ao criar cobrança com cartão no Asaas"}
-    
-    # Salva os dados do cartão
-    supabase.table("ofertas").update({
-        "asaas_payment_id": cobranca.get("id"),
-        "asaas_tipo_pagamento": "cartao",
-        "asaas_parcelas": parcelas,
-        "link_pagamento": link_pagamento,
-        "status": "aguardando_pagamento"
-    }).eq("id", oferta_id).execute()
-    
-    # O Asaas retorna um link de checkout para cartão
-    checkout_url = cobranca.get("checkoutUrl") or cobranca.get("url")
-    
-    return {
-        "sucesso": True,
-        "metodo": "cartao",
-        "mensagem": f"Pagamento com cartão gerado com sucesso! Parcelas: {parcelas}x",
-        "link_pagamento": link_pagamento,
-        "checkout_url": checkout_url,
-        "valor": valor,
-        "parcelas": parcelas,
-        "vencimento": data_vencimento
-    }
+            if parcelas < 1 or parcelas > 12:
+                parcelas = 1
+            
+            cobranca = criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas, data_vencimento)
+            
+            if not cobranca or not cobranca.get("id"):
+                return {"erro": "erro_cobranca", "mensagem": "Erro ao criar cobrança com cartão no Asaas"}
+            
+            supabase.table("ofertas").update({
+                "asaas_payment_id": cobranca.get("id"),
+                "asaas_tipo_pagamento": "cartao",
+                "asaas_parcelas": parcelas,
+                "link_pagamento": link_pagamento,
+                "status": "aguardando_pagamento"
+            }).eq("id", oferta_id).execute()
+            
+            return {
+                "sucesso": True,
+                "metodo": "cartao",
+                "mensagem": f"Pagamento com cartão gerado com sucesso! Parcelas: {parcelas}x",
+                "link_pagamento": link_pagamento,
+                "checkout_url": cobranca.get("checkoutUrl") or cobranca.get("url"),
+                "valor": valor,
+                "parcelas": parcelas,
+                "vencimento": data_vencimento
+            }
         else:
             return {"erro": "metodo_invalido", "mensagem": "Método inválido. Use 'pix' ou 'cartao'"}
         
     except Exception as e:
         print(f"❌ Erro ao gerar pagamento: {str(e)}")
         return {"erro": "erro_interno", "mensagem": f"Erro interno: {str(e)}"}
+        
 # ==================================================
 # WEBHOOK ASAAS
 # ==================================================
