@@ -194,64 +194,75 @@
 
     // 🔥 FUNÇÃO CORRIGIDA DO CARTÃO
     async function processarPagamentoCartao() {
-        var totalElement = document.querySelector('.valores.total .value');
-        var valorTexto = totalElement ? totalElement.textContent : '0';
-        var valor = parseFloat(valorTexto.replace(/R\$\s*/g, '').replace(/\./g, '').replace(',', '.')) || 0;
+    var totalElement = document.querySelector('.valores.total .value');
+    var valorTexto = totalElement ? totalElement.textContent : '0';
+    var valor = parseFloat(valorTexto.replace(/R\$\s*/g, '').replace(/\./g, '').replace(',', '.')) || 0;
 
-        if (valor === 0) {
-            alert('❌ Erro: Valor não encontrado. Recarregue a página.');
-            return;
-        }
-
-        var opcoes = '';
-        for (var i = 1; i <= 12; i++) {
-            var valorParcela = (valor / i);
-            opcoes += i + 'x de R$ ' + valorParcela.toFixed(2) + (i === 1 ? ' (sem juros)' : '') + '\n';
-        }
-        
-        var parcelasInput = prompt('📊 PARCELAMENTO\n\n' + opcoes + '\nDigite o número de parcelas (1 a 12):', '1');
-        if (!parcelasInput) return;
-        var parcelas = Math.min(12, Math.max(1, parseInt(parcelasInput) || 1));
-        
-        var btn = document.querySelector('#cartaoArea .btn-pagar');
-        if (!btn) return;
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processando...';
-        
-        try {
-            var response = await fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=cartao&parcelas=' + parcelas, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            var data = await response.json();
-            console.log('📥 Resposta Cartão:', data);
-            
-            if (data.sucesso) {
-                var checkoutUrl = data.checkout_url || data.link_pagamento || null;
-                
-                alert('✅ Pagamento com cartão gerado!\n\n' +
-                      '💰 Valor: R$ ' + data.valor.toFixed(2) + '\n' +
-                      '📅 Parcelas: ' + data.parcelas + 'x de R$ ' + (data.valor / data.parcelas).toFixed(2) + '\n\n' +
-                      '📧 O link de pagamento foi enviado para seu e-mail.\n' +
-                      '🔗 Abrindo link no navegador...');
-                
-                if (checkoutUrl) {
-                    window.open(checkoutUrl, '_blank');
-                } else {
-                    alert('⚠️ Link não disponível. Verifique seu e-mail.');
-                }
-            } else {
-                alert('❌ Erro: ' + (data.mensagem || 'Tente novamente'));
-            }
-        } catch (error) {
-            console.error('❌ Erro:', error);
-            alert('❌ Erro de conexão: ' + error.message);
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-credit-card"></i> Pagar com Cartão';
-        }
+    if (valor === 0) {
+        alert('❌ Erro: Valor não encontrado. Recarregue a página.');
+        return;
     }
 
+    var opcoes = '';
+    for (var i = 1; i <= 12; i++) {
+        var valorParcela = (valor / i);
+        opcoes += i + 'x de R$ ' + valorParcela.toFixed(2) + (i === 1 ? ' (sem juros)' : '') + '\n';
+    }
+    
+    var parcelasInput = prompt('📊 PARCELAMENTO\n\n' + opcoes + '\nDigite o número de parcelas (1 a 12):', '1');
+    if (!parcelasInput) return;
+    var parcelas = Math.min(12, Math.max(1, parseInt(parcelasInput) || 1));
+    
+    var btn = document.querySelector('#cartaoArea .btn-pagar');
+    if (!btn) return;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processando...';
+    
+    try {
+        var response = await fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=cartao&parcelas=' + parcelas, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        var data = await response.json();
+        console.log('📥 Resposta Cartão:', data);
+        
+        if (data.sucesso) {
+            var checkoutUrl = data.checkout_url || data.link_pagamento || null;
+            
+            // 🔥 MOSTRA O LINK NO ALERTA PARA O COMPRADOR CLICAR MANUALMENTE
+            var mensagem = '✅ Pagamento com cartão gerado!\n\n' +
+                          '💰 Valor: R$ ' + data.valor.toFixed(2) + '\n' +
+                          '📅 Parcelas: ' + data.parcelas + 'x de R$ ' + (data.valor / data.parcelas).toFixed(2) + '\n\n';
+            
+            if (checkoutUrl) {
+                mensagem += '🔗 Clique no link abaixo para pagar:\n' + checkoutUrl + '\n\n' +
+                           '📧 O link também foi enviado para seu e-mail.';
+            } else {
+                mensagem += '📧 O link de pagamento foi enviado para seu e-mail.\n' +
+                           '🔗 Verifique sua caixa de entrada.';
+            }
+            
+            alert(mensagem);
+            
+            // Tenta abrir o link mesmo assim (pode ser bloqueado)
+            if (checkoutUrl) {
+                try {
+                    window.open(checkoutUrl, '_blank');
+                } catch (e) {
+                    console.log('Pop-up bloqueado pelo navegador.');
+                }
+            }
+        } else {
+            alert('❌ Erro: ' + (data.mensagem || 'Tente novamente'));
+        }
+    } catch (error) {
+        console.error('❌ Erro:', error);
+        alert('❌ Erro de conexão: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-credit-card"></i> Pagar com Cartão';
+    }
+}
     function escapeHtml(text) {
         if (!text) return '';
         return String(text).replace(/[&<>]/g, function(m) {
