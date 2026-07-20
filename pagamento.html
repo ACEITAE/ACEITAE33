@@ -232,30 +232,51 @@
         });
     }
 
-    async function processarPagamentoCartao() {
-        var parcelas = prompt('📊 PARCELAMENTO\n\nDigite o número de parcelas (1 a 12):', '1');
-        if (!parcelas) return;
-        parcelas = Math.min(12, Math.max(1, parseInt(parcelas) || 1));
-        var btn = document.querySelector('#cartaoArea .btn-pagar');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processando...';
-        try {
-            var response = await fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=cartao&parcelas=' + parcelas, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            var data = await response.json();
-            if (data.sucesso && data.checkout_url) {
-                alert('✅ Link de pagamento gerado! Abrindo...');
-                window.open(data.checkout_url, '_blank');
-            } else {
-                alert('❌ Erro: ' + (data.mensagem || 'Tente novamente'));
-            }
-        } catch (error) { alert('❌ Erro de conexão: ' + error.message); }
+async function processarPagamentoCartao() {
+    // Mostra opções de parcelas
+    var valor = parseFloat(document.querySelector('.valores.total .value')?.textContent?.replace('R$ ', '').replace(',', '.') || '0');
+    
+    var opcoes = '';
+    for (var i = 1; i <= 12; i++) {
+        var valorParcela = (valor / i);
+        opcoes += i + 'x de R$ ' + valorParcela.toFixed(2) + '\n';
+    }
+    
+    var parcelasInput = prompt('📊 PARCELAMENTO\n\n' + opcoes + '\nDigite o número de parcelas (1 a 12):', '1');
+    if (!parcelasInput) return;
+    var parcelas = Math.min(12, Math.max(1, parseInt(parcelasInput) || 1));
+    
+    var btn = document.querySelector('#cartaoArea .btn-pagar');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processando...';
+    
+    try {
+        var response = await fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=cartao&parcelas=' + parcelas, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        var data = await response.json();
+        console.log('📥 Resposta Cartão:', data);
+        
+        if (data.sucesso && data.checkout_url) {
+            alert('✅ Link de pagamento gerado!\n\n' +
+                  '💰 Valor: R$ ' + data.valor.toFixed(2) + '\n' +
+                  '📅 Parcelas: ' + data.parcelas + 'x de R$ ' + (data.valor / data.parcelas).toFixed(2) + '\n\n' +
+                  '🔗 Abrindo link de pagamento...');
+            window.open(data.checkout_url, '_blank');
+        } else {
+            alert('❌ Erro: ' + (data.mensagem || 'Tente novamente'));
+        }
+    } catch (error) {
+        console.error('❌ Erro:', error);
+        alert('❌ Erro de conexão: ' + error.message);
+    } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-credit-card"></i> Pagar com Cartão';
     }
+}
 
+    
     function escapeHtml(text) {
         if (!text) return '';
         return String(text).replace(/[&<>]/g, function(m) {
