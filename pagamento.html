@@ -229,28 +229,19 @@ async function processarPagamentoCartao() {
         if (data.sucesso) {
             var checkoutUrl = data.checkout_url || data.link_pagamento || null;
             
-            // 🔥 MOSTRA O LINK NO ALERTA PARA O COMPRADOR CLICAR MANUALMENTE
-            var mensagem = '✅ Pagamento com cartão gerado!\n\n' +
-                          '💰 Valor: R$ ' + data.valor.toFixed(2) + '\n' +
-                          '📅 Parcelas: ' + data.parcelas + 'x de R$ ' + (data.valor / data.parcelas).toFixed(2) + '\n\n';
-            
             if (checkoutUrl) {
-                mensagem += '🔗 Clique no link abaixo para pagar:\n' + checkoutUrl + '\n\n' +
-                           '📧 O link também foi enviado para seu e-mail.';
+                // 🔥 REDIRECIONA A PÁGINA PARA O CHECKOUT
+                alert('✅ Pagamento gerado!\n\n' +
+                      '💰 Valor: R$ ' + data.valor.toFixed(2) + '\n' +
+                      '📅 Parcelas: ' + data.parcelas + 'x de R$ ' + (data.valor / data.parcelas).toFixed(2) + '\n\n' +
+                      '🔗 Redirecionando para o pagamento...');
+                
+                // Redireciona a página atual para o checkout
+                window.location.href = checkoutUrl;
             } else {
-                mensagem += '📧 O link de pagamento foi enviado para seu e-mail.\n' +
-                           '🔗 Verifique sua caixa de entrada.';
-            }
-            
-            alert(mensagem);
-            
-            // Tenta abrir o link mesmo assim (pode ser bloqueado)
-            if (checkoutUrl) {
-                try {
-                    window.open(checkoutUrl, '_blank');
-                } catch (e) {
-                    console.log('Pop-up bloqueado pelo navegador.');
-                }
+                alert('✅ Pagamento gerado!\n\n' +
+                      '📧 O link de pagamento foi enviado para seu e-mail.\n' +
+                      '🔗 Verifique sua caixa de entrada.');
             }
         } else {
             alert('❌ Erro: ' + (data.mensagem || 'Tente novamente'));
@@ -262,8 +253,7 @@ async function processarPagamentoCartao() {
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-credit-card"></i> Pagar com Cartão';
     }
-}
-    
+}    
     function escapeHtml(text) {
         if (!text) return '';
         return String(text).replace(/[&<>]/g, function(m) {
