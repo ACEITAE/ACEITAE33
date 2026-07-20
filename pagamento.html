@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>ACEITAÊ - Pagamento</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f7fa;min-height:100vh}
@@ -21,7 +20,6 @@
         .status-aguardando{background:#fff8e1;color:#f57f17}
         .status-pago{background:#e8f5e9;color:#2e7d32}
         .produto-info{display:flex;gap:20px;padding:16px;background:#f9f9f9;border-radius:16px;margin:20px 0}
-        .produto-info img{width:100px;height:100px;object-fit:contain;background:#fff;border-radius:12px}
         .produto-info .detalhes h3{font-size:16px;color:#1A237E}
         .produto-info .detalhes p{color:#666;font-size:13px;margin-top:4px}
         .valores{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #eee}
@@ -37,12 +35,10 @@
         .metodo-btn .icon-pix{color:#00C853}
         .metodo-btn .icon-cartao{color:#1A237E}
         .pix-area{background:#f9f9f9;padding:20px;border-radius:16px;text-align:center;margin:20px 0}
-        .pix-area .qr-code{max-width:200px;margin:16px auto;display:block}
         .pix-area .codigo-pix{background:#fff;padding:12px;border-radius:8px;font-size:14px;word-break:break-all;border:1px solid #ddd;cursor:pointer}
         .pix-area .codigo-pix:hover{background:#f0f0f0}
         .pix-area .copiado{color:#00C853;font-weight:bold;margin-top:8px;display:none}
-        .cartao-area{display:none}
-        .cartao-area .btn-pagar{margin-top:8px}
+        .cartao-area{display:none;margin-top:20px}
         .btn-pagar{width:100%;padding:16px;background:#00C853;color:#fff;border:none;border-radius:40px;font-size:18px;font-weight:bold;cursor:pointer;transition:all .3s}
         .btn-pagar:hover{background:#00A844;transform:scale(1.02)}
         .btn-pagar:disabled{opacity:.6;cursor:not-allowed}
@@ -51,7 +47,8 @@
         .erro-box{text-align:center;padding:40px}
         .erro-box i{font-size:48px;color:#c62828}
         .erro-box p{margin-top:16px;font-size:18px}
-        #qrcode img { margin: 0 auto; }
+        .qr-placeholder{background:#f0f0f0;padding:30px;border-radius:12px;margin:16px 0;text-align:center}
+        .qr-placeholder i{font-size:48px;color:#00C853}
         @media (max-width:640px){.produto-info{flex-direction:column;align-items:center;text-align:center}.metodo-btn{flex:1 1 100%}}
     </style>
 </head>
@@ -116,14 +113,14 @@
             <div id="pixArea" class="pix-area">
                 <p><i class="fas fa-qrcode" style="font-size:24px;color:#00C853;"></i></p>
                 <p style="font-weight:bold;">Pague com PIX</p>
-                <p style="font-size:13px;color:#666;">Escaneie o QR Code ou copie o código</p>
+                <p style="font-size:13px;color:#666;">Copie o código PIX e pague no seu banco</p>
                 <button class="btn-pagar" id="btnGerarPix" onclick="gerarPagamentoPIX()">
                     <i class="fas fa-qrcode"></i> Gerar PIX
                 </button>
                 <div id="pixDados" style="display:none;margin-top:16px;">
                     <div class="codigo-pix" onclick="copiarPIX()" id="pixCodigo">Carregando...</div>
                     <div id="pixCopiado" class="copiado">✅ Código copiado!</div>
-                    <div id="qrCodeContainer" style="margin-top:16px;display:flex;justify-content:center;"></div>
+                    <div id="qrContainer" style="margin-top:16px;"></div>
                 </div>
             </div>
             <div id="cartaoArea" class="cartao-area">
@@ -146,10 +143,7 @@
 
     async function gerarPagamentoPIX() {
         var btn = document.getElementById('btnGerarPix');
-        if (!btn) {
-            alert('Erro: Botão não encontrado');
-            return;
-        }
+        if (!btn) return;
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Gerando...';
 
@@ -159,7 +153,6 @@
                 headers: { 'Content-Type': 'application/json' }
             });
             var data = await response.json();
-            console.log('📥 Resposta PIX:', data);
 
             if (data.sucesso) {
                 btn.style.display = 'none';
@@ -167,47 +160,23 @@
                 pixDados.style.display = 'block';
                 document.getElementById('pixCodigo').textContent = data.pix_payload;
 
-                var qrContainer = document.getElementById('qrCodeContainer');
+                var qrContainer = document.getElementById('qrContainer');
                 qrContainer.innerHTML = '';
                 
                 if (data.pix_payload) {
-                    try {
-                        var qrDiv = document.createElement('div');
-                        qrDiv.id = 'qrcode';
-                        qrDiv.style.display = 'flex';
-                        qrDiv.style.justifyContent = 'center';
-                        qrDiv.style.margin = '16px 0';
-                        qrContainer.appendChild(qrDiv);
-
-                        if (typeof QRCode !== 'undefined') {
-                            new QRCode(qrDiv, {
-                                text: data.pix_payload,
-                                width: 200,
-                                height: 200,
-                                colorDark: '#1A237E',
-                                colorLight: '#ffffff',
-                                correctLevel: QRCode.CorrectLevel.H
-                            });
-                            console.log('✅ QR Code gerado localmente!');
-                        } else {
-                            qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">⚠️ Use o código PIX acima para pagar.</p>';
-                        }
-                    } catch (e) {
-                        console.error('❌ Erro ao gerar QR Code:', e);
-                        qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">⚠️ Use o código PIX acima para pagar.</p>';
-                    }
-                } else {
-                    qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">⚠️ Código PIX não disponível.</p>';
+                    var qrDiv = document.createElement('div');
+                    qrDiv.className = 'qr-placeholder';
+                    qrDiv.innerHTML = '<i class="fas fa-qrcode"></i><p style="margin-top:8px;font-size:13px;">QR Code gerado no e-mail</p><p style="font-size:12px;color:#666;word-break:break-all;">' + data.pix_payload.substring(0, 50) + '...</p>';
+                    qrContainer.appendChild(qrDiv);
                 }
 
-                alert('✅ PIX gerado! Escaneie o QR Code ou copie o código.');
+                alert('✅ PIX gerado! Copie o código e pague no seu banco.');
             } else {
                 alert('❌ Erro: ' + (data.mensagem || 'Tente novamente'));
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-qrcode"></i> Gerar PIX';
             }
         } catch (error) {
-            console.error('❌ Erro:', error);
             alert('❌ Erro de conexão: ' + error.message);
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-qrcode"></i> Gerar PIX';
@@ -229,7 +198,7 @@
         var valor = parseFloat(valorTexto.replace(/R\$\s*/g, '').replace(/\./g, '').replace(',', '.')) || 0;
 
         if (valor === 0) {
-            alert('❌ Erro: Valor não encontrado. Recarregue a página.');
+            alert('❌ Erro: Valor não encontrado.');
             return;
         }
 
@@ -244,6 +213,7 @@
         var parcelas = Math.min(12, Math.max(1, parseInt(parcelasInput) || 1));
         
         var btn = document.querySelector('#cartaoArea .btn-pagar');
+        if (!btn) return;
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processando...';
         
@@ -253,7 +223,6 @@
                 headers: { 'Content-Type': 'application/json' }
             });
             var data = await response.json();
-            console.log('📥 Resposta Cartão:', data);
             
             if (data.sucesso && data.checkout_url) {
                 alert('✅ Link de pagamento gerado!\n\n' +
@@ -265,7 +234,6 @@
                 alert('❌ Erro: ' + (data.mensagem || 'Tente novamente'));
             }
         } catch (error) {
-            console.error('❌ Erro:', error);
             alert('❌ Erro de conexão: ' + error.message);
         } finally {
             btn.disabled = false;
