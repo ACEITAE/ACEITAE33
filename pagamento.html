@@ -193,7 +193,7 @@
     }
 
     // 🔥 FUNÇÃO CORRIGIDA DO CARTÃO
-    async function processarPagamentoCartao() {
+async function processarPagamentoCartao() {
     var totalElement = document.querySelector('.valores.total .value');
     var valorTexto = totalElement ? totalElement.textContent : '0';
     var valor = parseFloat(valorTexto.replace(/R\$\s*/g, '').replace(/\./g, '').replace(',', '.')) || 0;
@@ -263,6 +263,7 @@
         btn.innerHTML = '<i class="fas fa-credit-card"></i> Pagar com Cartão';
     }
 }
+    
     function escapeHtml(text) {
         if (!text) return '';
         return String(text).replace(/[&<>]/g, function(m) {
