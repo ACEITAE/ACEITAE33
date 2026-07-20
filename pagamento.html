@@ -226,19 +226,19 @@
             var data = await response.json();
             console.log('📥 Resposta Cartão:', data);
             
-            // 🔥 CORREÇÃO: Verifica se a resposta é de sucesso
             if (data.sucesso) {
-                // Verifica se tem checkout_url
-                var checkoutUrl = data.checkout_url || data.link_pagamento;
+                var checkoutUrl = data.checkout_url || data.link_pagamento || null;
+                
+                alert('✅ Pagamento com cartão gerado!\n\n' +
+                      '💰 Valor: R$ ' + data.valor.toFixed(2) + '\n' +
+                      '📅 Parcelas: ' + data.parcelas + 'x de R$ ' + (data.valor / data.parcelas).toFixed(2) + '\n\n' +
+                      '📧 O link de pagamento foi enviado para seu e-mail.\n' +
+                      '🔗 Abrindo link no navegador...');
                 
                 if (checkoutUrl) {
-                    alert('✅ Link de pagamento gerado!\n\n' +
-                          '💰 Valor: R$ ' + data.valor.toFixed(2) + '\n' +
-                          '📅 Parcelas: ' + data.parcelas + 'x de R$ ' + (data.valor / data.parcelas).toFixed(2) + '\n\n' +
-                          '🔗 Abrindo link de pagamento...');
                     window.open(checkoutUrl, '_blank');
                 } else {
-                    alert('✅ ' + data.mensagem + '\n\n🔗 Link de pagamento será enviado por e-mail.');
+                    alert('⚠️ Link não disponível. Verifique seu e-mail.');
                 }
             } else {
                 alert('❌ Erro: ' + (data.mensagem || 'Tente novamente'));
