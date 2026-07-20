@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>ACEITAÊ - Pagamento</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f7fa;min-height:100vh}
@@ -42,9 +42,7 @@
         .pix-area .codigo-pix:hover{background:#f0f0f0}
         .pix-area .copiado{color:#00C853;font-weight:bold;margin-top:8px;display:none}
         .cartao-area{display:none}
-        .cartao-area input{width:100%;padding:12px;border:1px solid #ddd;border-radius:12px;font-size:14px;margin-bottom:12px;outline:none}
-        .cartao-area input:focus{border-color:#00C853}
-        .cartao-area .row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .cartao-area .btn-pagar{margin-top:8px}
         .btn-pagar{width:100%;padding:16px;background:#00C853;color:#fff;border:none;border-radius:40px;font-size:18px;font-weight:bold;cursor:pointer;transition:all .3s}
         .btn-pagar:hover{background:#00A844;transform:scale(1.02)}
         .btn-pagar:disabled{opacity:.6;cursor:not-allowed}
@@ -129,11 +127,11 @@
                 </div>
             </div>
             <div id="cartaoArea" class="cartao-area">
-                <p style="font-weight:bold;margin-bottom:12px;">Preencha os dados do cartão</p>
-                <input type="text" placeholder="Número do cartão" id="cartaoNumero">
-                <input type="text" placeholder="Nome no cartão" id="cartaoNome">
-                <div class="row-2"><input type="text" placeholder="Validade (MM/AA)" id="cartaoValidade"><input type="text" placeholder="CVV" id="cartaoCvv"></div>
-                <button class="btn-pagar" onclick="processarPagamentoCartao()"><i class="fas fa-credit-card"></i> Pagar com Cartão</button>
+                <p style="font-weight:bold;margin-bottom:12px;">💳 Pagamento com Cartão de Crédito</p>
+                <p style="font-size:13px;color:#666;margin-bottom:16px;">Escolha o número de parcelas no próximo passo</p>
+                <button class="btn-pagar" onclick="processarPagamentoCartao()">
+                    <i class="fas fa-credit-card"></i> Pagar com Cartão
+                </button>
             </div>
         `;
     }
@@ -169,16 +167,11 @@
                 pixDados.style.display = 'block';
                 document.getElementById('pixCodigo').textContent = data.pix_payload;
 
-                // 🔥 GERA QR CODE LOCALMENTE
                 var qrContainer = document.getElementById('qrCodeContainer');
                 qrContainer.innerHTML = '';
                 
                 if (data.pix_payload) {
                     try {
-                        // Limpa o container
-                        qrContainer.innerHTML = '';
-                        
-                        // Cria um container para o QR Code
                         var qrDiv = document.createElement('div');
                         qrDiv.id = 'qrcode';
                         qrDiv.style.display = 'flex';
@@ -186,9 +179,8 @@
                         qrDiv.style.margin = '16px 0';
                         qrContainer.appendChild(qrDiv);
 
-                        // Verifica se a biblioteca QRCode está carregada
                         if (typeof QRCode !== 'undefined') {
-                            var qr = new QRCode(qrDiv, {
+                            new QRCode(qrDiv, {
                                 text: data.pix_payload,
                                 width: 200,
                                 height: 200,
@@ -198,7 +190,6 @@
                             });
                             console.log('✅ QR Code gerado localmente!');
                         } else {
-                            console.warn('⚠️ QRCode library não carregada');
                             qrContainer.innerHTML = '<p style="color:#999;font-size:13px;">⚠️ Use o código PIX acima para pagar.</p>';
                         }
                     } catch (e) {
@@ -232,51 +223,57 @@
         });
     }
 
-async function processarPagamentoCartao() {
-    // Mostra opções de parcelas
-    var valor = parseFloat(document.querySelector('.valores.total .value')?.textContent?.replace('R$ ', '').replace(',', '.') || '0');
-    
-    var opcoes = '';
-    for (var i = 1; i <= 12; i++) {
-        var valorParcela = (valor / i);
-        opcoes += i + 'x de R$ ' + valorParcela.toFixed(2) + '\n';
-    }
-    
-    var parcelasInput = prompt('📊 PARCELAMENTO\n\n' + opcoes + '\nDigite o número de parcelas (1 a 12):', '1');
-    if (!parcelasInput) return;
-    var parcelas = Math.min(12, Math.max(1, parseInt(parcelasInput) || 1));
-    
-    var btn = document.querySelector('#cartaoArea .btn-pagar');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processando...';
-    
-    try {
-        var response = await fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=cartao&parcelas=' + parcelas, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        var data = await response.json();
-        console.log('📥 Resposta Cartão:', data);
-        
-        if (data.sucesso && data.checkout_url) {
-            alert('✅ Link de pagamento gerado!\n\n' +
-                  '💰 Valor: R$ ' + data.valor.toFixed(2) + '\n' +
-                  '📅 Parcelas: ' + data.parcelas + 'x de R$ ' + (data.valor / data.parcelas).toFixed(2) + '\n\n' +
-                  '🔗 Abrindo link de pagamento...');
-            window.open(data.checkout_url, '_blank');
-        } else {
-            alert('❌ Erro: ' + (data.mensagem || 'Tente novamente'));
-        }
-    } catch (error) {
-        console.error('❌ Erro:', error);
-        alert('❌ Erro de conexão: ' + error.message);
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-credit-card"></i> Pagar com Cartão';
-    }
-}
+    async function processarPagamentoCartao() {
+        // Captura o valor do total a pagar
+        var totalElement = document.querySelector('.valores.total .value');
+        var valorTexto = totalElement ? totalElement.textContent : '0';
+        var valor = parseFloat(valorTexto.replace(/R\$\s*/g, '').replace(/\./g, '').replace(',', '.')) || 0;
 
-    
+        if (valor === 0) {
+            alert('❌ Erro: Valor não encontrado. Recarregue a página.');
+            return;
+        }
+
+        var opcoes = '';
+        for (var i = 1; i <= 12; i++) {
+            var valorParcela = (valor / i);
+            opcoes += i + 'x de R$ ' + valorParcela.toFixed(2) + (i === 1 ? ' (sem juros)' : '') + '\n';
+        }
+        
+        var parcelasInput = prompt('📊 PARCELAMENTO\n\n' + opcoes + '\nDigite o número de parcelas (1 a 12):', '1');
+        if (!parcelasInput) return;
+        var parcelas = Math.min(12, Math.max(1, parseInt(parcelasInput) || 1));
+        
+        var btn = document.querySelector('#cartaoArea .btn-pagar');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processando...';
+        
+        try {
+            var response = await fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=cartao&parcelas=' + parcelas, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            var data = await response.json();
+            console.log('📥 Resposta Cartão:', data);
+            
+            if (data.sucesso && data.checkout_url) {
+                alert('✅ Link de pagamento gerado!\n\n' +
+                      '💰 Valor: R$ ' + data.valor.toFixed(2) + '\n' +
+                      '📅 Parcelas: ' + data.parcelas + 'x de R$ ' + (data.valor / data.parcelas).toFixed(2) + '\n\n' +
+                      '🔗 Abrindo link de pagamento...');
+                window.open(data.checkout_url, '_blank');
+            } else {
+                alert('❌ Erro: ' + (data.mensagem || 'Tente novamente'));
+            }
+        } catch (error) {
+            console.error('❌ Erro:', error);
+            alert('❌ Erro de conexão: ' + error.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-credit-card"></i> Pagar com Cartão';
+        }
+    }
+
     function escapeHtml(text) {
         if (!text) return '';
         return String(text).replace(/[&<>]/g, function(m) {
