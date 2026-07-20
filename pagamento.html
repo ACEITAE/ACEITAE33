@@ -192,13 +192,14 @@
         });
     }
 
+    // 🔥 FUNÇÃO CORRIGIDA DO CARTÃO
     async function processarPagamentoCartao() {
         var totalElement = document.querySelector('.valores.total .value');
         var valorTexto = totalElement ? totalElement.textContent : '0';
         var valor = parseFloat(valorTexto.replace(/R\$\s*/g, '').replace(/\./g, '').replace(',', '.')) || 0;
 
         if (valor === 0) {
-            alert('❌ Erro: Valor não encontrado.');
+            alert('❌ Erro: Valor não encontrado. Recarregue a página.');
             return;
         }
 
@@ -223,17 +224,27 @@
                 headers: { 'Content-Type': 'application/json' }
             });
             var data = await response.json();
+            console.log('📥 Resposta Cartão:', data);
             
-            if (data.sucesso && data.checkout_url) {
-                alert('✅ Link de pagamento gerado!\n\n' +
-                      '💰 Valor: R$ ' + data.valor.toFixed(2) + '\n' +
-                      '📅 Parcelas: ' + data.parcelas + 'x de R$ ' + (data.valor / data.parcelas).toFixed(2) + '\n\n' +
-                      '🔗 Abrindo link de pagamento...');
-                window.open(data.checkout_url, '_blank');
+            // 🔥 CORREÇÃO: Verifica se a resposta é de sucesso
+            if (data.sucesso) {
+                // Verifica se tem checkout_url
+                var checkoutUrl = data.checkout_url || data.link_pagamento;
+                
+                if (checkoutUrl) {
+                    alert('✅ Link de pagamento gerado!\n\n' +
+                          '💰 Valor: R$ ' + data.valor.toFixed(2) + '\n' +
+                          '📅 Parcelas: ' + data.parcelas + 'x de R$ ' + (data.valor / data.parcelas).toFixed(2) + '\n\n' +
+                          '🔗 Abrindo link de pagamento...');
+                    window.open(checkoutUrl, '_blank');
+                } else {
+                    alert('✅ ' + data.mensagem + '\n\n🔗 Link de pagamento será enviado por e-mail.');
+                }
             } else {
                 alert('❌ Erro: ' + (data.mensagem || 'Tente novamente'));
             }
         } catch (error) {
+            console.error('❌ Erro:', error);
             alert('❌ Erro de conexão: ' + error.message);
         } finally {
             btn.disabled = false;
