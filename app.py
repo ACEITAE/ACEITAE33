@@ -192,6 +192,30 @@ def criar_cobranca_pix_asaas(customer_id, valor, descricao, data_vencimento):
         print(f"❌ Erro ao criar cobrança PIX Asaas: {e}")
         return None
 
+# ==================================================
+# Cobrança Cartão ASAAS 20-07
+# ==================================================
+def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_vencimento=None):
+    """Cria uma cobrança com cartão de crédito no Asaas (1 a 12 parcelas)"""
+    url = f"{ASAAS_URL}/payments"
+    payload = {
+        "customer": customer_id,
+        "billingType": "CREDIT_CARD",
+        "value": valor,
+        "description": descricao,
+        "installmentCount": parcelas,
+        "installmentValue": round(valor / parcelas, 2) if parcelas > 1 else valor,
+        "dueDate": data_vencimento or (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    }
+    try:
+        response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
+        data = response.json()
+        print(f"📦 Resposta Cartão Asaas: {data}")
+        return data
+    except Exception as e:
+        print(f"❌ Erro ao criar cobrança cartão Asaas: {e}")
+        return None
+
 
 # ==================================================
 # ROTAS DE USUÁRIO
