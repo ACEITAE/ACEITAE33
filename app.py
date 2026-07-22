@@ -817,24 +817,49 @@ def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 
             }
         
         # ============================================
-        # CARTÃO DE CRÉDITO
+        # CARTÃO DE CRÉDITO (CORRIGIDO)
         # ============================================
         elif metodo.lower() == "cartao":
-    if parcelas < 1 or parcelas > 12:
-        parcelas = 1
-    
-    # 🔥 USA A NOVA FUNÇÃO DE CHECKOUT
-    cobranca = criar_checkout_cartao_asaas(customer_id, valor, descricao, parcelas)
-    
-    if not cobranca or not cobranca.get("id"):
-        return {"erro": "erro_cobranca", "mensagem": "Erro ao criar checkout com cartão no Asaas"}
-    
-    checkout_url = cobranca.get("checkoutUrl") or cobranca.get("url")
-    
-    # Se ainda não tiver URL, constrói manualmente
-    if not checkout_url and cobranca.get("id"):
-        checkout_url = f"https://sandbox.asaas.com/payment/{cobranca.get('id')}/checkout"
+            if parcelas < 1 or parcelas > 12:
+                parcelas = 1
+            
+            cobranca = criar_checkout_cartao_asaas(customer_id, valor, descricao, parcelas)
+            
+            if not cobranca or not cobranca.get("id"):
+                return {"erro": "erro_cobranca", "mensagem": "Erro ao criar checkout com cartão no Asaas"}
+            
+            checkout_url = cobranca.get("checkoutUrl") or cobranca.get("url")
+            
+            if not checkout_url and cobranca.get("id"):
+                checkout_url = f"https://sandbox.asaas.com/payment/{cobranca.get('id')}/checkout"
+            
+            supabase.table("ofertas").update({
+                "asaas_payment_id": cobranca.get("id"),
+                "asaas_tipo_pagamento": "cartao",
+                "asaas_parcelas": parcelas,
+                "link_pagamento": checkout_url or link_pagamento,
+                "status": "aguardando_pagamento"
+            }).eq("id", oferta_id).execute()
+            
+            return {
+                "sucesso": True,
+                "metodo": "cartao",
+                "mensagem": f"Pagamento com cartão gerado com sucesso! Parcelas: {parcelas}x",
+                "link_pagamento": checkout_url or link_pagamento,
+                "checkout_url": checkout_url,
+                "valor": valor,
+                "parcelas": parcelas,
+                "vencimento": data_vencimento
+            }
         
+        else:
+            return {"erro": "metodo_invalido", "mensagem": "Método inválido. Use 'pix' ou 'cartao'"}
+        
+    except Exception as e:
+        print(f"❌ Erro ao gerar pagamento: {str(e)}")
+        return {"erro": "erro_interno", "mensagem": f"Erro interno: {str(e)}"}
+
+
 # ==================================================
 # WEBHOOK ASAAS
 # ==================================================
