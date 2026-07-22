@@ -293,14 +293,26 @@ def criar_checkout_cartao_asaas(customer_id, valor, descricao, parcelas=1):
         "cancelUrl": "https://aceitae.com/pagamento.html?status=cancelado"
     }
     try:
+        print(f"📤 Enviando requisição para Asaas Checkout:")
+        print(f"   URL: {url}")
+        print(f"   Payload: {payload}")
+        
         response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
-        data = response.json()
-        print(f"📦 Resposta Checkout Asaas: {data}")
-        return data
+        
+        print(f"📥 Status Code: {response.status_code}")
+        print(f"📥 Resposta: {response.text}")
+        
+        if response.status_code == 200 or response.status_code == 201:
+            data = response.json()
+            print(f"✅ Checkout criado com sucesso: {data}")
+            return data
+        else:
+            print(f"❌ Erro Asaas: {response.text}")
+            return {"erro": response.text, "status_code": response.status_code}
+            
     except Exception as e:
         print(f"❌ Erro ao criar checkout Asaas: {e}")
-        return None
-        
+        return None        
 # ==================================================
 # ROTAS DE USUÁRIO
 # ==================================================
@@ -819,39 +831,51 @@ def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 
         # ============================================
         # CARTÃO DE CRÉDITO (CORRIGIDO)
         # ============================================
-        elif metodo.lower() == "cartao":
-            if parcelas < 1 or parcelas > 12:
-                parcelas = 1
-            
-            cobranca = criar_checkout_cartao_asaas(customer_id, valor, descricao, parcelas)
-            
-            if not cobranca or not cobranca.get("id"):
-                return {"erro": "erro_cobranca", "mensagem": "Erro ao criar checkout com cartão no Asaas"}
-            
-            checkout_url = cobranca.get("checkoutUrl") or cobranca.get("url")
-            
-            if not checkout_url and cobranca.get("id"):
-                checkout_url = f"https://sandbox.asaas.com/payment/{cobranca.get('id')}/checkout"
-            
-            supabase.table("ofertas").update({
-                "asaas_payment_id": cobranca.get("id"),
-                "asaas_tipo_pagamento": "cartao",
-                "asaas_parcelas": parcelas,
-                "link_pagamento": checkout_url or link_pagamento,
-                "status": "aguardando_pagamento"
-            }).eq("id", oferta_id).execute()
-            
-            return {
-                "sucesso": True,
-                "metodo": "cartao",
-                "mensagem": f"Pagamento com cartão gerado com sucesso! Parcelas: {parcelas}x",
-                "link_pagamento": checkout_url or link_pagamento,
-                "checkout_url": checkout_url,
-                "valor": valor,
-                "parcelas": parcelas,
-                "vencimento": data_vencimento
-            }
-        
+        # ============================================
+# CARTÃO DE CRÉDITO
+# ============================================
+elif metodo.lower() == "cartao":
+    if parcelas < 1 or parcelas > 12:
+        parcelas = 1
+    
+    print(f"💳 Criando checkout para cartão: customer_id={customer_id}, valor={valor}, parcelas={parcelas}")
+    
+    cobranca = criar_checkout_cartao_asaas(customer_id, valor, descricao, parcelas)
+    
+    # Verifica se houve erro
+    if not cobranca:
+        return {"erro": "erro_cobranca", "mensagem": "Erro ao criar checkout com cartão no Asaas"}
+    
+    # Verifica se o Asaas retornou erro
+    if cobranca.get("erro"):
+        return {"erro": "erro_asaas", "mensagem": f"Erro Asaas: {cobranca.get('erro')}"}
+    
+    if not cobranca.get("id"):
+        return {"erro": "erro_cobranca", "mensagem": "Checkout não gerado. Tente novamente."}
+    
+    checkout_url = cobranca.get("checkoutUrl") or cobranca.get("url")
+    
+    if not checkout_url and cobranca.get("id"):
+        checkout_url = f"https://sandbox.asaas.com/payment/{cobranca.get('id')}/checkout"
+    
+    supabase.table("ofertas").update({
+        "asaas_payment_id": cobranca.get("id"),
+        "asaas_tipo_pagamento": "cartao",
+        "asaas_parcelas": parcelas,
+        "link_pagamento": checkout_url or link_pagamento,
+        "status": "aguardando_pagamento"
+    }).eq("id", oferta_id).execute()
+    
+    return {
+        "sucesso": True,
+        "metodo": "cartao",
+        "mensagem": f"Pagamento com cartão gerado com sucesso! Parcelas: {parcelas}x",
+        "link_pagamento": checkout_url or link_pagamento,
+        "checkout_url": checkout_url,
+        "valor": valor,
+        "parcelas": parcelas,
+        "vencimento": data_vencimento
+    }        
         else:
             return {"erro": "metodo_invalido", "mensagem": "Método inválido. Use 'pix' ou 'cartao'"}
         
