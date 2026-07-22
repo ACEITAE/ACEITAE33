@@ -216,7 +216,41 @@ def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_
         print(f"❌ Erro ao criar cobrança cartão Asaas: {e}")
         return None
 
+# ==================================================
+# FUNÇÕES ASAAS
+# ==================================================
 
+def criar_cliente_asaas(nome, email, cpf_cnpj, telefone=None):
+    # ... código existente ...
+
+def criar_cobranca_pix_asaas(customer_id, valor, descricao, data_vencimento):
+    # ... código existente ...
+
+def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_vencimento=None):
+    # ... código existente ...
+
+# 🔥 ADICIONE A NOVA FUNÇÃO AQUI
+def criar_checkout_cartao_asaas(customer_id, valor, descricao, parcelas=1):
+    """Cria um checkout de cartão de crédito no Asaas"""
+    url = f"{ASAAS_URL}/checkout"
+    payload = {
+        "customer": customer_id,
+        "billingType": "CREDIT_CARD",
+        "value": valor,
+        "description": descricao,
+        "installmentCount": parcelas,
+        "dueDate": (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d"),
+        "successUrl": "https://aceitae.com/pagamento.html?status=sucesso",
+        "cancelUrl": "https://aceitae.com/pagamento.html?status=cancelado"
+    }
+    try:
+        response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
+        data = response.json()
+        print(f"📦 Resposta Checkout Asaas: {data}")
+        return data
+    except Exception as e:
+        print(f"❌ Erro ao criar checkout Asaas: {e}")
+        return None
 # ==================================================
 # ROTAS DE USUÁRIO
 # ==================================================
@@ -736,38 +770,20 @@ def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 
         # CARTÃO DE CRÉDITO
         # ============================================
         elif metodo.lower() == "cartao":
-            if parcelas < 1 or parcelas > 12:
-                parcelas = 1
-            
-            cobranca = criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas, data_vencimento)
-            
-            if not cobranca or not cobranca.get("id"):
-                return {"erro": "erro_cobranca", "mensagem": "Erro ao criar cobrança com cartão no Asaas"}
-            
-            supabase.table("ofertas").update({
-                "asaas_payment_id": cobranca.get("id"),
-                "asaas_tipo_pagamento": "cartao",
-                "asaas_parcelas": parcelas,
-                "link_pagamento": link_pagamento,
-                "status": "aguardando_pagamento"
-            }).eq("id", oferta_id).execute()
-            
-            return {
-                "sucesso": True,
-                "metodo": "cartao",
-                "mensagem": f"Pagamento com cartão gerado com sucesso! Parcelas: {parcelas}x",
-                "link_pagamento": link_pagamento,
-                "checkout_url": cobranca.get("checkoutUrl") or cobranca.get("url"),
-                "valor": valor,
-                "parcelas": parcelas,
-                "vencimento": data_vencimento
-            }
-        else:
-            return {"erro": "metodo_invalido", "mensagem": "Método inválido. Use 'pix' ou 'cartao'"}
-        
-    except Exception as e:
-        print(f"❌ Erro ao gerar pagamento: {str(e)}")
-        return {"erro": "erro_interno", "mensagem": f"Erro interno: {str(e)}"}
+    if parcelas < 1 or parcelas > 12:
+        parcelas = 1
+    
+    # 🔥 USA A NOVA FUNÇÃO DE CHECKOUT
+    cobranca = criar_checkout_cartao_asaas(customer_id, valor, descricao, parcelas)
+    
+    if not cobranca or not cobranca.get("id"):
+        return {"erro": "erro_cobranca", "mensagem": "Erro ao criar checkout com cartão no Asaas"}
+    
+    checkout_url = cobranca.get("checkoutUrl") or cobranca.get("url")
+    
+    # Se ainda não tiver URL, constrói manualmente
+    if not checkout_url and cobranca.get("id"):
+        checkout_url = f"https://sandbox.asaas.com/payment/{cobranca.get('id')}/checkout"
         
 # ==================================================
 # WEBHOOK ASAAS
