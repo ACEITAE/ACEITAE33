@@ -193,7 +193,8 @@
     }
 
     // 🔥 FUNÇÃO CORRIGIDA DO CARTÃO
-async function processarPagamentoCartao() {
+
+    async function processarPagamentoCartao() {
     var totalElement = document.querySelector('.valores.total .value');
     var valorTexto = totalElement ? totalElement.textContent : '0';
     var valor = parseFloat(valorTexto.replace(/R\$\s*/g, '').replace(/\./g, '').replace(',', '.')) || 0;
@@ -213,6 +214,16 @@ async function processarPagamentoCartao() {
     if (!parcelasInput) return;
     var parcelas = Math.min(12, Math.max(1, parseInt(parcelasInput) || 1));
     
+    // 🔥 CAPTURA OS DADOS DO CARTÃO
+    var nomeCartao = prompt('💳 Nome no cartão:', '');
+    if (!nomeCartao) return;
+    var numeroCartao = prompt('💳 Número do cartão:', '');
+    if (!numeroCartao) return;
+    var validade = prompt('💳 Validade (MM/AA):', '');
+    if (!validade) return;
+    var cvv = prompt('💳 CVV:', '');
+    if (!cvv) return;
+    
     var btn = document.querySelector('#cartaoArea .btn-pagar');
     if (!btn) return;
     btn.disabled = true;
@@ -221,28 +232,26 @@ async function processarPagamentoCartao() {
     try {
         var response = await fetch(API_URL + '/ofertas/' + ofertaId + '/gerar-pagamento?metodo=cartao&parcelas=' + parcelas, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                cartao: {
+                    holderName: nomeCartao,
+                    number: numeroCartao.replace(/\s/g, ''),
+                    expiryMonth: validade.split('/')[0],
+                    expiryYear: '20' + validade.split('/')[1],
+                    ccv: cvv
+                }
+            })
         });
         var data = await response.json();
         console.log('📥 Resposta Cartão:', data);
         
-        if (data.sucesso) {
-            var checkoutUrl = data.checkout_url || data.link_pagamento || null;
-            
-            if (checkoutUrl) {
-                // 🔥 REDIRECIONA A PÁGINA PARA O CHECKOUT
-                alert('✅ Pagamento gerado!\n\n' +
-                      '💰 Valor: R$ ' + data.valor.toFixed(2) + '\n' +
-                      '📅 Parcelas: ' + data.parcelas + 'x de R$ ' + (data.valor / data.parcelas).toFixed(2) + '\n\n' +
-                      '🔗 Redirecionando para o pagamento...');
-                
-                // Redireciona a página atual para o checkout
-                window.location.href = checkoutUrl;
-            } else {
-                alert('✅ Pagamento gerado!\n\n' +
-                      '📧 O link de pagamento foi enviado para seu e-mail.\n' +
-                      '🔗 Verifique sua caixa de entrada.');
-            }
+        if (data.sucesso && data.checkout_url) {
+            alert('✅ Pagamento gerado!\n\n' +
+                  '💰 Valor: R$ ' + data.valor.toFixed(2) + '\n' +
+                  '📅 Parcelas: ' + data.parcelas + 'x de R$ ' + (data.valor / data.parcelas).toFixed(2) + '\n\n' +
+                  '🔗 Redirecionando para pagamento...');
+            window.location.href = data.checkout_url;
         } else {
             alert('❌ Erro: ' + (data.mensagem || 'Tente novamente'));
         }
@@ -253,7 +262,8 @@ async function processarPagamentoCartao() {
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-credit-card"></i> Pagar com Cartão';
     }
-}    
+}
+    
     function escapeHtml(text) {
         if (!text) return '';
         return String(text).replace(/[&<>]/g, function(m) {
