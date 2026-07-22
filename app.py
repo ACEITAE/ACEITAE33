@@ -196,7 +196,10 @@ def criar_cobranca_pix_asaas(customer_id, valor, descricao, data_vencimento):
 # Cobrança Cartão ASAAS 20-07
 # ==================================================
 def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_vencimento=None):
-    """Cria uma cobrança com cartão de crédito no Asaas (1 a 12 parcelas)"""
+    """
+    Cria uma cobrança com cartão de crédito no Asaas (1 a 12 parcelas)
+    Nota: Para esta função funcionar, você precisa integrar o frontend para capturar os dados do cartão
+    """
     url = f"{ASAAS_URL}/payments"
     payload = {
         "customer": customer_id,
@@ -204,9 +207,32 @@ def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_
         "value": valor,
         "description": descricao,
         "installmentCount": parcelas,
-        "installmentValue": round(valor / parcelas, 2) if parcelas > 1 else valor,
         "dueDate": data_vencimento or (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
     }
+    
+    # Os dados do cartão precisam vir do frontend
+    # Por enquanto, vamos usar dados de teste (apenas para desenvolvimento)
+    # EM PRODUÇÃO, VOCÊ DEVE CAPTURAR OS DADOS DO CARTÃO DO COMPRADOR
+    
+    # 🔥 IMPORTANTE: Em produção, remova esses dados de teste e receba do frontend
+    # Os dados abaixo são APENAS PARA TESTE EM SANDBOX
+    if ASAAS_ENV == "sandbox":
+        payload["creditCard"] = {
+            "holderName": "Teste ACEITAÊ",
+            "number": "5184019740373151",  # Cartão de teste Asaas
+            "expiryMonth": "12",
+            "expiryYear": "2027",
+            "ccv": "123"
+        }
+        payload["creditCardHolderInfo"] = {
+            "name": "Teste ACEITAÊ",
+            "email": "teste@aceitae.com",
+            "cpfCnpj": "12345678901",
+            "postalCode": "12345678",
+            "addressNumber": "123",
+            "phone": "55999999999"
+        }
+    
     try:
         response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
         data = response.json()
@@ -215,7 +241,6 @@ def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_
     except Exception as e:
         print(f"❌ Erro ao criar cobrança cartão Asaas: {e}")
         return None
-
 # ==================================================
 # ==================================================
 # FUNÇÕES ASAAS
@@ -831,38 +856,47 @@ def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 
         # ============================================
         # CARTÃO DE CRÉDITO
         # ============================================
-        if metodo.lower() == "cartao":
-            if parcelas < 1 or parcelas > 12:
-                parcelas = 1
-            
-            cobranca = criar_checkout_cartao_asaas(customer_id, valor, descricao, parcelas)
-            
-            if not cobranca or not cobranca.get("id"):
-                return {"erro": "erro_cobranca", "mensagem": "Erro ao criar checkout com cartão no Asaas"}
-            
-            checkout_url = cobranca.get("checkoutUrl") or cobranca.get("url")
-            
-            if not checkout_url and cobranca.get("id"):
-                checkout_url = f"https://sandbox.asaas.com/payment/{cobranca.get('id')}/checkout"
-            
-            supabase.table("ofertas").update({
-                "asaas_payment_id": cobranca.get("id"),
-                "asaas_tipo_pagamento": "cartao",
-                "asaas_parcelas": parcelas,
-                "link_pagamento": checkout_url or link_pagamento,
-                "status": "aguardando_pagamento"
-            }).eq("id", oferta_id).execute()
-            
-            return {
-                "sucesso": True,
-                "metodo": "cartao",
-                "mensagem": f"Pagamento com cartão gerado com sucesso! Parcelas: {parcelas}x",
-                "link_pagamento": checkout_url or link_pagamento,
-                "checkout_url": checkout_url,
-                "valor": valor,
-                "parcelas": parcelas,
-                "vencimento": data_vencimento
-            }
+        # ============================================
+# CARTÃO DE CRÉDITO (COM DADOS DE TESTE)
+# ============================================
+if metodo.lower() == "cartao":
+    if parcelas < 1 or parcelas > 12:
+        parcelas = 1
+    
+    # Usa a função que envia os dados do cartão
+    cobranca = criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas, data_vencimento)
+    
+    if not cobranca or not cobranca.get("id"):
+        # Se falhar, tenta o checkout como fallback
+        print("⚠️ Tentando checkout como fallback...")
+        cobranca = criar_checkout_cartao_asaas(customer_id, valor, descricao, parcelas)
+    
+    if not cobranca or not cobranca.get("id"):
+        return {"erro": "erro_cobranca", "mensagem": "Erro ao criar cobrança com cartão no Asaas"}
+    
+    checkout_url = cobranca.get("checkoutUrl") or cobranca.get("url")
+    
+    if not checkout_url and cobranca.get("id"):
+        checkout_url = f"https://sandbox.asaas.com/payment/{cobranca.get('id')}/checkout"
+    
+    supabase.table("ofertas").update({
+        "asaas_payment_id": cobranca.get("id"),
+        "asaas_tipo_pagamento": "cartao",
+        "asaas_parcelas": parcelas,
+        "link_pagamento": checkout_url or link_pagamento,
+        "status": "aguardando_pagamento"
+    }).eq("id", oferta_id).execute()
+    
+    return {
+        "sucesso": True,
+        "metodo": "cartao",
+        "mensagem": f"Pagamento com cartão gerado com sucesso! Parcelas: {parcelas}x",
+        "link_pagamento": checkout_url or link_pagamento,
+        "checkout_url": checkout_url,
+        "valor": valor,
+        "parcelas": parcelas,
+        "vencimento": data_vencimento
+    }
         
         # ============================================
         # MÉTODO INVÁLIDO
