@@ -193,7 +193,7 @@ def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_
         "dueDate": data_vencimento or (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
     }
     
-    # 🔥 DADOS DE TESTE PARA SANDBOX - EM PRODUÇÃO, VENHAM DO FRONTEND
+    # 🔥 DADOS DE TESTE PARA SANDBOX
     if ASAAS_ENV == "sandbox":
         payload["creditCard"] = {
             "holderName": "Teste ACEITAÊ",
@@ -212,37 +212,28 @@ def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_
         }
     
     try:
+        print(f"📤 Enviando requisição para Asaas:")
+        print(f"   URL: {url}")
+        print(f"   Payload: {json.dumps(payload, indent=2)}")
+        
         response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
-        data = response.json()
-        print(f"📦 Resposta Cartão Asaas: {data}")
-        return data
+        
+        print(f"📥 Status Code: {response.status_code}")
+        print(f"📥 Resposta: {response.text}")
+        
+        if response.status_code == 200 or response.status_code == 201:
+            data = response.json()
+            print(f"✅ Cobrança criada com sucesso: {data}")
+            return data
+        else:
+            data = response.json()
+            print(f"❌ Erro Asaas: {data}")
+            return data
+            
     except Exception as e:
         print(f"❌ Erro ao criar cobrança cartão Asaas: {e}")
-        return None
-
-
-def criar_checkout_cartao_asaas(customer_id, valor, descricao, parcelas=1):
-    """Cria um checkout de cartão de crédito no Asaas (fallback)"""
-    url = f"{ASAAS_URL}/checkout"
-    payload = {
-        "customer": customer_id,
-        "billingType": "CREDIT_CARD",
-        "value": valor,
-        "description": descricao,
-        "installmentCount": parcelas,
-        "dueDate": (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d"),
-        "successUrl": "https://aceitae.com/pagamento.html?status=sucesso",
-        "cancelUrl": "https://aceitae.com/pagamento.html?status=cancelado"
-    }
-    try:
-        response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
-        data = response.json()
-        print(f"📦 Resposta Checkout Asaas: {data}")
-        return data
-    except Exception as e:
-        print(f"❌ Erro ao criar checkout Asaas: {e}")
-        return None
-
+        return {"erro": str(e)}
+        
 # ==================================================
 # ROTAS DE USUÁRIO
 # ==================================================
