@@ -194,15 +194,15 @@ def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_
         "value": valor,
         "description": descricao,
         "installmentCount": parcelas,
-        "installmentValue": valor_parcela,  # 🔥 CAMPO OBRIGATÓRIO!
+        "installmentValue": valor_parcela,
         "dueDate": data_vencimento or (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
     }
     
-    # 🔥 DADOS DE TESTE PARA SANDBOX
+    # 🔥 DADOS DE TESTE PARA SANDBOX (COM CPF VÁLIDO E ENDEREÇO COMPLETO)
     if ASAAS_ENV == "sandbox":
         payload["creditCard"] = {
             "holderName": "Teste ACEITAÊ",
-            "number": "5184019740373151",
+            "number": "5184019740373151",  # Cartão de teste do Asaas
             "expiryMonth": "12",
             "expiryYear": "2027",
             "ccv": "123"
@@ -210,10 +210,11 @@ def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_
         payload["creditCardHolderInfo"] = {
             "name": "Teste ACEITAÊ",
             "email": "teste@aceitae.com",
-            "cpfCnpj": "12345678901",
-            "postalCode": "12345678",
+            "cpfCnpj": "24971563792",  # 🔥 CPF VÁLIDO PARA TESTE
+            "postalCode": "12345678",  # 🔥 CEP VÁLIDO (São Paulo)
             "addressNumber": "123",
-            "phone": "55999999999"
+            "complement": "Apto 45",
+            "phone": "11999999999"
         }
     
     try:
@@ -238,7 +239,6 @@ def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_
     except Exception as e:
         print(f"❌ Erro ao criar cobrança cartão Asaas: {e}")
         return {"erro": str(e)}
-
 
 # ==================================================
 # ROTAS DE USUÁRIO
