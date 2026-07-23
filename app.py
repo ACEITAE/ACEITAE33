@@ -142,109 +142,6 @@ https://aceitae.com/vendedor.html
 # ==================================================
 # FUNÇÕES ASAAS
 # ==================================================
-def criar_cliente_asaas(nome, email, cpf_cnpj, telefone=None):
-    url = f"{ASAAS_URL}/customers"
-    payload = {
-        "name": nome,
-        "email": email,
-        "cpfCnpj": re.sub(r'\D', '', cpf_cnpj),
-        "phone": telefone or "",
-        "notificationDisabled": False
-    }
-    try:
-        response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
-        return response.json()
-    except Exception as e:
-        print(f"❌ Erro ao criar cliente Asaas: {e}")
-        return None
-
-def criar_cobranca_pix_asaas(customer_id, valor, descricao, data_vencimento):
-    """Cria uma cobrança PIX no Asaas e retorna os dados completos"""
-    url = f"{ASAAS_URL}/payments"
-    payload = {
-        "customer": customer_id,
-        "billingType": "PIX",
-        "value": valor,
-        "dueDate": data_vencimento,
-        "description": descricao
-    }
-    try:
-        response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
-        data = response.json()
-        print(f"📦 Resposta Asaas PIX: {data}")
-        
-        # Verifica se a cobrança foi criada com sucesso
-        if data.get("id"):
-            # Busca os dados completos da cobrança para obter o QR Code
-            payment_id = data["id"]
-            payment_url = f"{ASAAS_URL}/payments/{payment_id}/pixQrCode"
-            qr_response = requests.get(payment_url, headers=ASAAS_HEADERS)
-            qr_data = qr_response.json()
-            print(f"📦 QR Code resposta: {qr_data}")
-            
-            # Combina os dados
-            data["pixQrCode"] = qr_data.get("encodedImage") or qr_data.get("qrCodeImage") or qr_data.get("payload")
-            data["pixPayload"] = qr_data.get("payload") or data.get("pixPayload")
-            
-            return data
-        return data
-    except Exception as e:
-        print(f"❌ Erro ao criar cobrança PIX Asaas: {e}")
-        return None
-
-# ==================================================
-# Cobrança Cartão ASAAS 20-07
-# ==================================================
-def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_vencimento=None):
-    """
-    Cria uma cobrança com cartão de crédito no Asaas (1 a 12 parcelas)
-    Nota: Para esta função funcionar, você precisa integrar o frontend para capturar os dados do cartão
-    """
-    url = f"{ASAAS_URL}/payments"
-    payload = {
-        "customer": customer_id,
-        "billingType": "CREDIT_CARD",
-        "value": valor,
-        "description": descricao,
-        "installmentCount": parcelas,
-        "dueDate": data_vencimento or (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
-    }
-    
-    # Os dados do cartão precisam vir do frontend
-    # Por enquanto, vamos usar dados de teste (apenas para desenvolvimento)
-    # EM PRODUÇÃO, VOCÊ DEVE CAPTURAR OS DADOS DO CARTÃO DO COMPRADOR
-    
-    # 🔥 IMPORTANTE: Em produção, remova esses dados de teste e receba do frontend
-    # Os dados abaixo são APENAS PARA TESTE EM SANDBOX
-    if ASAAS_ENV == "sandbox":
-        payload["creditCard"] = {
-            "holderName": "Teste ACEITAÊ",
-            "number": "5184019740373151",  # Cartão de teste Asaas
-            "expiryMonth": "12",
-            "expiryYear": "2027",
-            "ccv": "123"
-        }
-        payload["creditCardHolderInfo"] = {
-            "name": "Teste ACEITAÊ",
-            "email": "teste@aceitae.com",
-            "cpfCnpj": "12345678901",
-            "postalCode": "12345678",
-            "addressNumber": "123",
-            "phone": "55999999999"
-        }
-    
-    try:
-        response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
-        data = response.json()
-        print(f"📦 Resposta Cartão Asaas: {data}")
-        return data
-    except Exception as e:
-        print(f"❌ Erro ao criar cobrança cartão Asaas: {e}")
-        return None
-# ==================================================
-# ==================================================
-# FUNÇÕES ASAAS
-# ==================================================
 
 def criar_cliente_asaas(nome, email, cpf_cnpj, telefone=None):
     """Cria um cliente no Asaas"""
@@ -276,14 +173,16 @@ def criar_cobranca_pix_asaas(customer_id, valor, descricao, data_vencimento):
     }
     try:
         response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
-        return response.json()
+        data = response.json()
+        print(f"📦 Resposta PIX Asaas: {data}")
+        return data
     except Exception as e:
         print(f"❌ Erro ao criar cobrança PIX Asaas: {e}")
         return None
 
 
 def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_vencimento=None):
-    """Cria uma cobrança com cartão de crédito no Asaas (1 a 12 parcelas)"""
+    """Cria uma cobrança com cartão de crédito no Asaas"""
     url = f"{ASAAS_URL}/payments"
     payload = {
         "customer": customer_id,
@@ -291,9 +190,27 @@ def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_
         "value": valor,
         "description": descricao,
         "installmentCount": parcelas,
-        "installmentValue": round(valor / parcelas, 2) if parcelas > 1 else valor,
         "dueDate": data_vencimento or (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
     }
+    
+    # 🔥 DADOS DE TESTE PARA SANDBOX - EM PRODUÇÃO, VENHAM DO FRONTEND
+    if ASAAS_ENV == "sandbox":
+        payload["creditCard"] = {
+            "holderName": "Teste ACEITAÊ",
+            "number": "5184019740373151",
+            "expiryMonth": "12",
+            "expiryYear": "2027",
+            "ccv": "123"
+        }
+        payload["creditCardHolderInfo"] = {
+            "name": "Teste ACEITAÊ",
+            "email": "teste@aceitae.com",
+            "cpfCnpj": "12345678901",
+            "postalCode": "12345678",
+            "addressNumber": "123",
+            "phone": "55999999999"
+        }
+    
     try:
         response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
         data = response.json()
@@ -305,7 +222,7 @@ def criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas=1, data_
 
 
 def criar_checkout_cartao_asaas(customer_id, valor, descricao, parcelas=1):
-    """Cria um checkout de cartão de crédito no Asaas"""
+    """Cria um checkout de cartão de crédito no Asaas (fallback)"""
     url = f"{ASAAS_URL}/checkout"
     payload = {
         "customer": customer_id,
@@ -318,26 +235,14 @@ def criar_checkout_cartao_asaas(customer_id, valor, descricao, parcelas=1):
         "cancelUrl": "https://aceitae.com/pagamento.html?status=cancelado"
     }
     try:
-        print(f"📤 Enviando requisição para Asaas Checkout:")
-        print(f"   URL: {url}")
-        print(f"   Payload: {payload}")
-        
         response = requests.post(url, json=payload, headers=ASAAS_HEADERS)
-        
-        print(f"📥 Status Code: {response.status_code}")
-        print(f"📥 Resposta: {response.text}")
-        
-        if response.status_code == 200 or response.status_code == 201:
-            data = response.json()
-            print(f"✅ Checkout criado com sucesso: {data}")
-            return data
-        else:
-            print(f"❌ Erro Asaas: {response.text}")
-            return {"erro": response.text, "status_code": response.status_code}
-            
+        data = response.json()
+        print(f"📦 Resposta Checkout Asaas: {data}")
+        return data
     except Exception as e:
         print(f"❌ Erro ao criar checkout Asaas: {e}")
-        return None        
+        return None
+
 # ==================================================
 # ROTAS DE USUÁRIO
 # ==================================================
@@ -494,13 +399,14 @@ def excluir_produto(produto_id: int):
     return {"mensagem": "Produto excluído com sucesso!"}
 
 # ==================================================
-# FUNÇÃO AUXILIAR: GERAR PAGAMENTO AUTOMÁTICO
+# FUNÇÃO PARA GERAR PAGAMENTO AUTOMÁTICO
 # ==================================================
 def gerar_pagamento_automatico(comprador_id, produto_id, valor, oferta_id):
     """Gera pagamento PIX automaticamente para venda automática"""
     try:
         comprador = supabase.table("usuarios").select("*").eq("id", comprador_id).execute()
         if not comprador.data or not comprador.data[0].get("cpf"):
+            print(f"❌ Comprador {comprador_id} sem CPF")
             return None
         
         comprador = comprador.data[0]
@@ -525,6 +431,7 @@ def gerar_pagamento_automatico(comprador_id, produto_id, valor, oferta_id):
                     "asaas_customer_id": customer_id
                 }).eq("id", comprador_id).execute()
             else:
+                print(f"❌ Erro ao criar cliente Asaas para {comprador_id}")
                 return None
         
         data_vencimento = (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
@@ -532,19 +439,11 @@ def gerar_pagamento_automatico(comprador_id, produto_id, valor, oferta_id):
         cobranca = criar_cobranca_pix_asaas(customer_id, valor, descricao, data_vencimento)
         
         if not cobranca or not cobranca.get("id"):
+            print(f"❌ Erro ao criar cobrança Asaas para {comprador_id}")
             return None
         
         link_pagamento = f"https://aceitae.com/pagamento.html?oferta={oferta_id}"
-        
-        supabase.table("ofertas").update({
-            "asaas_payment_id": cobranca.get("id"),
-            "asaas_pix_qr_code": cobranca.get("pixQrCode"),
-            "asaas_pix_payload": cobranca.get("pixPayload"),
-            "asaas_tipo_pagamento": "pix",
-            "link_pagamento": link_pagamento,
-            "status": "aguardando_pagamento"
-        }).eq("id", oferta_id).execute()
-        
+        print(f"✅ Link de pagamento gerado: {link_pagamento}")
         return link_pagamento
         
     except Exception as e:
@@ -603,17 +502,9 @@ def fazer_oferta(oferta: Oferta, comprador_id: int, comprador_nome: str):
     if status_oferta == "venda_automatica":
         link_pagamento = gerar_pagamento_automatico(comprador_id, oferta.produto_id, valor_oferta, oferta_id)
         if link_pagamento:
-            # Atualiza a oferta com o link
             supabase.table("ofertas").update({
                 "link_pagamento": link_pagamento
             }).eq("id", oferta_id).execute()
-            
-            # Envia notificação para o comprador via WhatsApp
-            comprador = supabase.table("usuarios").select("whatsapp").eq("id", comprador_id).execute()
-            if comprador.data and comprador.data[0].get("whatsapp"):
-                telefone = comprador.data[0]["whatsapp"]
-                msg = f"🎉 Venda automática! Pague seu produto: {link_pagamento}"
-                gerar_link_whatsapp(telefone, msg)
     
     link_whatsapp = None
     if status_oferta == "pendente":
@@ -662,59 +553,19 @@ def listar_ofertas_comprador(comprador_id: int):
     
     return {"ofertas": ofertas}
 
-@app.put("/ofertas/{oferta_id}/responder")
-def responder_oferta(oferta_id: int, acao: str):
-    oferta = supabase.table("ofertas").select("*").eq("id", oferta_id).execute()
-    if not oferta.data:
-        raise HTTPException(404, "Oferta não encontrada")
-    
-    oferta = oferta.data[0]
-    
-    if oferta["status"] != "pendente":
-        raise HTTPException(400, "Esta oferta já foi respondida")
-    
-    valor_oferta = oferta["valor"]
-    comissao = round(valor_oferta * 0.10, 2)
-    valor_liquido = round(valor_oferta - comissao, 2)
-    
-    if acao.upper() == "ACEITAÊ":
-        supabase.table("ofertas").update({"status": "aceita"}).eq("id", oferta_id).execute()
-        supabase.table("produtos").update({"status": "vendido"}).eq("id", oferta["produto_id"]).execute()
-        
-        # Gera pagamento após vendedor aceitar
-        link_pagamento = gerar_pagamento_automatico(
-            oferta["comprador_id"], 
-            oferta["produto_id"], 
-            valor_oferta, 
-            oferta_id
-        )
-        
-        mensagem = f"🎉 ACEITAÊ! Venda confirmada!\nValor: R$ {valor_oferta:.2f}\nComissão (10%): R$ {comissao:.2f}\nVocê receberá: R$ {valor_liquido:.2f}"
-        if link_pagamento:
-            mensagem += f"\n🔗 Link para pagamento: {link_pagamento}"
-        
-        return {"mensagem": mensagem, "status": "aceita", "link_pagamento": link_pagamento}
-    elif acao.upper() == "RECUSAR":
-        supabase.table("ofertas").update({"status": "recusada"}).eq("id", oferta_id).execute()
-        return {"mensagem": "❌ Oferta recusada", "status": "recusada"}
-    else:
-        raise HTTPException(400, "Ação inválida. Use 'ACEITAÊ' ou 'RECUSAR'")
-
 @app.get("/ofertas/{oferta_id}")
 def buscar_oferta(oferta_id: int):
-    """Busca uma oferta específica pelo ID para a página de pagamento"""
+    """Busca uma oferta específica para a página de pagamento"""
     try:
         oferta = supabase.table("ofertas").select("*").eq("id", oferta_id).execute()
         if not oferta.data:
             raise HTTPException(404, "Oferta não encontrada")
         oferta = oferta.data[0]
         
-        # Busca informações do produto
         produto = supabase.table("produtos").select("nome, vendedor_id, fotos").eq("id", oferta["produto_id"]).execute()
         produto_nome = produto.data[0]["nome"] if produto.data else "Produto"
         fotos = produto.data[0].get("fotos", []) if produto.data else []
         
-        # Busca nome do vendedor
         vendedor_nome = "ACEITAÊ"
         if produto.data and produto.data[0].get("vendedor_id"):
             vendedor = supabase.table("usuarios").select("nome").eq("id", produto.data[0]["vendedor_id"]).execute()
@@ -739,6 +590,52 @@ def buscar_oferta(oferta_id: int):
         print(f"❌ Erro ao buscar oferta: {str(e)}")
         raise HTTPException(500, str(e))
 
+@app.put("/ofertas/{oferta_id}/responder")
+def responder_oferta(oferta_id: int, acao: str):
+    oferta = supabase.table("ofertas").select("*").eq("id", oferta_id).execute()
+    if not oferta.data:
+        raise HTTPException(404, "Oferta não encontrada")
+    
+    oferta = oferta.data[0]
+    
+    if oferta["status"] != "pendente":
+        raise HTTPException(400, "Esta oferta já foi respondida")
+    
+    valor_oferta = oferta["valor"]
+    comissao = round(valor_oferta * 0.10, 2)
+    valor_liquido = round(valor_oferta - comissao, 2)
+    
+    if acao.upper() == "ACEITAÊ":
+        supabase.table("ofertas").update({"status": "aceita"}).eq("id", oferta_id).execute()
+        supabase.table("produtos").update({"status": "vendido"}).eq("id", oferta["produto_id"]).execute()
+        
+        link_pagamento = gerar_pagamento_automatico(
+            oferta["comprador_id"], 
+            oferta["produto_id"], 
+            valor_oferta, 
+            oferta_id
+        )
+        
+        if link_pagamento:
+            supabase.table("ofertas").update({
+                "link_pagamento": link_pagamento,
+                "status": "aguardando_pagamento"
+            }).eq("id", oferta_id).execute()
+        
+        mensagem = f"🎉 ACEITAÊ! Venda confirmada!\nValor: R$ {valor_oferta:.2f}\nComissão (10%): R$ {comissao:.2f}\nVocê receberá: R$ {valor_liquido:.2f}"
+        if link_pagamento:
+            mensagem += f"\n\n🔗 Link de pagamento do comprador:\n{link_pagamento}"
+        
+        return {
+            "mensagem": mensagem,
+            "status": "aceita",
+            "link_pagamento": link_pagamento
+        }
+    elif acao.upper() == "RECUSAR":
+        supabase.table("ofertas").update({"status": "recusada"}).eq("id", oferta_id).execute()
+        return {"mensagem": "❌ Oferta recusada", "status": "recusada"}
+    else:
+        raise HTTPException(400, "Ação inválida. Use 'ACEITAÊ' ou 'RECUSAR'")
 
 @app.get("/vendedor/{vendedor_id}/ofertas")
 def listar_ofertas_vendedor(vendedor_id: int):
@@ -856,47 +753,38 @@ def gerar_pagamento_oferta(oferta_id: int, metodo: str = "pix", parcelas: int = 
         # ============================================
         # CARTÃO DE CRÉDITO
         # ============================================
-        # ============================================
-# CARTÃO DE CRÉDITO (COM DADOS DE TESTE)
-# ============================================
-if metodo.lower() == "cartao":
-    if parcelas < 1 or parcelas > 12:
-        parcelas = 1
-    
-    # Usa a função que envia os dados do cartão
-    cobranca = criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas, data_vencimento)
-    
-    if not cobranca or not cobranca.get("id"):
-        # Se falhar, tenta o checkout como fallback
-        print("⚠️ Tentando checkout como fallback...")
-        cobranca = criar_checkout_cartao_asaas(customer_id, valor, descricao, parcelas)
-    
-    if not cobranca or not cobranca.get("id"):
-        return {"erro": "erro_cobranca", "mensagem": "Erro ao criar cobrança com cartão no Asaas"}
-    
-    checkout_url = cobranca.get("checkoutUrl") or cobranca.get("url")
-    
-    if not checkout_url and cobranca.get("id"):
-        checkout_url = f"https://sandbox.asaas.com/payment/{cobranca.get('id')}/checkout"
-    
-    supabase.table("ofertas").update({
-        "asaas_payment_id": cobranca.get("id"),
-        "asaas_tipo_pagamento": "cartao",
-        "asaas_parcelas": parcelas,
-        "link_pagamento": checkout_url or link_pagamento,
-        "status": "aguardando_pagamento"
-    }).eq("id", oferta_id).execute()
-    
-    return {
-        "sucesso": True,
-        "metodo": "cartao",
-        "mensagem": f"Pagamento com cartão gerado com sucesso! Parcelas: {parcelas}x",
-        "link_pagamento": checkout_url or link_pagamento,
-        "checkout_url": checkout_url,
-        "valor": valor,
-        "parcelas": parcelas,
-        "vencimento": data_vencimento
-    }
+        if metodo.lower() == "cartao":
+            if parcelas < 1 or parcelas > 12:
+                parcelas = 1
+            
+            cobranca = criar_cobranca_cartao_asaas(customer_id, valor, descricao, parcelas, data_vencimento)
+            
+            if not cobranca or not cobranca.get("id"):
+                return {"erro": "erro_cobranca", "mensagem": "Erro ao criar cobrança com cartão no Asaas"}
+            
+            checkout_url = cobranca.get("checkoutUrl") or cobranca.get("url")
+            
+            if not checkout_url and cobranca.get("id"):
+                checkout_url = f"https://sandbox.asaas.com/payment/{cobranca.get('id')}/checkout"
+            
+            supabase.table("ofertas").update({
+                "asaas_payment_id": cobranca.get("id"),
+                "asaas_tipo_pagamento": "cartao",
+                "asaas_parcelas": parcelas,
+                "link_pagamento": checkout_url or link_pagamento,
+                "status": "aguardando_pagamento"
+            }).eq("id", oferta_id).execute()
+            
+            return {
+                "sucesso": True,
+                "metodo": "cartao",
+                "mensagem": f"Pagamento com cartão gerado com sucesso! Parcelas: {parcelas}x",
+                "link_pagamento": checkout_url or link_pagamento,
+                "checkout_url": checkout_url,
+                "valor": valor,
+                "parcelas": parcelas,
+                "vencimento": data_vencimento
+            }
         
         # ============================================
         # MÉTODO INVÁLIDO
@@ -906,6 +794,7 @@ if metodo.lower() == "cartao":
     except Exception as e:
         print(f"❌ Erro ao gerar pagamento: {str(e)}")
         return {"erro": "erro_interno", "mensagem": f"Erro interno: {str(e)}"}
+
 # ==================================================
 # WEBHOOK ASAAS
 # ==================================================
